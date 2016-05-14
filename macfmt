@@ -1,0 +1,156 @@
+#! /usr/bin/awk -f
+
+# On POSIX systems, the first line of the script is:
+# #! /usr/bin/awk -f
+# On Solaris (tested on version 10), the first line of the script is:
+# #! /usr/xpg4/bin/awk -f
+
+# Convert MAC addresses to Cisco, Linux and Enterasys formats.
+#
+# Copyright (C) 2012, 2015, 2016 Erik Auerswald <auerswal@unix-ag.uni-kl.de>
+#
+# Copying and distribution of this file, with or without modification,
+# are permitted in any medium without royalty provided the copyright
+# notice and this notice are preserved.  This file is offered as-is,
+# without any warranty.
+#
+# Usage: macfmt [-v cap=CASE] [-v format=FORMAT]
+#
+# Reads MAC addresses (one per line) from STDIN or file given as argument.
+# Prints all formats unless one is specified using the -v format=FORMAT option.
+#        FORMAT is one of: all, cisco, linux, enterasys, cabletron, broadcom,
+#                          vmps, netsight, hp, hex, hexprefix
+# Converts hex digits A-F to lower or upper case if -v cap=CASE is given.
+#        CASE   is one of: lower, upper
+# If cap is not specified, the format's default case is used.
+#
+# Examples: echo 01:23:45:67:89:ab | macfmt
+#           echo 01-23-45-67-89-AB | macfmt -v format=linux
+#           echo 0123:4567:89AB | macfmt -v format=cisco
+#           macfmt -v format=linux -v cap=upper File_with_MAC_addresses
+#
+# Needs a POSIX compatible AWK, e.g. /usr/xpg4/bin/awk on Solaris, but
+# usually /usr/bin/awk. Tested on Solaris 10 and with GAWK on GNU/Linux.
+# Does not work with MAWK version 1.3.3-17 on Debian GNU/Linux.
+#
+# Version 2016-05-14-01
+
+function print_macs(format) {
+	cisco = tolower(a[1] a[2] "." a[3] a[4] "." a[5] a[6])
+	linux = tolower(a[1] ":" a[2] ":" a[3] ":" a[4] ":" a[5] ":" a[6])
+	ets = toupper(a[1] "-" a[2] "-" a[3] "-" a[4] "-" a[5] "-" a[6])
+	ct = toupper(a[1] ":" a[2] ":" a[3] ":" a[4] ":" a[5] ":" a[6])
+	bcm = toupper(a[1] a[2] ":" a[3] a[4] ":" a[5] a[6])
+	vmps = toupper(a[1] a[2] "." a[3] a[4] "." a[5] a[6])
+        netsight = toupper(a[1] "." a[2] "." a[3] "." a[4] "." a[5] "." a[6])
+	hp = tolower(a[1] a[2] a[3] "-" a[4] a[5] a[6])
+	hex = tolower(a[1] a[2] a[3] a[4] a[5] a[6])
+	if (cap == "lower") {
+		ets = tolower(ets)
+		ct = tolower(ct)
+		bcm = tolower(bcm)
+		vmps = tolower(vmps)
+                netsight = tolower(netsight)
+	} else if (cap == "upper") {
+		cisco = toupper(cisco)
+		linux = toupper(linux)
+		hp = toupper(hp)
+		hex = toupper(hex)
+	}
+	hexprefix = "0x" hex
+	if (!format || format == "all") {
+		print cisco, linux, ets, ct, bcm, vmps, netsight, hp, hex, \
+			hexprefix
+	} else if (format == "cisco") {
+		print cisco
+	} else if (format == "linux") {
+		print linux
+	} else if (format == "enterasys") {
+		print ets
+	} else if (format == "cabletron") {
+		print ct
+	} else if (format == "broadcom") {
+		print bcm
+	} else if (format == "vmps") {
+		print vmps
+	} else if (format == "netsight") {
+                print netsight
+	} else if (format == "hp") {
+                print hp
+	} else if (format == "hex") {
+                print hex
+	} else if (format == "hexprefix") {
+                print hexprefix
+        }
+}
+
+BEGIN {
+	format = tolower(format)
+	cap = tolower(cap)
+}
+
+/^[[:space:]]*[[:xdigit:]][[:xdigit:]]:[[:xdigit:]][[:xdigit:]]:[[:xdigit:]][[:xdigit:]]:[[:xdigit:]][[:xdigit:]]:[[:xdigit:]][[:xdigit:]]:[[:xdigit:]][[:xdigit:]][[:space:]]*$/ {
+	gsub("[[:space:]]*","")
+	split($0, a, ":")
+	print_macs(format)
+}
+
+/^[[:space:]]*[[:xdigit:]][[:xdigit:]]-[[:xdigit:]][[:xdigit:]]-[[:xdigit:]][[:xdigit:]]-[[:xdigit:]][[:xdigit:]]-[[:xdigit:]][[:xdigit:]]-[[:xdigit:]][[:xdigit:]][[:space:]]*$/ {
+	gsub("[[:space:]]*","")
+	split($0, a, "-")
+	print_macs(format)
+}
+
+/^[[:space:]]*[[:xdigit:]][[:xdigit:]]\.[[:xdigit:]][[:xdigit:]]\.[[:xdigit:]][[:xdigit:]]\.[[:xdigit:]][[:xdigit:]]\.[[:xdigit:]][[:xdigit:]]\.[[:xdigit:]][[:xdigit:]][[:space:]]*$/ {
+	gsub("[[:space:]]*","")
+	split($0, a, ".")
+	print_macs(format)
+}
+
+/^[[:space:]]*[[:xdigit:]][[:xdigit:]][[:xdigit:]][[:xdigit:]]\.[[:xdigit:]][[:xdigit:]][[:xdigit:]][[:xdigit:]]\.[[:xdigit:]][[:xdigit:]][[:xdigit:]][[:xdigit:]][[:space:]]*$/ {
+	gsub("[[:space:]]*","")
+	split($0, b, ".")
+	a[1] = substr(b[1],1,2)
+	a[2] = substr(b[1],3,2)
+	a[3] = substr(b[2],1,2)
+	a[4] = substr(b[2],3,2)
+	a[5] = substr(b[3],1,2)
+	a[6] = substr(b[3],3,2)
+	print_macs(format)
+}
+
+/^[[:space:]]*[[:xdigit:]][[:xdigit:]][[:xdigit:]][[:xdigit:]]:[[:xdigit:]][[:xdigit:]][[:xdigit:]][[:xdigit:]]:[[:xdigit:]][[:xdigit:]][[:xdigit:]][[:xdigit:]][[:space:]]*$/ {
+	gsub("[[:space:]]*","")
+	split($0, b, ":")
+	a[1] = substr(b[1],1,2)
+	a[2] = substr(b[1],3,2)
+	a[3] = substr(b[2],1,2)
+	a[4] = substr(b[2],3,2)
+	a[5] = substr(b[3],1,2)
+	a[6] = substr(b[3],3,2)
+	print_macs(format)
+}
+
+/^[[:space:]]*[[:xdigit:]][[:xdigit:]][[:xdigit:]][[:xdigit:]][[:xdigit:]][[:xdigit:]]-[[:xdigit:]][[:xdigit:]][[:xdigit:]][[:xdigit:]][[:xdigit:]][[:xdigit:]][[:space:]]*$/ {
+	gsub("[[:space:]]*","")
+	split($0, b, "-")
+	a[1] = substr(b[1],1,2)
+	a[2] = substr(b[1],3,2)
+	a[3] = substr(b[1],5,2)
+	a[4] = substr(b[2],1,2)
+	a[5] = substr(b[2],3,2)
+	a[6] = substr(b[2],5,2)
+	print_macs(format)
+}
+
+/^[[:space:]]*(0x)?[[:xdigit:]][[:xdigit:]][[:xdigit:]][[:xdigit:]][[:xdigit:]][[:xdigit:]][[:xdigit:]][[:xdigit:]][[:xdigit:]][[:xdigit:]][[:xdigit:]][[:xdigit:]][[:space:]]*$/ {
+	gsub("[[:space:]]*","")
+	gsub("^0x","")
+	a[1] = substr($0,1,2)
+	a[2] = substr($0,3,2)
+	a[3] = substr($0,5,2)
+	a[4] = substr($0,7,2)
+	a[5] = substr($0,9,2)
+	a[6] = substr($0,11,2)
+	print_macs(format)
+}

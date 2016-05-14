@@ -17,3 +17,5 @@ version 3 or later.
 
 Some of the single file tools have been published already using a dedicated
 web page. In that case a link to the web page is provided.
+
+* `macfmt` - convert MAC address formats (https://www.unix-ag.uni-kl.de/~auerswal/macfmt/)
