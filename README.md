@@ -33,3 +33,4 @@ web page. In that case a link to the web page is provided.
 * `ping_wrapper` - wrapper around iputils ping for use with `ping_scan` ([web page](https://www.unix-ag.uni-kl.de/~auerswal/ping_scan/))
 * `pnmcat-stream` - wrapper for [pnmcat](http://netpbm.sourceforge.net/doc/pnmcat.html) to work with image streams ([web page](https://www.unix-ag.uni-kl.de/~auerswal/netpbm/index.html))
 * `rfc-reader` - read IETF RFCs on GNU/Linux ([web page](https://www.unix-ag.uni-kl.de/~auerswal/rfc-reader/))
+* `total_video_duration` - print total run time of given video files (uses `ffprobe` from [FFmpeg](https://ffmpeg.org/))

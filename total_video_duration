@@ -1,0 +1,38 @@
+#! /bin/sh
+
+# Print total run time of given video files.
+#
+# Copying and distribution of this file, with or without modification,
+# are permitted in any medium without royalty provided the copyright
+# notice and this notice are preserved.  This file is offered as-is,
+# without any warranty.
+#
+# Copyright (C) 2014 Erik Auerswald <auerswal@unix-ag.uni-kl.de>
+
+FFPROBE=$(which ffprobe)
+test -z "$FFPROBE" && FFPROBE=$(which avprobe)
+test -z "$FFPROBE" &&
+	{ echo 'ERROR: neither ffprobe nor avprobe found' 1>&2; exit 1; }
+
+for vid in "$@"; do
+  "$FFPROBE" "$vid" 2>&1 | \
+    awk '
+      /Duration:/ {
+        sub(",","",$2)
+        gsub(":"," ",$2)
+        print $2
+      }'
+done | \
+    awk ' {
+        h += $1
+        m += $2
+        s += $3
+      }
+      END {
+        m += s/60
+        s %= 60
+        h += m/60
+        m %= 60
+        total = sprintf("%02d:%02d:%05.2f", h, m, s)
+        print total
+      }'
