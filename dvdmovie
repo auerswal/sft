@@ -1,0 +1,79 @@
+#! /usr/bin/env sh
+
+# dvdmovie plays the movie from a video DVD using MPlayer
+#
+# Copyright (c) 2012-2014 Erik Auerswald <auerswal@unix-ag.uni-kl.de>
+#
+# Copying and distribution of this file, with or without modification,
+# are permitted in any medium without royalty provided the copyright
+# notice and this notice are preserved.  This file is offered as-is,
+# without any warranty.
+
+# dvdmovie finds the longest title on a DVD and plays it (using MPlayer)
+# additional MPlayer options, e.g. -dvd-device ..., can be specified
+# per DVD settings can be saved in $HOME/.dvdmovierc
+# $HOME/.dvdmovierc consists of lines containing semicolon separated fields
+# the fields are (in this order): Disc ID, Movie Title, Track, Options
+# every field besides the Disc ID may be empty
+
+# version 2014-09-25-01
+
+set -u
+
+RC="${HOME}/.dvdmovierc"
+DVDMOVIERC_TITLE=''
+DVDMOVIERC_OPTS=''
+MPLAYER="${HOME}/bin/mplayer"
+test -x "$MPLAYER" || MPLAYER=$(which mplayer 2> /dev/null)
+test -x "$MPLAYER" || MPLAYER=$(type mplayer | awk '{print $NF}')
+test -x "$MPLAYER" || { echo 'Could not find mplayer, exiting'; exit 1; }
+IOPTS='-cache-min 0 -vo null -ao null -frames 0 -really-quiet -identify'
+MOPTS='-really-quiet'
+DISC='dvd://'
+
+printf -- 'Looking for movie title on DVD, this can take some time...'
+eval $("$MPLAYER" $IOPTS "$@" "$DISC" 2> /dev/null | awk '
+	BEGIN {title = 0; len = 0; discid = 0}
+	/ID_DVD_TITLE_[0-9]+_LENGTH/ {
+		gsub("ID_DVD_TITLE_","")
+		gsub("_LENGTH="," ")
+		split($0,A)
+		if(A[2] > len) {title = A[1]; len = A[2]}
+	}
+	/ID_DVD_DISC_ID=[0-9a-fA-F]+/ {
+		split($0,A,"=")
+		discid = A[2]
+	}
+	END {
+		print "DVDMOVIE_TITLE=" title
+		printf "DVDMOVIE_LEN=%.0f\n", len/60
+		print "DVDMOVIE_DISCID=" discid
+	}
+')
+echo 'done.'
+test "$DVDMOVIE_TITLE" -gt 0 ||
+	{ echo 'ERROR: Could not read titles of DVD.' ; exit 1; }
+test "$DVDMOVIE_LEN" -gt 0 ||
+	{ echo "ERROR: Longest title $DVDMOVIE_TITLE has zero length.";exit 1; }
+test "$DVDMOVIE_DISCID" != '0' ||
+	echo 'WARNING: Could not determine disc ID of DVD.'
+echo "Longest title on DVD ${DVDMOVIE_DISCID} is no. $DVDMOVIE_TITLE" \
+	"($DVDMOVIE_LEN min.)."
+test -r "$RC" && test "$DVDMOVIE_DISCID" != '0' &&
+	eval $(awk -F\; "
+		/^${DVDMOVIE_DISCID}/ {
+			print \"DVDMOVIERC_TITLE='\" \$3 \"'\"
+			print \"DVDMOVIERC_OPTS='\" \$4 \"'\"
+		}
+	" "$RC")
+test -n "$DVDMOVIERC_TITLE" &&
+	echo "Using title $DVDMOVIERC_TITLE from $RC instead." &&
+	DVDMOVIE_TITLE="$DVDMOVIERC_TITLE"
+test -n "$DVDMOVIERC_OPTS" &&
+	echo "Adding options $DVDMOVIERC_OPTS from ${RC}." &&
+	MOPTS="$MOPTS $DVDMOVIERC_OPTS"
+test -n "$*" &&
+	echo "Adding options $* from command line." &&
+	MOPTS="$MOPTS $*"
+echo "Playing DVD title $DVDMOVIE_TITLE with options ${MOPTS}."
+exec "$MPLAYER" $MOPTS "$@" "${DISC}${DVDMOVIE_TITLE}" 2> /dev/null
