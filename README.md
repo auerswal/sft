@@ -18,6 +18,7 @@ version 3 or later.
 Some of the single file tools have been published already using a dedicated
 web page. In that case a link to the web page is provided.
 
+* `checkzips` - check ZIP files for errors
 * `foreachpam` - invoke program for each image in a PAM stream ([web page](https://www.unix-ag.uni-kl.de/~auerswal/netpbm/index.html))
 * `foreachpnm` - invoke program for each image in a PNM stream ([web page](https://www.unix-ag.uni-kl.de/~auerswal/netpbm/index.html))
 * `ipcalc` - simple replacement for [ipcalc](http://jodies.de/ipcalc)

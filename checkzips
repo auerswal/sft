@@ -1,0 +1,17 @@
+#!/bin/bash
+
+# checkzips - check many ZIP files for errors.
+#
+# Copyright (C) 2002 Erik Auerswald <auerswal@unix-ag.uni-kl.de>
+#
+# Copying and distribution of this file, with or without modification,
+# are permitted in any medium without royalty provided the copyright
+# notice and this notice are preserved.  This file is offered as-is,
+# without any warranty.
+
+for file in "$@"
+do unzip -tqq "$file" &> /dev/null
+   if [ $? -gt 0 ]
+   then echo Fehler in ZIP-File \"$file\"
+   fi
+done
