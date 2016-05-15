@@ -1,0 +1,75 @@
+#! /usr/bin/env sh
+
+# Send an ICMP echo request to each of the IPs given.
+#
+# Copyright (C) 2011-2012 Erik Auerswald <auerswal@unix-ag.uni-kl.de>
+#
+# Copying and distribution of this file, with or without modification,
+# are permitted in any medium without royalty provided the copyright
+# notice and this notice are preserved.  This file is offered as-is,
+# without any warranty.
+#
+# Requires the ping program of Solaris or an output-compatible one.
+
+VERSION=2012-07-21-02
+PROG="$(basename $0)"
+PING="${PING_WRAPPER:-ping}"
+
+version()
+{
+  echo "$PROG version $VERSION"
+  echo "Copyright (C) 2011-2012 by Erik Auerswald <auerswal@unix-ag.uni-kl.de>"
+}
+
+usage() { echo "Usage: $PROG [-h] [-L] [-t TIMEOUT] [-v] IP..."; }
+
+help()
+{
+  version
+  usage
+  cat <<-EOH
+Options:
+   -h           print this help and exit
+   -t TIMEOUT   specify the timeout value used for ping (default ${TIMEOUT}s)
+   -v           print additional runtime info
+   -L           print license and exit
+	EOH
+}
+
+license()
+{
+  cat <<-EOL
+
+	Copying and distribution of this file, with or without modification,
+	are permitted in any medium without royalty provided the copyright
+	notice and this notice are preserved.  This file is offered as-is,
+	without any warranty.
+
+	EOL
+}
+
+test $# -eq 0 && { usage; exit 1; }
+
+TIMEOUT=1
+VERB=0
+while getopts t:hvL OPT; do
+  case "$OPT" in
+    t) TIMEOUT=${OPTARG:-2};;
+    h) help; exit 0;;
+    v) VERB=1;;
+    L) version; license; exit 0;;
+    ?) usage; exit 1;;
+  esac
+done
+shift $(($OPTIND - 1))
+
+test "${VERB}x" = "1x" &&
+  echo "Sending ICMP echo requests and waiting for results..." \
+       "(timeout ${TIMEOUT}s)"
+
+while test $# -ge 1; do
+  { $PING -n "$1" "$TIMEOUT" | fgrep alive; } &
+  shift
+done | sort -t . -k 1,1n -k 2,2n -k 3,3n -k 4,4n -u
+
+exit 0
