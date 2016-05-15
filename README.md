@@ -28,6 +28,7 @@ web page. In that case a link to the web page is provided.
 * `macfmt` - convert MAC address formats ([web page](https://www.unix-ag.uni-kl.de/~auerswal/macfmt/))
 * `net2ips` - print host addresses of an IPv4 network (uses ipcalc)
 * `netio-kshell-dos` - demonstrate TCP session cleanup bug ([web page](https://www.unix-ag.uni-kl.de/~auerswal/netio-kshell-bug/))
+* `nfoview` - view NFO files on GNU/Linux
 * `ping_scan` - ping many hosts at once ([web page](https://www.unix-ag.uni-kl.de/~auerswal/ping_scan/))
 * `ping_wrapper` - wrapper around iputils ping for use with `ping_scan` ([web page](https://www.unix-ag.uni-kl.de/~auerswal/ping_scan/))
 * `pnmcat-stream` - wrapper for [pnmcat](http://netpbm.sourceforge.net/doc/pnmcat.html) to work with image streams ([web page](https://www.unix-ag.uni-kl.de/~auerswal/netpbm/index.html))
