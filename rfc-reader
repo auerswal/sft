@@ -1,0 +1,211 @@
+#! /bin/sh
+
+# Copyright (C) 2011-2015 Erik Auerswald <auerswal@unix-ag.uni-kl.de>
+
+# Copying and distribution of this file, with or without modification,
+# are permitted in any medium without royalty provided the copyright
+# notice and this notice are preserved.  This file is offered as-is,
+# without any warranty.
+
+# TODO:
+# - enable use of mnemonics from http://www.rfc-editor.org/rfcxx00.txt
+# - check for RFCs updating/obsoleting the requested
+#   see http://www.rfc-editor.org/rfc/rfc-index.txt
+#   see http://www.rfc-editor.org/info/rfcNUMBER
+# - include DRAFTs (name + version number)
+#   see http://datatracker.ietf.org/doc/all/
+#       http://www.ietf.org/id/all_id2.txt
+#   see http://datatracker.ietf.org/doc/active/
+#       http://www.ietf.org/id/1id-index.txt
+# XXX:
+# - refactor preprocessing (awk + sed) and viewing (xterm + less) into own tools
+# BUGS:
+# - last page of re-formatted RFC 1994 is one line too long
+#   -> caused by empty line after FF of last page
+# - first page of re-formatted RFC 1661 is one line too long
+#   -> caused by over long (59 lines) first page
+# - XTerm / GNOME Terminal font size heuristic breaks on high DPI displays
+
+set -u
+
+B=$(basename $0)
+
+C=${C:=74} # 72 chars max. per line (RFC 1 has line length <= 77) + two blanks
+L=59 # 58 lines max. per page + pager prompt
+Y=$(xrandr | sed -n '/\*/s/^[^x]*x *\([0-9]*\)[^0-9].*$/\1/p' | head -n1)
+test -z "$Y" && Y=0
+if test "$Y" -ge 1100; then
+  XTFS=${XTFS:=5} #XTerm font size: 5 is 'large'
+  GTZ='1.0'
+else
+  XTFS=${XTFS:=4} #XTerm font size: 4 is 'medium'
+  GTZ='0.9'
+fi
+
+# use $PAGER or less
+P=${PAGER:=less}
+test -x $(which "$PAGER") || PAGER='less'
+test -x $(which "$PAGER") || PAGER='more'
+test -x $(which "$PAGER") || PAGER='pg'
+test -x $(which "$PAGER") || { echo 'ERROR: no pager found'; exit 1; }
+PO=${PO:=''}
+test "$PAGER" = "less" && test -z "$PO" && PO="-M -S"
+
+# find a terminal program to use
+XT=${XT:=''}
+test -z "$XT" &&
+  XT=$(xprop -id $WINDOWID WM_CLASS | sed -n 's/^[^"]*"\([^"]*\)".*$/\1/p')
+test -x "$(which "$XT")" || XT=""
+test -z "$XT" && { env | fgrep gnome-terminal >/dev/null 2>&1; } &&
+  XT='gnome-terminal'
+test -x "$(which "$XT")" || XT=""
+test -z "$XT" && XT='xterm'
+found=''
+while test -z "$found"; do
+  case "$XT" in
+    xterm|uxterm)
+      # XTerm
+      # (tested on Debian/Lenny, Debian/Sid, Ubuntu 12.04 LTS, openSUSE 12.3)
+      XO='+sb -xrm'
+      XF="xterm*vt100.initialFont: ${XTFS}"
+      G="-g ${C}x${L}" 
+      T='-T '
+      E="-e $P $PO"
+      found='xterm'
+      ;;
+    gnome-terminal)
+      # GNOME Terminal (tested on Debian/Lenny and Ubuntu 12.04 LTS)
+      XO="--hide-menubar --disable-factory --zoom ${GTZ}"
+      XF=''
+      G="--geometry ${C}x${L}"
+      T='-t '
+      E="-x $P $PO"
+      found='gnome-terminal'
+      ;;
+    konsole)
+      # Konsole (tested on openSUSE 12.3 with KDE 4.11.3)
+      # XO="--hide-menubar --hide-tabbar -p ScrollBarPosition=2 --nofork"
+      # XF=''
+      # G="-p TerminalColumns=${C} -p TerminalRows=${R}"
+      # T="-p tabtitle="
+      # E="-e $P $PO"
+      echo "konsole: Geometry doesn't work yet, so try 'xterm' for now"
+      # found='konsole'
+      XT='xterm'
+      ;;
+    *)
+      echo "WARN: terminal program '$XT' not supported, trying 'xterm'"
+      XT='xterm'
+      ;;
+  esac
+done
+test -x "$(which "$XT")" ||
+  { echo 'ERROR: no usable terminal program found'; exit 1; }
+
+# e.g. openSUSE and Ubuntu provide RFCs as a package
+RFCDIRS='/usr/share/doc/rfc /usr/share/doc/RFC/links'
+# use a local cache if available
+RFCCACHE="$HOME/.$B/cache"
+test \( -d "$RFCCACHE" \) -a \( -r "$RFCCACHE" \) &&
+  RFCDIRS="$RFCCACHE $RFCDIRS"
+
+version()
+{
+  local V="0.16"
+  printf -- "%s\n" "$B version $V"
+  echo 'Copyright (C) 2011-2015 Erik Auerswald <auerswal@unix-ag.uni-kl.de>'
+}
+
+license()
+{
+  cat <<EOL
+Copying and distribution of this file, with or without modification,
+are permitted in any medium without royalty provided the copyright
+notice and this notice are preserved.  This file is offered as-is,
+without any warranty.
+EOL
+}
+
+usage()
+{
+  printf -- '%s\n' "Usage: $B [{rfc[-]|bcp|fyi|ien|std}][ ]NUMBER[.txt]"
+  echo 'Examples:'
+  printf -- '%s\n' "  $B 1        # downloads and displays RFC 1"
+  printf -- '%s\n' "  $B rfc1     # downloads and displays RFC 1"
+  printf -- '%s\n' "  $B rfc 1    # downloads and displays RFC 1"
+  printf -- '%s\n' "  $B rfc1.txt # downloads and displays RFC 1"
+  printf -- '%s\n' "  $B bcp78    # downloads and displays BCP 78"
+  printf -- '%s\n' "  $B fyi3     # downloads and displays FYI 3"
+  printf -- '%s\n' "  $B ien137   # downloads and displays IEN 137"
+  printf -- '%s\n' "  $B std1     # downloads and displays STD 1"
+  echo "Note: Don't use leading zeros in the NUMBER"
+}
+
+test \( $# -eq 1 \) -o \( $# -eq 2 \) ||
+  { version; license; echo; usage; exit 1; }
+R=$1
+PR=''
+if test $# -eq 2; then
+  PR=$(expr match " $2" ' \(0*\)')
+  if test -n "$PR"; then
+    R="$1${2#$PR}"
+  else
+    R="$1$2"
+  fi
+fi
+R=${R#[rR][fF][cC]}
+R=${R#-}
+R=${R# }
+PR=''
+PR=$(expr match " $R" ' \(0*\)')
+test -n "$PR" && R=${R#$PR}
+R=${R%.txt}
+R=$(printf -- '%s' "$R" | tr '[:upper:]' '[:lower:]')
+case "$R" in
+  [1-9]|[[1-9][0-9]|[1-9][0-9][0-9]|[1-9][0-9][0-9][0-9]) R=rfc$R.txt;;
+  #[1-9][0-9][0-9][0-9][0-9]) R=rfc$1.txt;; # not yet needed
+  bcp[1-9]|bcp[1-9][0-9]|bcp[1-9][0-9][0-9]|bcp[1-9][0-9][0-9][0-9])
+    R="bcp/$R.txt";;
+  fyi[1-9]|fyi[1-9][0-9]|fyi[1-9][0-9][0-9]|fyi[1-9][0-9][0-9][0-9])
+    R="fyi/$R.txt";;
+  ien[1-9]|ien[1-9][0-9]|ien[1-9][0-9][0-9]|ien[1-9][0-9][0-9][0-9])
+    R="ien/$R.txt";;
+  std[1-9]|std[1-9][0-9]|std[1-9][0-9][0-9]|std[1-9][0-9][0-9][0-9])
+    R="std/$R.txt";;
+  *) printf -- "Error: unknown parameter '%s'\n" "$1"; usage; exit 1;;
+esac
+
+F=$(mktemp -t rfc-reader.$$.XXXXXXXXXX)
+trap "rm -rf $F" 0 1 2 3 15
+FMT=$(mktemp -t rfc-reader.$$.XXXXXXXXXX)
+trap "rm -rf $F $FMT" 0 1 2 3 15
+
+printf -- '%s' "looking for $R..."
+LR=$(find $RFCDIRS -name "${R}*" 2>/dev/null | head -n1)
+LRZ=''
+test -n "$LR" && printf -- '%s' "found $LR..." &&
+  LRZ=$(file -L "$LR" | sed -n 's/^.* \([^ ]*\) compressed .*$/\1/p')
+test -n "$LR" &&
+  case "$LRZ" in
+    '') cp "$LR" "$F";;
+    'gzip') printf -- '%s' 'decompressing...'; zcat "$LR" > "$F";;
+    'bzip2') printf -- '%s' 'decompressing...'; bzcat "$LR" > "$F";;
+    'XZ') printf -- '%s' 'decompressing...'; xzcat "$LR" > "$F";;
+    *) printf -- '\n%s\n' "WARN: unknown compression '$LRZ' of '$LR'";;
+  esac
+test -s "$F" ||
+  { printf -- '%s' "downloading $R..." &&
+    wget -O"$F" -q http://www.rfc-editor.org/rfc/"$R";
+    test \( -s "$F" \) -a \( -n "$RFCCACHE" \) -a \( -d "$RFCCACHE" \) -a \
+         \( -w "$RFCCACHE" \) &&
+      { printf -- 'copying %s to cache %s...' "$R" "$RFCCACHE";
+        cp -- "$F" "${RFCCACHE}/$R"; }; }
+test -s "$F" || { printf -- "ERROR\n"; exit 1; }
+printf -- 'done\n'
+
+awk -vn_lines="${L}" \
+  '{line++; print}; /\f/ {for (i=line; i<n_lines; i++) print ""; line=0}' "$F" \
+  | sed '/\f/d' > "$FMT"
+$XT $XO "$XF" $G $T"$B - $(basename $R)" $E "$FMT"
+# gnome-terminal cannot run in the foreground
+wait
