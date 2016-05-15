@@ -1,0 +1,366 @@
+#! /usr/bin/env bash
+
+# ipcalc - print information about an IPv4 network
+# Copyright (C) 2013 by Erik Auerswald <auerswal@unix-ag.uni-kl.de>
+#
+# Copying and distribution of this file, with or without modification,
+# are permitted in any medium without royalty provided the copyright
+# notice and this notice are preserved.  This file is offered as-is,
+# without any warranty.
+
+set -u
+
+PROG="$(basename $0)"
+version='2013-05-05-01'
+
+print_version()
+{
+  printf -- '%s version %s\n' "$PROG" "$version"
+}
+
+print_copyright()
+{
+  echo 'Copyright (C) 2013 by Erik Auerswald <auerswal@unix-ag.uni-kl.de>'
+}
+
+print_license()
+{
+  print_copyright
+  echo
+  cat <<EOL
+Copying and distribution of this file, with or without modification,
+are permitted in any medium without royalty provided the copyright
+notice and this notice are preserved.  This file is offered as-is,
+without any warranty.
+
+EOL
+}
+
+print_usage()
+{
+  cat <<EOU
+Usage: $PROG { -h | -V | -L | -t }
+       $PROG IPv4ADDRESS [/] { PREFIXLENGTH | NETMASK | WILDCARD }
+EOU
+}
+
+print_help()
+{
+  print_version
+  print_license
+  print_usage
+  cat <<EOH
+Options:
+  -h      print this help and exit
+  -V      print version information and exit
+  -L      print license and exit
+  -t      print table of prefix length, network mask and wildcard
+Examples:
+  $PROG 192.0.2.0/24
+  $PROG 192.0.2.0 24
+  $PROG 192.0.2.0 /24
+  $PROG 192.0.2.0 / 24
+  $PROG 192.0.2.0/255.255.255.0
+  $PROG 192.0.2.0 255.255.255.0
+  $PROG 192.0.2.0 /255.255.255.0
+  $PROG 192.0.2.0 / 255.255.255.0
+  $PROG 192.0.2.0/0.0.0.255
+  $PROG 192.0.2.0 0.0.0.255
+  $PROG 192.0.2.0 /0.0.0.255
+  $PROG 192.0.2.0 / 0.0.0.255
+EOH
+}
+
+masks=( '0.0.0.0'
+        '128.0.0.0'
+        '192.0.0.0'
+        '224.0.0.0'
+        '240.0.0.0'
+        '248.0.0.0'
+        '252.0.0.0'
+        '254.0.0.0'
+        '255.0.0.0'
+        '255.128.0.0'
+        '255.192.0.0'
+        '255.224.0.0'
+        '255.240.0.0'
+        '255.248.0.0'
+        '255.252.0.0'
+        '255.254.0.0'
+        '255.255.0.0'
+        '255.255.128.0'
+        '255.255.192.0'
+        '255.255.224.0'
+        '255.255.240.0'
+        '255.255.248.0'
+        '255.255.252.0'
+        '255.255.254.0'
+        '255.255.255.0'
+        '255.255.255.128'
+        '255.255.255.192'
+        '255.255.255.224'
+        '255.255.255.240'
+        '255.255.255.248'
+        '255.255.255.252'
+        '255.255.255.254'
+        '255.255.255.255'
+       )
+
+pre2mask()
+{
+  test $# -eq 1 || return 1
+  local netmask="${masks[$1]}"
+  test -n "$netmask" || return 1
+  echo "$netmask"
+  return 0
+}
+
+mask2pre()
+{
+  test $# -eq 1 || return 1
+  case "$1" in
+    '0.0.0.0')         echo 0;;
+    '128.0.0.0')       echo 1;;
+    '192.0.0.0')       echo 2;;
+    '224.0.0.0')       echo 3;;
+    '240.0.0.0')       echo 4;;
+    '248.0.0.0')       echo 5;;
+    '252.0.0.0')       echo 6;;
+    '254.0.0.0')       echo 7;;
+    '255.0.0.0')       echo 8;;
+    '255.128.0.0')     echo 9;;
+    '255.192.0.0')     echo 10;;
+    '255.224.0.0')     echo 11;;
+    '255.240.0.0')     echo 12;;
+    '255.248.0.0')     echo 13;;
+    '255.252.0.0')     echo 14;;
+    '255.254.0.0')     echo 15;;
+    '255.255.0.0')     echo 16;;
+    '255.255.128.0')   echo 17;;
+    '255.255.192.0')   echo 18;;
+    '255.255.224.0')   echo 19;;
+    '255.255.240.0')   echo 20;;
+    '255.255.248.0')   echo 21;;
+    '255.255.252.0')   echo 22;;
+    '255.255.254.0')   echo 23;;
+    '255.255.255.0')   echo 24;;
+    '255.255.255.128') echo 25;;
+    '255.255.255.192') echo 26;;
+    '255.255.255.224') echo 27;;
+    '255.255.255.240') echo 28;;
+    '255.255.255.248') echo 29;;
+    '255.255.255.252') echo 30;;
+    '255.255.255.254') echo 31;;
+    '255.255.255.255') echo 32;;
+    *) return 1;;
+  esac
+  return 0
+}
+
+wildcards=( '255.255.255.255'
+            '127.255.255.255'
+            '63.255.255.255'
+            '31.255.255.255'
+            '15.255.255.255'
+            '7.255.255.255'
+            '3.255.255.255'
+            '1.255.255.255'
+            '0.255.255.255'
+            '0.127.255.255'
+            '0.63.255.255'
+            '0.31.255.255'
+            '0.15.255.255'
+            '0.7.255.255'
+            '0.3.255.255'
+            '0.1.255.255'
+            '0.0.255.255'
+            '0.0.127.255'
+            '0.0.63.255'
+            '0.0.31.255'
+            '0.0.15.255'
+            '0.0.7.255'
+            '0.0.3.255'
+            '0.0.1.255'
+            '0.0.0.255'
+            '0.0.0.127'
+            '0.0.0.63'
+            '0.0.0.31'
+            '0.0.0.15'
+            '0.0.0.7'
+            '0.0.0.3'
+            '0.0.0.1'
+            '0.0.0.0'
+           )
+
+pre2wild()
+{
+  test $# -eq 1 || return 1
+  local wildcard="${wildcards[$1]}"
+  test -n "$wildcard" || return 1
+  echo "$wildcard"
+  return 0
+}
+
+wild2pre()
+{
+  test $# -eq 1 || return 1
+  case "$1" in
+    '255.255.255.255') echo 0;;
+    '127.255.255.255') echo 1;;
+    '63.255.255.255')  echo 2;;
+    '31.255.255.255')  echo 3;;
+    '15.255.255.255')  echo 4;;
+    '7.255.255.255')   echo 5;;
+    '3.255.255.255')   echo 6;;
+    '1.255.255.255')   echo 7;;
+    '0.255.255.255')   echo 8;;
+    '0.127.255.255')   echo 9;;
+    '0.63.255.255')    echo 10;;
+    '0.31.255.255')    echo 11;;
+    '0.15.255.255')    echo 12;;
+    '0.7.255.255')     echo 13;;
+    '0.3.255.255')     echo 14;;
+    '0.1.255.255')     echo 15;;
+    '0.0.255.255')     echo 16;;
+    '0.0.127.255')     echo 17;;
+    '0.0.63.255')      echo 18;;
+    '0.0.31.255')      echo 19;;
+    '0.0.15.255')      echo 20;;
+    '0.0.7.255')       echo 21;;
+    '0.0.3.255')       echo 22;;
+    '0.0.1.255')       echo 23;;
+    '0.0.0.255')       echo 24;;
+    '0.0.0.127')       echo 25;;
+    '0.0.0.63')        echo 26;;
+    '0.0.0.31')        echo 27;;
+    '0.0.0.15')        echo 28;;
+    '0.0.0.7')         echo 29;;
+    '0.0.0.3')         echo 30;;
+    '0.0.0.1')         echo 31;;
+    '0.0.0.0')         echo 32;;
+    *) return 1
+  esac
+  return 0
+}
+
+print_table()
+{
+  echo 'Prefix  Mask             Wildcard'
+  echo '----------------------------------------'
+  local i
+  for i in {0..32}; do
+    printf -- ' %-2d     %-15s  %-15s\n' $i $(pre2mask $i) $(pre2wild $i)
+  done
+}
+
+while getopts hVLt OPT; do
+  case "$OPT" in
+    'h') print_help; exit 0;;
+    'V') print_version; print_copyright; exit 0;;
+    'L') print_version; print_license; exit 0;;
+    't') print_table; exit 0;;
+    '?') echo "$PROG: ERROR: unknown option '$1'";
+         print_usage; exit 1;;
+    *) echo "$PROG: ERROR: getopts() failure"; exit 1;; 
+  esac
+done
+shift $(($OPTIND - 1))
+
+test $# -eq 0 && { print_help; exit 1; }
+test $# -gt 0 -a $# -lt 4 ||
+  { echo "$PROG: ERROR: wrong number of arguments ($#)"; print_usage; exit 1; }
+
+IP=${1//[^0-9./]/}
+test "$IP" = "$1" ||
+  { echo "$PROG: ERROR: first argument must be an IPv4 address"; \
+    print_usage; exit 1; }
+shift
+
+test $# -eq 2 &&
+  { test "$1" = "/" || 
+    { echo "$PROG: ERROR: seperator must be a '/'"; print_usage; exit 1; } &&
+  shift; }
+
+test $# -eq 0 &&
+  { tmp="$IP";
+    PRE=${IP##*/};
+    IP=${IP%%/*};
+    test "$IP/$PRE" = "$tmp" -a \
+         "$IP" = "${IP//[^0-9.]/}" -a "$PRE" = "${PRE//[^0-9.]/}" ||
+      { echo "$PROG: ERROR: single argument must be IPv4 address," \
+             "the separator '/',"
+        echo "and then prefix length or netmask respectively wildcard"
+        print_usage; exit 1; }
+  }
+test $# -eq 1 &&
+  { PRE="${1#/}";
+    test "$IP" = "${IP//[^0-9.]/}" -a "$PRE" = "${PRE//[^0-9.]/}" ||
+      { echo "$PROG: ERROR: first argument must be an IPv4 address";
+        echo "$PROG: ERROR: last argument must be a prefix length or netmask";
+        print_usage; exit 1; }
+  }
+test \( \( ${#PRE} -eq 1 -o ${#PRE} -eq 2 \) -a "$PRE" = "${PRE//[^0-9]/}" \) \
+     -o \( ${#PRE} -ge 7 -a ${#PRE} -le 15 \) ||
+  { echo "$PROG: ERROR: last argument must be a prefix length or netmask";
+    print_usage; exit 1; }
+test ${#PRE} -gt 2 &&
+  {
+    tmp=$(mask2pre $PRE) || tmp=$(wild2pre $PRE)
+    test -n "$tmp" ||
+      { echo "$PROG: ERROR: $PRE is neither netmask nor wildcard";
+        print_usage; exit 1; }
+    PRE=$tmp
+  }
+test "$PRE" -ge 0 -a "$PRE" -le 32 ||
+  { echo "$PROG: ERROR: $PRE is no valid prefix length for IPv4";
+    print_usage; exit 1; }
+MASK=$(pre2mask $PRE)
+WILD=$(pre2wild $PRE)
+
+ctr=0
+IPBIN=0
+for i in ${IP//./ }; do
+  test "$i" -ge 0 -a "$i" -le 255 -a "$ctr" -lt 4 ||
+    { echo "$PROG: ERROR: $IP is no IPv4 address"; print_usage; exit 1; }
+  IPBIN=$(( ($IPBIN<<8) + $i)) 
+  let ctr++
+done
+ctr=0
+MASKBIN=0
+for i in ${MASK//./ }; do
+  test "$i" -ge 0 -a "$i" -le 255 -a "$ctr" -lt 4 ||
+    { echo "$PROG: ERROR: $IP is no IPv4 address"; print_usage; exit 1; }
+  MASKBIN=$(( ($MASKBIN<<8) + $i)) 
+  let ctr++
+done
+NETBIN=$(($IPBIN & $MASKBIN))
+BROADBIN=$(($NETBIN | ( (~$MASKBIN) & 0xFFFFFFFF ) ))
+
+case "$PRE" in
+  '32') HMIN=$IP; HMAX=$IP; NET=$IP; NUMH=1; BROAD=$IP;;
+  '31') NUMH=2; BROAD='n/a'
+        HMIN="$(($NETBIN>>24)).$((($NETBIN>>16)&0xFF)).$((($NETBIN>>8)&0xFF)).$(($NETBIN&0xFF))"
+        NET=$HMIN
+        let NETBIN++
+        HMAX="$(($NETBIN>>24)).$((($NETBIN>>16)&0xFF)).$((($NETBIN>>8)&0xFF)).$(($NETBIN&0xFF))";;
+  *) NUMH=$((2**(32-$PRE)-2))
+     NET="$(($NETBIN>>24)).$((($NETBIN>>16)&0xFF)).$((($NETBIN>>8)&0xFF)).$(($NETBIN&0xFF))"
+     let NETBIN++
+     HMIN="$(($NETBIN>>24)).$((($NETBIN>>16)&0xFF)).$((($NETBIN>>8)&0xFF)).$(($NETBIN&0xFF))"
+     BROAD="$(($BROADBIN>>24)).$((($BROADBIN>>16)&0xFF)).$((($BROADBIN>>8)&0xFF)).$(($BROADBIN&0xFF))"
+     let BROADBIN--
+     HMAX="$(($BROADBIN>>24)).$((($BROADBIN>>16)&0xFF)).$((($BROADBIN>>8)&0xFF)).$(($BROADBIN&0xFF))"
+esac
+
+printf -- 'Address:      %s\n' "$IP"
+printf -- 'Prefixlength: %d\n' "$PRE"
+printf -- 'Netmask:      %s\n' "$MASK"
+printf -- 'Wildcard:     %s\n' "$WILD"
+echo '==>'
+printf -- 'Network:      %s/%s\n' "$NET" "$PRE"
+printf -- 'HostMin:      %s\n' "$HMIN"
+printf -- 'HostMax:      %s\n' "$HMAX"
+printf -- 'Broadcast:    %s\n' "$BROAD"
+printf -- 'Hosts/Net:    %d\n' "$NUMH"
+
+exit 0
