@@ -1,0 +1,22 @@
+#! /bin/sh
+
+# Simple download helper for Firefox.
+#
+# Copying and distribution of this file, with or without modification,
+# are permitted in any medium without royalty provided the copyright
+# notice and this notice are preserved.  This file is offered as-is,
+# without any warranty.
+#
+# Copyright (C) 2014 Erik Auerswald <auerswal@unix-ag.uni-kl.de>
+
+# Can be used to work around Amazon Music breakage. Saving a download did
+# not work for me, but opening with an application did. This script copies
+# the downloaded file to $DLDIR, setting permission $MODE.
+#
+# This is the initial version 0.0.0 from 2014-11-07.
+
+DLDIR=$HOME/Downloads/ffdl
+MODE=644
+
+test -d "$DLDIR" || mkdir -p "$DLDIR"
+install -m "$MODE" "$1" "$DLDIR"
