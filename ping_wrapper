@@ -1,0 +1,19 @@
+#! /usr/bin/env sh
+
+# Copyright (C) 2012 by Erik Auerswald <auerswal@unix-ag.uni-kl.de>
+#
+# Copying and distribution of this file, with or without modification,
+# are permitted in any medium without royalty provided the copyright
+# notice and this notice are preserved.  This file is offered as-is,
+# without any warranty.
+
+# Wrapper for ping from "iputils" to report reachability only.
+# Intended for use with "ping_scan" script on GNU/Linux and similar systems.
+# Synopsis: ping_wrapper [-n] host [timeout]
+# Version 2012-07-21-01
+OPTS='-c1'
+test "$1x" = "-nx" && { OPTS="$OPTS -n"; shift; }
+TIMEOUT=${2:-20}
+ping $OPTS -W"$TIMEOUT" "$1" > /dev/null 2>&1 &&
+  printf -- '%s is alive\n' "$1" ||
+  echo "no answer from $1"
