@@ -20,6 +20,7 @@ web page. In that case a link to the web page is provided.
 
 * `checkzips` - check ZIP files for errors
 * `dvdmovie` - play the main movie from a video DVD with [MPlayer](http://www.mplayerhq.hu/) ([web page](https://www.unix-ag.uni-kl.de/~auerswal/dvdmovie/))
+* `ext_ip` - print externally visible IPv4 and IPv6 addresses
 * `foreachpam` - invoke program for each image in a PAM stream ([web page](https://www.unix-ag.uni-kl.de/~auerswal/netpbm/index.html))
 * `foreachpnm` - invoke program for each image in a PNM stream ([web page](https://www.unix-ag.uni-kl.de/~auerswal/netpbm/index.html))
 * `ipcalc` - simple replacement for [ipcalc](http://jodies.de/ipcalc)
