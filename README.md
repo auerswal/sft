@@ -24,6 +24,7 @@ web page. In that case a link to the web page is provided.
 * `ffdl` - simple download helper for Firefox
 * `foreachpam` - invoke program for each image in a PAM stream ([web page](https://www.unix-ag.uni-kl.de/~auerswal/netpbm/index.html))
 * `foreachpnm` - invoke program for each image in a PNM stream ([web page](https://www.unix-ag.uni-kl.de/~auerswal/netpbm/index.html))
+* `hide_passwords_enterasys.sed` - mask passwords in Enterasys (now Extreme) EOS configuration (available on my [Notes on Enterasys Networks Equipment](https://www.unix-ag.uni-kl.de/~auerswal/enterasys/) web page)
 * `ipcalc` - simple replacement for [ipcalc](http://jodies.de/ipcalc)
 * `macfmt` - convert MAC address formats ([web page](https://www.unix-ag.uni-kl.de/~auerswal/macfmt/))
 * `net2ips` - print host addresses of an IPv4 network (uses ipcalc)
