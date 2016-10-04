@@ -11,7 +11,12 @@
 
 '''Calculate the ROMMON priv password for (some) Cisco routers.
 
-Usage: priv_pass.py FIRST_16_BYTES_OF_COOKIE
+Usage: priv_pass.py FIRST_10_or_16_BYTES_OF_COOKIE
+
+Use 16 bytes for the Cisco 1841.
+Use 10 bytes for the Cisco SR-520, 1812W.
+
+The number of bytes might differ with ROMMON version on the same hardware.
 '''
 
 from sys import argv
