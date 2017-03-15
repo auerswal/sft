@@ -14,7 +14,7 @@
 set -e
 set -u
 
-# use /dev/urandom as source for a random global ID
+# use /dev/random as source for a random global ID
 # see https://tools.ietf.org/html/rfc4193#section-3.2.1
 
 global_id=$(dd if=/dev/random bs=5 count=1 2>/dev/null | xxd -p)
