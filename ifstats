@@ -12,7 +12,7 @@
 set -u
 
 PROG="$(basename $0)"
-VERSION='2017-04-08-02'
+VERSION='2017-04-08-03'
 
 print_version()
 {
@@ -92,9 +92,7 @@ for i in ${ifnames}; do
     { echo "% error: no interface ${i}"; EXITCODE=1 continue; }
   echo "interface ${i}:"
   cd "${i}/statistics"
-  find . -type f -print0 \
-    | xargs -0 grep ${GREPOPTS} "${GREPPAT}" \
-    | sed 's|^\./|  |;s/:\([0-9]\)/: \1/'
+  grep ${GREPOPTS} "${GREPPAT}" * | sed 's/^/  /;s/:\([0-9]\)/: \1/'
   cd "${SYS_CLASS_NET}"
 done
 
