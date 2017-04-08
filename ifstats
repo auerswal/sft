@@ -14,9 +14,6 @@ set -u
 PROG="$(basename $0)"
 VERSION='2017-04-08-01'
 
-SYS_CLASS_NET='/sys/class/net'
-EXITCODE=0
-
 print_version()
 {
   printf -- '%s version %s\n' "${PROG}" "${VERSION}"
@@ -42,7 +39,7 @@ print_usage()
 {
   cat <<EOU
 Usage: ${PROG} { -h | -V | -L }
-       ${PROG} [INTERFACE...]
+       ${PROG} [-n] [INTERFACE...]
 EOU
 }
 
@@ -58,6 +55,7 @@ Options:
   -h      print this help and exit
   -V      print version information and exit
   -L      print license and exit
+  -n      omit zero count statistics
 Examples:
   ${PROG}
   ${PROG} eth0
@@ -65,11 +63,19 @@ Examples:
 EOH
 }
 
-while getopts hVLt OPT; do
+SYS_CLASS_NET='/sys/class/net'
+EXITCODE=0
+ALLPATTERN='.'
+ZEROPATTERN='^0'
+GREPOPTS='-H'
+GREPPAT=${ALLPATTERN}
+
+while getopts hVLn OPT; do
   case "${OPT}" in
     'h') print_help; exit 0;;
     'V') print_version; print_copyright; exit 0;;
     'L') print_version; print_copyright; echo; print_license; exit 0;;
+    'n') GREPOPTS="${GREPOPTS} -v"; GREPPAT=${ZEROPATTERN};;
     '?') echo "${PROG}: error: unknown option '$1'";
          print_usage; exit 1;;
     *) echo "${PROG}: error: getopts() failure"; exit 1;;
@@ -87,7 +93,7 @@ for i in ${ifnames}; do
   echo "interface ${i}:"
   cd "${i}/statistics"
   find . -type f -print0 \
-    | xargs -0 grep -H . \
+    | xargs -0 grep ${GREPOPTS} "${GREPPAT}" \
     | sed 's|^\./|  |;s/:\([0-9]\)/: \1/'
   cd "${SYS_CLASS_NET}"
 done
