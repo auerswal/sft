@@ -1,0 +1,94 @@
+#! /bin/sh
+
+# ifstats - print interface statistics (counters) on Linux
+#
+# Copyright (C) 2017 by Erik Auerswald <auerswal@unix-ag.uni-kl.de>
+#
+# Copying and distribution of this file, with or without modification,
+# are permitted in any medium without royalty provided the copyright
+# notice and this notice are preserved.  This file is offered as-is,
+# without any warranty.
+
+set -u
+
+PROG="$(basename $0)"
+VERSION='2017-04-08-01'
+
+SYS_CLASS_NET='/sys/class/net'
+EXITCODE=0
+
+print_version()
+{
+  printf -- '%s version %s\n' "${PROG}" "${VERSION}"
+}
+
+print_copyright()
+{
+  echo 'Copyright (C) 2017 by Erik Auerswald <auerswal@unix-ag.uni-kl.de>'
+}
+
+print_license()
+{
+  cat <<EOL
+Copying and distribution of this file, with or without modification,
+are permitted in any medium without royalty provided the copyright
+notice and this notice are preserved.  This file is offered as-is,
+without any warranty.
+
+EOL
+}
+
+print_usage()
+{
+  cat <<EOU
+Usage: ${PROG} { -h | -V | -L }
+       ${PROG} [INTERFACE...]
+EOU
+}
+
+print_help()
+{
+  print_version
+  print_license
+  echo 'print interface statistics (counters) on Linux'
+  print_usage
+  cat <<EOH
+Options:
+  -h      print this help and exit
+  -V      print version information and exit
+  -L      print license and exit
+Examples:
+  ${PROG}
+  ${PROG} eth0
+  ${PROG} eth1 eth2
+EOH
+}
+
+while getopts hVLt OPT; do
+  case "${OPT}" in
+    'h') print_help; exit 0;;
+    'V') print_version; print_copyright; exit 0;;
+    'L') print_version; print_copyright; echo; print_license; exit 0;;
+    '?') echo "${PROG}: error: unknown option '$1'";
+         print_usage; exit 1;;
+    *) echo "${PROG}: error: getopts() failure"; exit 1;;
+  esac
+done
+shift $(($OPTIND - 1))
+
+cd "${SYS_CLASS_NET}"
+
+test $# -eq 0 && ifnames=$(ls -1) || ifnames="$*"
+
+for i in ${ifnames}; do
+  test -d "${i}/statistics" ||
+    { echo "% error: no interface ${i}"; EXITCODE=1 continue; }
+  echo "interface ${i}:"
+  cd "${i}/statistics"
+  find . -type f -print0 \
+    | xargs -0 grep -H . \
+    | sed 's|^\./|  |;s/:\([0-9]\)/: \1/'
+  cd "${SYS_CLASS_NET}"
+done
+
+exit "${EXITCODE}"

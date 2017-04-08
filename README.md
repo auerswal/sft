@@ -28,6 +28,7 @@ IPv6 ULA addresses using a deterministic algorithm based on [RFC 4193 section 3.
 * `foreachpam` - invoke program for each image in a PAM stream ([web page](https://www.unix-ag.uni-kl.de/~auerswal/netpbm/index.html))
 * `foreachpnm` - invoke program for each image in a PNM stream ([web page](https://www.unix-ag.uni-kl.de/~auerswal/netpbm/index.html))
 * `hide_passwords_enterasys.sed` - mask passwords in Enterasys (now Extreme) EOS configuration (available on my [Notes on Enterasys Networks Equipment](https://www.unix-ag.uni-kl.de/~auerswal/enterasys/) web page)
+* `ifstats` - print interface statistics (counters) on Linux
 * `ipcalc` - simple replacement for [ipcalc](http://jodies.de/ipcalc)
 * `macfmt` - convert MAC address formats ([web page](https://www.unix-ag.uni-kl.de/~auerswal/macfmt/))
 * `net2ips` - print host addresses of an IPv4 network (uses ipcalc)
