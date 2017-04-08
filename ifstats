@@ -49,6 +49,7 @@ EOU
 print_help()
 {
   print_version
+  print_copyright
   print_license
   echo 'print interface statistics (counters) on Linux'
   print_usage
