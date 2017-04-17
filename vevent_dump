@@ -1,0 +1,30 @@
+#! /bin/sh
+
+# Create somewhat readable output from ICS (or similar) files.
+
+# Copyright (C) 2017 Erik Auerswald <auerswal@unix-ag.uni-kl.de>
+
+# Copying and distribution of this file, with or without modification,
+# are permitted in any medium without royalty provided the copyright
+# notice and this notice are preserved.  This file is offered as-is,
+# without any warranty.
+
+# Version 2017-04-15-01
+
+for c in "$@"; do
+  printf -- '========[ %s ]========\n' "$c"
+  sed -n '/BEGIN:VEVENT/,/END:VEVENT/p' "$c" \
+  | sed -e '/BEGIN:VALARM/,/END:VALARM/d' \
+        -e '/^[[:space:]]*X-MS-OLK/d' \
+        -e 's/\r$//' \
+  | sed ':RN;$!N;s/\n //;tRN;P;D' \
+  | sed -nr \
+        -e '/ORGANIZER/s/^.*CN="?([^":]+)"?:MAILTO:([^[:space:]]+).*$/Organizer: \1 <\2>/p' \
+        -e '/ATTENDEE/s/^.*CN="?([^":]+)"?:MAILTO:([^[:space:]]+).*$/Attendee: \1 <\2>/p' \
+        -e '/SUMMARY/s/^[^:]*:(.*)$/Summary: \1/p' \
+        -e '/DTSTART/s/^.*:([[:digit:]]{4})([[:digit:]]{2})([[:digit:]]{2})T([[:digit:]]{2})([[:digit:]]{2})([[:digit:]]{2}).*$/Start: \3.\2.\1 at \4:\5:\6/p' \
+        -e '/DTEND/s/^.*:([[:digit:]]{4})([[:digit:]]{2})([[:digit:]]{2})T([[:digit:]]{2})([[:digit:]]{2})([[:digit:]]{2}).*$/End:   \3.\2.\1 at \4:\5:\6/p' \
+        -e '/DESCRIPTION/s/^[^:]*:(.*)$/----=[ start description ]=----\n\1\n-----=[ end description ]=-----/p' \
+        -e '/LOCATION/s/^[^:]*:(.*)$/Location: \1/p' \
+  | sed 's/\\,/,/g;s/\\n/\n/g'
+done

@@ -40,3 +40,4 @@ IPv6 ULA addresses using a deterministic algorithm based on [RFC 4193 section 3.
 * `priv_pass.py` - Calculate ROMMON priv password for (some) Cisco routers
 * `rfc-reader` - read IETF RFCs on GNU/Linux ([web page](https://www.unix-ag.uni-kl.de/~auerswal/rfc-reader/))
 * `total_video_duration` - print total run time of given video files (uses `ffprobe` from [FFmpeg](https://ffmpeg.org/))
+* `vevent_dump` - print a somewhat readable version of the essential informationen inside an iCalendar (.ics) file to STDOUT (best effort only, not even trying to parse the format...)
