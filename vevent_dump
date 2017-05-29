@@ -17,10 +17,10 @@ for c in "$@"; do
   | sed -e '/BEGIN:VALARM/,/END:VALARM/d' \
         -e '/^[[:space:]]*X-MS-OLK/d' \
         -e 's/\r$//' \
-  | sed ':RN;$!N;s/\n //;tRN;P;D' \
+  | sed ':RN;$!N;s/\n[[:space:]]//;tRN;P;D' \
   | sed -nr \
-        -e '/ORGANIZER/s/^.*CN="?([^":]+)"?:MAILTO:([^[:space:]]+).*$/Organizer: \1 <\2>/p' \
-        -e '/ATTENDEE/s/^.*CN="?([^":]+)"?:MAILTO:([^[:space:]]+).*$/Attendee: \1 <\2>/p' \
+        -e '/ORGANIZER/s/^.*CN="?([^":;]+)"?.*:[Mm][Aa][Ii][Ll][Tt][Oo]:([^[:space:]]+).*$/Organizer: \1 <\2>/p' \
+        -e '/ATTENDEE/s/^.*CN="?([^":;]+)"?.*:[Mm][Aa][Ii][Ll][Tt][Oo]:([^[:space:]]+).*$/Attendee: \1 <\2>/p' \
         -e '/SUMMARY/s/^[^:]*:(.*)$/Summary: \1/p' \
         -e '/DTSTART/s/^.*:([[:digit:]]{4})([[:digit:]]{2})([[:digit:]]{2})T([[:digit:]]{2})([[:digit:]]{2})([[:digit:]]{2}).*$/Start: \3.\2.\1 at \4:\5:\6/p' \
         -e '/DTEND/s/^.*:([[:digit:]]{4})([[:digit:]]{2})([[:digit:]]{2})T([[:digit:]]{2})([[:digit:]]{2})([[:digit:]]{2}).*$/End:   \3.\2.\1 at \4:\5:\6/p' \
