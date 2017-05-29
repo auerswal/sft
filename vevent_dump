@@ -23,7 +23,9 @@ for c in "$@"; do
         -e '/ATTENDEE/s/^.*CN="?([^":;]+)"?.*:[Mm][Aa][Ii][Ll][Tt][Oo]:([^[:space:]]+).*$/Attendee: \1 <\2>/p' \
         -e '/SUMMARY/s/^[^:]*:(.*)$/Summary: \1/p' \
         -e '/DTSTART/s/^.*:([[:digit:]]{4})([[:digit:]]{2})([[:digit:]]{2})T([[:digit:]]{2})([[:digit:]]{2})([[:digit:]]{2}).*$/Start: \3.\2.\1 at \4:\5:\6/p' \
+        -e '/DTSTART;VALUE=DATE:/s/^.*:([[:digit:]]{4})([[:digit:]]{2})([[:digit:]]{2})/Start: \3.\2.\1/p' \
         -e '/DTEND/s/^.*:([[:digit:]]{4})([[:digit:]]{2})([[:digit:]]{2})T([[:digit:]]{2})([[:digit:]]{2})([[:digit:]]{2}).*$/End:   \3.\2.\1 at \4:\5:\6/p' \
+        -e '/DTEND;VALUE=DATE:/s/^.*:([[:digit:]]{4})([[:digit:]]{2})([[:digit:]]{2})/End:   \3.\2.\1/p' \
         -e '/DESCRIPTION/s/^[^:]*:(.*)$/----=[ start description ]=----\n\1\n-----=[ end description ]=-----/p' \
         -e '/LOCATION/s/^[^:]*:(.*)$/Location: \1/p' \
   | sed 's/\\,/,/g;s/\\n/\n/g'
