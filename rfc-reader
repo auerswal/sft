@@ -1,6 +1,6 @@
 #! /bin/sh
 
-# Copyright (C) 2011-2015 Erik Auerswald <auerswal@unix-ag.uni-kl.de>
+# Copyright (C) 2011-2017 Erik Auerswald <auerswal@unix-ag.uni-kl.de>
 
 # Copying and distribution of this file, with or without modification,
 # are permitted in any medium without royalty provided the copyright
@@ -111,9 +111,9 @@ test \( -d "$RFCCACHE" \) -a \( -r "$RFCCACHE" \) &&
 
 version()
 {
-  local V="0.16"
+  local V="0.17"
   printf -- "%s\n" "$B version $V"
-  echo 'Copyright (C) 2011-2015 Erik Auerswald <auerswal@unix-ag.uni-kl.de>'
+  echo 'Copyright (C) 2011-2017 Erik Auerswald <auerswal@unix-ag.uni-kl.de>'
 }
 
 license()
@@ -204,8 +204,8 @@ test -s "$F" || { printf -- "ERROR\n"; exit 1; }
 printf -- 'done\n'
 
 awk -vn_lines="${L}" \
-  '{line++; print}; /\f/ {for (i=line; i<n_lines; i++) print ""; line=0}' "$F" \
-  | sed '/\f/d' > "$FMT"
+  '!/\f/{line++; print}; /\f/{for (i=line; i<n_lines-1; i++) print ""; line=0}'\
+  "$F" > "$FMT"
 $XT $XO "$XF" $G $T"$B - $(basename $R)" $E "$FMT"
 # gnome-terminal cannot run in the foreground
 wait
