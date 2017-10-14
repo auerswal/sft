@@ -198,3 +198,5 @@ awk -vn_lines="${L}" \
 $XT $XO "$XF" $G $T"$B - $(basename $R)" $E "$FMT"
 # gnome-terminal cannot run in the foreground
 wait
+
+# vim:expandtab:sw=2:
