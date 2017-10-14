@@ -20,8 +20,6 @@
 # XXX:
 # - refactor preprocessing (awk + sed) and viewing (xterm + less) into own tools
 # BUGS:
-# - last page of re-formatted RFC 1994 is one line too long
-#   -> caused by empty line after FF of last page
 # - first page of re-formatted RFC 1661 is one line too long
 #   -> caused by over long (59 lines) first page
 # - XTerm / GNOME Terminal font size heuristic breaks on high DPI displays
