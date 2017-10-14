@@ -111,7 +111,7 @@ test \( -d "$RFCCACHE" \) -a \( -r "$RFCCACHE" \) &&
 
 version()
 {
-  local V="0.19"
+  local V="0.20"
   printf -- "%s\n" "$B version $V"
   echo 'Copyright (C) 2011-2017 Erik Auerswald <auerswal@unix-ag.uni-kl.de>'
 }
@@ -158,9 +158,10 @@ test -z "$DT" &&
   { echo 'Error: could not determine document type'; usage; exit 1; }
 test -z "$DN" &&
   { echo 'Error: could not determine document number'; usage; exit 1; }
+R="${DT}${DN}.txt"
 case "$DT" in
-  rfc) R="${DT}${DN}.txt";;
-  bcp|fyi|ien|std) R="${DT}/${DT}${DN}.txt";;
+  rfc) DB='';;
+  bcp|fyi|ien|std) DB="${DT}/";;
   *) printf -- 'Error: unknown document type "%s"\n' "$DT"; usage; exit 1;;
 esac
 
@@ -184,7 +185,7 @@ test -n "$LR" &&
   esac
 test -s "$F" ||
   { printf -- '%s' "downloading $R ... " &&
-    wget -O"$F" -q http://www.rfc-editor.org/rfc/"$R";
+    wget -O"$F" -q http://www.rfc-editor.org/rfc/"${DB}${R}";
     test \( -s "$F" \) -a \( -n "$RFCCACHE" \) -a \( -d "$RFCCACHE" \) -a \
          \( -w "$RFCCACHE" \) &&
       { printf -- 'copying %s to cache %s ... ' "$R" "$RFCCACHE";
