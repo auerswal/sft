@@ -111,7 +111,7 @@ test \( -d "$RFCCACHE" \) -a \( -r "$RFCCACHE" \) &&
 
 version()
 {
-  local V="0.18"
+  local V="0.19"
   printf -- "%s\n" "$B version $V"
   echo 'Copyright (C) 2011-2017 Erik Auerswald <auerswal@unix-ag.uni-kl.de>'
 }
@@ -138,41 +138,30 @@ usage()
   printf -- '%s\n' "  $B fyi3     # downloads and displays FYI 3"
   printf -- '%s\n' "  $B ien137   # downloads and displays IEN 137"
   printf -- '%s\n' "  $B std1     # downloads and displays STD 1"
-  echo "Note: Don't use leading zeros in the NUMBER"
 }
 
+# exactly one or two arguments must be given
 test \( $# -eq 1 \) -o \( $# -eq 2 \) ||
   { version; license; echo; usage; exit 1; }
-R=$1
-PR=''
+
+# parse arguments into type and number of document and build file name
 if test $# -eq 2; then
-  PR=$(expr match " $2" ' \(0*\)')
-  if test -n "$PR"; then
-    R="$1${2#$PR}"
-  else
-    R="$1$2"
-  fi
+  DOC="$1$2"
+else
+  DOC="$1"
 fi
-R=${R#[rR][fF][cC]}
-R=${R#-}
-R=${R# }
-PR=''
-PR=$(expr match " $R" ' \(0*\)')
-test -n "$PR" && R=${R#$PR}
-R=${R%.txt}
-R=$(printf -- '%s' "$R" | tr '[:upper:]' '[:lower:]')
-case "$R" in
-  [1-9]|[[1-9][0-9]|[1-9][0-9][0-9]|[1-9][0-9][0-9][0-9]) R=rfc$R.txt;;
-  #[1-9][0-9][0-9][0-9][0-9]) R=rfc$1.txt;; # not yet needed
-  bcp[1-9]|bcp[1-9][0-9]|bcp[1-9][0-9][0-9]|bcp[1-9][0-9][0-9][0-9])
-    R="bcp/$R.txt";;
-  fyi[1-9]|fyi[1-9][0-9]|fyi[1-9][0-9][0-9]|fyi[1-9][0-9][0-9][0-9])
-    R="fyi/$R.txt";;
-  ien[1-9]|ien[1-9][0-9]|ien[1-9][0-9][0-9]|ien[1-9][0-9][0-9][0-9])
-    R="ien/$R.txt";;
-  std[1-9]|std[1-9][0-9]|std[1-9][0-9][0-9]|std[1-9][0-9][0-9][0-9])
-    R="std/$R.txt";;
-  *) printf -- "Error: unknown parameter '%s'\n" "$1"; usage; exit 1;;
+expr match " $DOC" '  *[0-9][0-9]* *$' > /dev/null && DOC="rfc$DOC"
+DT="$(expr match " $DOC" ' \([A-Za-z][A-Za-z]*\)' \
+      | tr '[:upper:]' '[:lower:]')"
+DN="$(expr match " $DOC" ' [-A-Za-z ]*0*\([1-9][0-9]*\)')"
+test -z "$DT" &&
+  { echo 'Error: could not determine document type'; usage; exit 1; }
+test -z "$DN" &&
+  { echo 'Error: could not determine document number'; usage; exit 1; }
+case "$DT" in
+  rfc) R="${DT}${DN}.txt";;
+  bcp|fyi|ien|std) R="${DT}/${DT}${DN}.txt";;
+  *) printf -- 'Error: unknown document type "%s"\n' "$DT"; usage; exit 1;;
 esac
 
 F=$(mktemp -t rfc-reader.$$.XXXXXXXXXX)
