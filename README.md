@@ -36,6 +36,7 @@ IPv6 ULA addresses using a deterministic algorithm based on [RFC 4193 section 3.
 * `nfoview` - view NFO files on GNU/Linux
 * `ping_scan` - ping many hosts at once ([web page](https://www.unix-ag.uni-kl.de/~auerswal/ping_scan/))
 * `ping_wrapper` - wrapper around iputils ping for use with `ping_scan` ([web page](https://www.unix-ag.uni-kl.de/~auerswal/ping_scan/))
+* `pmtud` - Path MTU discovery to given IP / HOSTNAME using ICMP Echo Request probes
 * `pnmcat-stream` - wrapper for [pnmcat](http://netpbm.sourceforge.net/doc/pnmcat.html) to work with image streams ([web page](https://www.unix-ag.uni-kl.de/~auerswal/netpbm/index.html))
 * `priv_pass.py` - Calculate ROMMON priv password for (some) Cisco routers
 * `rfc-reader` - read IETF RFCs on GNU/Linux ([web page](https://www.unix-ag.uni-kl.de/~auerswal/rfc-reader/))
