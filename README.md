@@ -27,7 +27,7 @@ IPv6 ULA addresses using a deterministic algorithm based on [RFC 4193 section 3.
 * `ffdl` - simple download helper for Firefox
 * `foreachpam` - invoke program for each image in a PAM stream ([web page](https://www.unix-ag.uni-kl.de/~auerswal/netpbm/index.html))
 * `foreachpnm` - invoke program for each image in a PNM stream ([web page](https://www.unix-ag.uni-kl.de/~auerswal/netpbm/index.html))
-* `hide_passwords_enterasys.sed` - mask passwords in Enterasys (now Extreme) EOS configuration (available on my [Notes on Enterasys Networks Equipment](https://www.unix-ag.uni-kl.de/~auerswal/enterasys/) web page)
+* `hide_passwords_enterasys.sed` - mask passwords in Enterasys (now Extreme) EOS configuration (available on my [Notes on Enterasys Networks Equipment](https://www.unix-ag.uni-kl.de/~auerswal/enterasys/#hide_passwords) web page)
 * `ifstats` - print interface statistics (counters) on Linux
 * `ipcalc` - simple replacement for [ipcalc](http://jodies.de/ipcalc)
 * `macfmt` - convert MAC address formats ([web page](https://www.unix-ag.uni-kl.de/~auerswal/macfmt/))
