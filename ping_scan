@@ -1,8 +1,8 @@
-#! /usr/bin/env sh
+#! /usr/bin/env bash
 
 # Send an ICMP echo request to each of the IPs given.
 #
-# Copyright (C) 2011-2012 Erik Auerswald <auerswal@unix-ag.uni-kl.de>
+# Copyright (C) 2011-2013 Erik Auerswald <auerswal@unix-ag.uni-kl.de>
 #
 # Copying and distribution of this file, with or without modification,
 # are permitted in any medium without royalty provided the copyright
@@ -11,17 +11,17 @@
 #
 # Requires the ping program of Solaris or an output-compatible one.
 
-VERSION=2012-07-21-02
+VERSION=2013-08-06-01
 PROG="$(basename $0)"
 PING="${PING_WRAPPER:-ping}"
 
 version()
 {
   echo "$PROG version $VERSION"
-  echo "Copyright (C) 2011-2012 by Erik Auerswald <auerswal@unix-ag.uni-kl.de>"
+  echo "Copyright (c) 2011-2013 by Erik Auerswald <auerswal@unix-ag.uni-kl.de>"
 }
 
-usage() { echo "Usage: $PROG [-h] [-L] [-t TIMEOUT] [-v] IP..."; }
+usage() { echo "Usage: $PROG [-h] [-L] [-t TIMEOUT] [-v] [-u] IP..."; }
 
 help()
 {
@@ -32,7 +32,14 @@ Options:
    -h           print this help and exit
    -t TIMEOUT   specify the timeout value used for ping (default ${TIMEOUT}s)
    -v           print additional runtime info
+   -u           print not reachable hosts instead
    -L           print license and exit
+
+$PROG sends ICMP echo requests to the hosts (IP addresses) specified
+and prints every host that answers with an ICMP echo reply.
+
+With the -u option, only hosts / IP addresses that do not answer are printed.
+
 	EOH
 }
 
@@ -52,23 +59,31 @@ test $# -eq 0 && { usage; exit 1; }
 
 TIMEOUT=1
 VERB=0
-while getopts t:hvL OPT; do
+UNREACHABLE=0
+while getopts t:hvuL OPT; do
   case "$OPT" in
     t) TIMEOUT=${OPTARG:-2};;
     h) help; exit 0;;
     v) VERB=1;;
+    u) UNREACHABLE=1;;
     L) version; license; exit 0;;
     ?) usage; exit 1;;
   esac
 done
 shift $(($OPTIND - 1))
 
-test "${VERB}x" = "1x" &&
+test "x${VERB}x" = "x1x" &&
   echo "Sending ICMP echo requests and waiting for results..." \
        "(timeout ${TIMEOUT}s)"
 
+test \( "x${VERB}x" = "x1x" \) -a \( "x${UNREACHABLE}x" = "x1x" \) &&
+  echo "Printing not reachable hosts."
+
+PATTERN='is alive'
+test "x${UNREACHABLE}x" = "x1x" && PATTERN='no answer from'
+
 while test $# -ge 1; do
-  { $PING -n "$1" "$TIMEOUT" | fgrep alive; } &
+  { $PING -n "$1" "$TIMEOUT" | fgrep "$PATTERN"; } &
   shift
 done | sort -t . -k 1,1n -k 2,2n -k 3,3n -k 4,4n -u
 
