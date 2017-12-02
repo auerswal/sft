@@ -19,7 +19,7 @@
 # Reads MAC addresses (one per line) from STDIN or file given as argument.
 # Prints all formats unless one is specified using the -v format=FORMAT option.
 #        FORMAT is one of: all, cisco, linux, enterasys, cabletron, broadcom,
-#                          vmps, netsight, hp, hex, hexprefix
+#                          vmps, netsight, hp, hex, hexprefix, pxe
 # Converts hex digits A-F to lower or upper case if -v cap=CASE is given.
 #        CASE   is one of: lower, upper
 # If cap is not specified, the format's default case is used.
