@@ -19,7 +19,8 @@
 # Reads MAC addresses (one per line) from STDIN or file given as argument.
 # Prints all formats unless one is specified using the -v format=FORMAT option.
 #        FORMAT is one of: all, cisco, linux, enterasys, cabletron, broadcom,
-#                          vmps, netsight, hp, hex, hexprefix, pxe, pgsql
+#                          vmps, netsight, hp, hex, hexprefix, pxe, pgsql,
+#                          hexpostfix
 # Converts hex digits A-F to lower or upper case if -v cap=CASE is given.
 #        CASE   is one of: lower, upper
 # If cap is not specified, the format's default case is used.
@@ -47,6 +48,7 @@ function print_macs(format) {
 	hex = tolower(a[1] a[2] a[3] a[4] a[5] a[6])
 	pxe = toupper(a[1] " " a[2] " " a[3] " " a[4] " " a[5] " " a[6])
 	pgsql = tolower(a[1] a[2] a[3] ":" a[4] a[5] a[6])
+	hexpostfix = toupper(hex) "h"
 	if (cap == "lower") {
 		ets = tolower(ets)
 		ct = tolower(ct)
@@ -54,6 +56,7 @@ function print_macs(format) {
 		vmps = tolower(vmps)
                 netsight = tolower(netsight)
                 pxe = tolower(pxe)
+                hexpostfix = tolower(hexpostfix)
 	} else if (cap == "upper") {
 		cisco = toupper(cisco)
 		linux = toupper(linux)
@@ -64,7 +67,7 @@ function print_macs(format) {
 	hexprefix = "0x" hex
 	if (!format || format == "all") {
 		print cisco, linux, ets, ct, bcm, vmps, netsight, hp, hex, \
-			hexprefix, pxe, pgsql
+			hexprefix, pxe, pgsql, hexpostfix
 	} else if (format == "cisco") {
 		print cisco
 	} else if (format == "linux") {
@@ -89,6 +92,8 @@ function print_macs(format) {
                 print pxe
 	} else if (format == "pgsql") {
                 print pgsql
+	} else if (format == "hexpostfix") {
+                print hexpostfix
         }
 }
 
@@ -151,9 +156,10 @@ BEGIN {
 	print_macs(format)
 }
 
-/^[[:space:]]*(0x)?[[:xdigit:]][[:xdigit:]][[:xdigit:]][[:xdigit:]][[:xdigit:]][[:xdigit:]][[:xdigit:]][[:xdigit:]][[:xdigit:]][[:xdigit:]][[:xdigit:]][[:xdigit:]][[:space:]]*$/ {
+/^[[:space:]]*(0x)?[[:xdigit:]][[:xdigit:]][[:xdigit:]][[:xdigit:]][[:xdigit:]][[:xdigit:]][[:xdigit:]][[:xdigit:]][[:xdigit:]][[:xdigit:]][[:xdigit:]][[:xdigit:]](h)?[[:space:]]*$/ {
 	gsub("[[:space:]]*","")
 	gsub("^0x","")
+	gsub("h$", "")
 	a[1] = substr($0,1,2)
 	a[2] = substr($0,3,2)
 	a[3] = substr($0,5,2)
