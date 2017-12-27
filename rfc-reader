@@ -22,6 +22,9 @@
 # BUGS:
 # - first page of re-formatted RFC 1661 is one line too long
 #   -> caused by over long (59 lines) first page
+# - RFC 1347 is not formatted well by rfc-reader
+#   - lines of the RFC are too long
+#   - pages of the RFC are too long
 # - STD 62 concatenates RFCs with a separator line consisting of '=' characters
 #   -> the separator line breaks formatting
 # - XTerm / GNOME Terminal font size heuristic breaks on high DPI displays
