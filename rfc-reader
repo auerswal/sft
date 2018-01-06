@@ -22,11 +22,14 @@
 # BUGS:
 # - first page of re-formatted RFC 1661 is one line too long
 #   -> caused by over long (59 lines) first page
+#   -> workaround: env L=60 rfc-reader 1661
 # - RFC 1347 is not formatted well by rfc-reader
 #   - lines of the RFC are too long
 #   - pages of the RFC are too long
+#   -> workaround: env L=64 C=81 XT=xterm XTFS=4 rfc-reader 1347
 # - STD 62 concatenates RFCs with a separator line consisting of '=' characters
 #   -> the separator line breaks formatting
+#   -> workaround: env L=60 rfc-reader std 62
 # - XTerm / GNOME Terminal font size heuristic breaks on high DPI displays
 
 set -u
