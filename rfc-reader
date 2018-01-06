@@ -20,16 +20,10 @@
 # XXX:
 # - refactor preprocessing (awk + sed) and viewing (xterm + less) into own tools
 # BUGS:
-# - first page of re-formatted RFC 1661 is one line too long
-#   -> caused by over long (59 lines) first page
-#   -> workaround: env L=60 rfc-reader 1661
 # - RFC 1347 is not formatted well by rfc-reader
 #   - lines of the RFC are too long
 #   - pages of the RFC are too long
 #   -> workaround: env L=64 C=81 XT=xterm XTFS=4 rfc-reader 1347
-# - STD 62 concatenates RFCs with a separator line consisting of '=' characters
-#   -> the separator line breaks formatting
-#   -> workaround: env L=60 rfc-reader std 62
 # - XTerm / GNOME Terminal font size heuristic breaks on high DPI displays
 
 set -u
@@ -37,7 +31,7 @@ set -u
 B=$(basename $0)
 
 C=${C:=74} # 72 chars max. per line (RFC 1 has line length <= 77) + two blanks
-L=${L:=59} # 58 lines max. per page + pager prompt
+L=${L:=60} # 58 lines max. per page + pager prompt + separator line
 Y=$(xrandr | sed -n '/\*/s/^[^x]*x *\([0-9]*\)[^0-9].*$/\1/p' | head -n1)
 test -z "$Y" && Y=0
 if test "$Y" -ge 1100; then
