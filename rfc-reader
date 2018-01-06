@@ -1,6 +1,6 @@
 #! /bin/sh
 
-# Copyright (C) 2011-2017 Erik Auerswald <auerswal@unix-ag.uni-kl.de>
+# Copyright (C) 2011-2018 Erik Auerswald <auerswal@unix-ag.uni-kl.de>
 
 # Copying and distribution of this file, with or without modification,
 # are permitted in any medium without royalty provided the copyright
@@ -111,9 +111,9 @@ test \( -d "$RFCCACHE" \) -a \( -r "$RFCCACHE" \) &&
 
 version()
 {
-  local V="0.20"
+  local V="0.21"
   printf -- "%s\n" "$B version $V"
-  echo 'Copyright (C) 2011-2017 Erik Auerswald <auerswal@unix-ag.uni-kl.de>'
+  echo 'Copyright (C) 2011-2018 Erik Auerswald <auerswal@unix-ag.uni-kl.de>'
 }
 
 license()
