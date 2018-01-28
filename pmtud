@@ -4,7 +4,7 @@ set -u
 
 # Simplistic Path MTU Discovery using ICMP Echo Request probes.
 #
-# Copyright (C) 2017 Erik Auerswald <auerswal@unix-ag.uni-kl.de>
+# Copyright (C) 2017-2018 Erik Auerswald <auerswal@unix-ag.uni-kl.de>
 #
 # Copying and distribution of this file, with or without modification,
 # are permitted in any medium without royalty provided the copyright
@@ -21,7 +21,7 @@ VERSION='2017-10-30-01'
 PROG="$(basename $0)"
 ALGO='binary'
 OVERHEAD=28
-MIN=64
+MIN=68
 INCREMENT=10
 MAX='auto'
 WAIT='.15'
