@@ -17,12 +17,13 @@ set -u
 # hides that the probe packets are ICMP Echo Requests and thus allows the
 # script to work.
 
-VERSION='2018-01-28-01'
+VERSION='2018-01-28-02'
 PROG="$(basename $0)"
 ALGO='binary'
 OVERHEAD=28
 MIN=68
 INCREMENT=10
+TABLE='65535 32000 17914 8166 4352 2002 1492 1006 508 296 68'
 MAX='auto'
 WAIT='.15'
 TARGET='8.8.8.8'
@@ -66,6 +67,7 @@ Options:
   -L            print license and exit
   -l            use linear search strategy for path MTU discovery
   -b            use binary search strategy for path MTU discovery
+  -p            use plateau table as suggested in RFC 1191
   -m MIN        set minimum probe size in bytes (default ${MIN})
   -M MAX        set maximum probe size in bytes (default ${MAX})
   -i INCREMENT  set linear search increment size in bytes (default ${INCREMENT})
@@ -74,13 +76,14 @@ Options:
 EOF
 }
 
-while getopts ':hVLlbm:M:i:w:o:' OPT; do
+while getopts ':hVLlbpm:M:i:w:o:' OPT; do
   case "$OPT" in
     'h') help; exit 0;;
     'V') version; exit 0;;
     'L') version; copyright; license; exit 0;;
     'l') ALGO='linear';;
     'b') ALGO='binary';;
+    'p') ALGO='plateau';;
     'm') MIN="$OPTARG";;
     'M') MAX="$OPTARG";;
     'i') INCREMENT="$OPTARG";;
@@ -167,6 +170,25 @@ EOF
     send_probe "$S" "$TARGET" &
     sleep "$WAIT"
   done | sort -n | sed -n '$s/^\(.*\)$/[+] IP PMTU is \1 bytes/p'
+  echo '[+] all probes timed out or returned' 1>&2
+}
+
+plateau()
+{
+  cat 1>&2 <<EOF
+[-] performing plateau table based IP PMTUD to $TARGET with ICMP Echo Requests
+[-] plateau values used: $TABLE
+[-] search_low $MIN bytes, search_high $MAX bytes
+[-] waiting $WAIT seconds between probes
+EOF
+
+  for S in $TABLE; do
+    test "$S" -gt "$MAX" && continue
+    printf -- '[.] sending %s bytes probe   \r' "$S" 1>&2
+    send_probe "$S" "$TARGET" &
+    sleep "$WAIT"
+  done | sort -n | \
+    sed -n '$s/^\(.*\)$/[+] plateau estimate for IP PMTU is \1 bytes/p'
   echo '[+] all probes timed out or returned' 1>&2
 }
 
