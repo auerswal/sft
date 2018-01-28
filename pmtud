@@ -17,7 +17,7 @@ set -u
 # hides that the probe packets are ICMP Echo Requests and thus allows the
 # script to work.
 
-VERSION='2018-01-28-02'
+VERSION='2018-01-28-03'
 PROG="$(basename $0)"
 ALGO='binary'
 OVERHEAD=28
@@ -27,6 +27,8 @@ TABLE='65535 32000 17914 8166 4352 2002 1492 1006 508 296 68'
 MAX='auto'
 WAIT='.15'
 TARGET='8.8.8.8'
+PROBETIMEOUT='2'
+PINGOPTS="-c1 -Mdo -n -W${PROBETIMEOUT}"
 
 version() { echo "$PROG version $VERSION"; }
 
@@ -71,12 +73,13 @@ Options:
   -m MIN        set minimum probe size in bytes (default ${MIN})
   -M MAX        set maximum probe size in bytes (default ${MAX})
   -i INCREMENT  set linear search increment size in bytes (default ${INCREMENT})
-  -w WAIT       set time waited between probes (default ${WAIT})
+  -w WAIT       set time waited between probes (default ${WAIT}s)
+  -W TIMEOUT    set probe timeout (default ${PROBETIMEOUT}s)
   -o OVERHEAD   set overhead in bytes added by ping (default ${OVERHEAD})
 EOF
 }
 
-while getopts ':hVLlbpm:M:i:w:o:' OPT; do
+while getopts ':hVLlbpm:M:i:w:W:o:' OPT; do
   case "$OPT" in
     'h') help; exit 0;;
     'V') version; exit 0;;
@@ -88,6 +91,7 @@ while getopts ':hVLlbpm:M:i:w:o:' OPT; do
     'M') MAX="$OPTARG";;
     'i') INCREMENT="$OPTARG";;
     'w') WAIT="$OPTARG";;
+    'W') PROBETIMEOUT="$OPTARG"; PINGOPTS="-c1 -Mdo -n -W${PROBETIMEOUT}";;
     'o') OVERHEAD="$OPTARG";;
     '?') echo "${PROG}: ERROR: unknown option $OPTARG"; exit 1;;
     ':') echo "${PROG}: ERROR: argument required for option $OPTARG"; exit 1;;
@@ -127,7 +131,7 @@ send_probe()
   }
   S="$1"
   TARGET="$2"
-  ping -c1 -Mdo -s "$(($S - $OVERHEAD))" "$TARGET" >/dev/null 2>&1 && echo "$S"
+  ping $PINGOPTS -s "$(($S - $OVERHEAD))" "$TARGET" >/dev/null 2>&1 && echo "$S"
 }
 
 binary()
@@ -139,7 +143,8 @@ binary()
   cat 1>&2 <<EOF
 [-] performing binary search IP PMTUD to $TARGET with ICMP Echo Requests
 [-] search_low starts at $MIN bytes, search_high starts at $MAX bytes
-[-] waiting $WAIT seconds between probes
+[-] waiting $WAIT seconds between probes with $PROBETIMEOUT seconds timeout
+[-] for unsuccessful probes
 EOF
 
   LOW=$MIN
@@ -163,7 +168,8 @@ linear()
   cat 1>&2 <<EOF
 [-] performing linear search IP PMTUD to $TARGET with ICMP Echo Requests
 [-] search_low $MIN bytes, search_high $MAX bytes, $INCREMENT byte(s) increments
-[-] waiting $WAIT seconds between probes
+[-] waiting $WAIT seconds between probes with $PROBETIMEOUT seconds timeout
+[-] for unsuccessful probes
 EOF
 
   for S in $(seq "$MIN" "$INCREMENT" "$MAX"); do
@@ -180,7 +186,8 @@ plateau()
 [-] performing plateau table based IP PMTUD to $TARGET with ICMP Echo Requests
 [-] plateau values used: $TABLE
 [-] search_low $MIN bytes, search_high $MAX bytes
-[-] waiting $WAIT seconds between probes
+[-] waiting $WAIT seconds between probes with $PROBETIMEOUT seconds timeout
+[-] for unsuccessful probes
 EOF
 
   for S in $TABLE; do
