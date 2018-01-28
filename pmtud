@@ -17,7 +17,7 @@ set -u
 # hides that the probe packets are ICMP Echo Requests and thus allows the
 # script to work.
 
-VERSION='2018-01-28-03'
+VERSION='2018-01-28-04'
 PROG="$(basename $0)"
 ALGO='binary'
 OVERHEAD=28
@@ -69,7 +69,8 @@ Options:
   -L            print license and exit
   -l            use linear search strategy for path MTU discovery
   -b            use binary search strategy for path MTU discovery
-  -p            use plateau table as suggested in RFC 1191
+  -p            use plateau table based search as suggested in RFC 1191
+  -P VALUES     specify alternate plateau table (values separated by whitespace)
   -m MIN        set minimum probe size in bytes (default ${MIN})
   -M MAX        set maximum probe size in bytes (default ${MAX})
   -i INCREMENT  set linear search increment size in bytes (default ${INCREMENT})
@@ -79,7 +80,7 @@ Options:
 EOF
 }
 
-while getopts ':hVLlbpm:M:i:w:W:o:' OPT; do
+while getopts ':hVLlbpP:m:M:i:w:W:o:' OPT; do
   case "$OPT" in
     'h') help; exit 0;;
     'V') version; exit 0;;
@@ -87,6 +88,7 @@ while getopts ':hVLlbpm:M:i:w:W:o:' OPT; do
     'l') ALGO='linear';;
     'b') ALGO='binary';;
     'p') ALGO='plateau';;
+    'P') TABLE="$OPTARG";;
     'm') MIN="$OPTARG";;
     'M') MAX="$OPTARG";;
     'i') INCREMENT="$OPTARG";;
