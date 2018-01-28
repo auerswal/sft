@@ -141,11 +141,12 @@ binary()
 [-] search_low starts at $MIN bytes, search_high starts at $MAX bytes
 [-] waiting $WAIT seconds between probes
 EOF
+
   LOW=$MIN
   HIGH=$MAX
   while test "$LOW" -le "$HIGH"; do
     PROBE=$((($LOW + $HIGH) / 2))
-    printf -- '[.] sending %s bytes probe\r' "$PROBE" 1>&2
+    printf -- '[.] sending %s bytes probe   \r' "$PROBE" 1>&2
     send_probe "$PROBE" "$TARGET"
     if test $? -eq 0; then
       LOW=$(($PROBE+1))
