@@ -17,7 +17,7 @@ set -u
 # hides that the probe packets are ICMP Echo Requests and thus allows the
 # script to work.
 
-VERSION='2017-10-30-01'
+VERSION='2018-01-28-01'
 PROG="$(basename $0)"
 ALGO='binary'
 OVERHEAD=28
@@ -31,7 +31,7 @@ version() { echo "$PROG version $VERSION"; }
 
 copyright()
 {
-  echo 'Copyright (C) 2017 by Erik Auerswald <auerswal@unix-ag.uni-kl.de>'
+  echo 'Copyright (C) 2017-2018 by Erik Auerswald <auerswal@unix-ag.uni-kl.de>'
 }
 
 license()
