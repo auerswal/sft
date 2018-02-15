@@ -1,0 +1,32 @@
+#! /bin/sh
+
+# section - print line matching regexp with following indented section
+#
+# Copyright (C) 2018 by Erik Auerswald <auerswal@unix-ag.uni-kl.de>
+#
+# Copying and distribution of this file, with or without modification,
+# are permitted in any medium without royalty provided the copyright
+# notice and this notice are preserved.  This file is offered as-is,
+# without any warranty.
+
+test -z "$1" && { echo 'Usage: section PATTERN FILE...'; exit 1; }
+PATTERN="$1"
+shift
+exec /usr/bin/awk -v pattern="$PATTERN" '
+function update_state(pat_match, loc_ind) {
+	if (match($0, /^[ \t]+/)) {
+		loc_ind = substr($0, RSTART, RLENGTH)
+		gsub(/\t/, "        ", loc_ind)
+	}
+	if (pat_match || (found && (length(loc_ind) > length(ind)))) {
+		if (!found || (length(loc_ind) <= length(ind))) ind = loc_ind
+		found = 1
+		print $0
+	} else {
+		found = 0
+		ind = ""
+	}
+}
+$0 ~ pattern { update_state(1) }
+$0 !~ pattern { update_state(0) }
+' "$@"
