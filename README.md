@@ -5,6 +5,10 @@ languages for varying use cases. The single common factor is an implementation
 comprising just one file. These single file tools are usually written in an
 interpreted (or scripting) language.
 
+All single file tools are intended to be usable without installation. I
+usually check out this repository on every machine I work with. If one of
+the tools needs to be started from a specific directory that is a bug.
+
 ## License
 
 All tools contain licensing information in the file. In general, every tool
