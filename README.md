@@ -22,6 +22,7 @@ version 3 or later.
 Some of the single file tools have been published already using a dedicated
 web page. In that case a link to the web page is provided.
 
+* `capture.sh` - capture traffic on an interface for a given duration with tcpdump
 * `checkzips` - check ZIP files for errors
 * `create_ipv6_ULA_global_prefix_random.sh` - create a random global prefix for IPv6 ULA addresses using `/dev/random`
 * `create_ipv6_ULA_global_prefix_rfc4193.sh` - create a random global prefix for
