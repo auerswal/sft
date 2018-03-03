@@ -2,7 +2,7 @@
 
 # Query interface status of network devices.
 #
-# Copyright (C) 2012 Erik Auerswald <auerswal@unix-ag.uni-kl.de>
+# Copyright (C) 2012-2018 Erik Auerswald <auerswal@unix-ag.uni-kl.de>
 #
 # Copying and distribution of this file, with or without modification,
 # are permitted in any medium without royalty provided the copyright
@@ -20,7 +20,7 @@
 #
 # Currently tested with Enterasys Networks switches only.
 #
-# Version 2012-10-24-01
+# Version 2018-03-03-01
 
 STATUS=$(mktemp ifOperStatus.$$.XXXXXX)
 NAME=$(mktemp ifName.$$.XXXXXX)
@@ -28,10 +28,11 @@ NAME=$(mktemp ifName.$$.XXXXXX)
 trap "rm -f $STATUS $NAME" 0 1 2 3 15
 
 # Specify the snmpwalk executable to use.
-# Several Net-SNMP versions available beneath /sw/local/.
-#SNMPWALK=/sw/local/net-snmp-5.6.1/bin/snmpbulkwalk
+# This can be overridden from the environment.
 # 'snmpbulkwalk' is faster, but needs SNMPv2c or SNMPv3
-SNMPWALK=/sw/local/net-snmp-5.6.1/bin/snmpbulkwalk
+# (you should always use SNMPv3).
+# Comment the following line to disable use of 'snmpbulkwalk.'
+SNMPWALK=${SNMPWALK:=snmpbulkwalk}
 # Use 'snmpwalk' as executable, if SNMPWALK is not specified.
 SNMPWALK=${SNMPWALK:=snmpwalk}
 
