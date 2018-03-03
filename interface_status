@@ -1,0 +1,57 @@
+#! /usr/bin/env sh
+
+# Query interface status of network devices.
+#
+# Copyright (C) 2012 Erik Auerswald <auerswal@unix-ag.uni-kl.de>
+#
+# Copying and distribution of this file, with or without modification,
+# are permitted in any medium without royalty provided the copyright
+# notice and this notice are preserved.  This file is offered as-is,
+# without any warranty.
+#
+# Usage: interface_status IP|NAME...
+#
+# Queries the specified devices for interface status and interface name via
+# SNMP (using snmpwalk from Net-SNMP) using standard MIBs.
+#
+# Use snmp.conf (e.g. $HOME/.snmp/snmp.conf) to configure SNMP access.
+# The script uses OID names, thus Net-SNMP needs to be configured to allow
+# this. See snmp_config(4) and snmp.conf(4) man-pages.
+#
+# Currently tested with Enterasys Networks switches only.
+#
+# Version 2012-10-24-01
+
+STATUS=$(mktemp ifOperStatus.$$.XXXXXX)
+NAME=$(mktemp ifName.$$.XXXXXX)
+
+trap "rm -f $STATUS $NAME" 0 1 2 3 15
+
+# Specify the snmpwalk executable to use.
+# Several Net-SNMP versions available beneath /sw/local/.
+#SNMPWALK=/sw/local/net-snmp-5.6.1/bin/snmpbulkwalk
+# 'snmpbulkwalk' is faster, but needs SNMPv2c or SNMPv3
+SNMPWALK=/sw/local/net-snmp-5.6.1/bin/snmpbulkwalk
+# Use 'snmpwalk' as executable, if SNMPWALK is not specified.
+SNMPWALK=${SNMPWALK:=snmpwalk}
+
+for SWITCH_IP in "$@"; do
+  echo "Interface status on ${SWITCH_IP}:"
+
+  { ${SNMPWALK} ${SWITCH_IP} \
+    interfaces.ifTable.ifEntry.ifOperStatus | \
+  sed 's/^.*\.\([0-9]*\) .* \([a-z]*\).*$/\1 \2/' | \
+  sort > "$STATUS"; } &
+
+
+  { ${SNMPWALK} ${SWITCH_IP} \
+    ifMIB.ifMIBObjects.ifXTable.ifXEntry.ifName | \
+  sed 's/^.*\.\([0-9]*\) .* \([^ ]*\).*$/\1 \2/' | \
+  sort > "$NAME"; } &
+
+  wait
+
+  join "$NAME" "$STATUS" | sort -n | sed 's/^[0-9]* / /'
+done
+
+exit 0
