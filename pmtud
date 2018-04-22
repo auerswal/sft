@@ -17,7 +17,12 @@ set -u
 # hides that the probe packets are ICMP Echo Requests and thus allows the
 # script to work.
 
-VERSION='2018-01-28-04'
+# Some versions of the Ping program from iputils fragments IPv6 probe
+# packets to conform to the local MTU even with the "-M do" option that
+# shall prevent local fragmentation. Thus the results of this program
+# may be wrong if an IPv6 end point is specified.
+
+VERSION='2018-04-22-01'
 PROG="$(basename $0)"
 ALGO='binary'
 OVERHEAD=28
