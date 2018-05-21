@@ -30,7 +30,7 @@ set -u
 
 B=$(basename $0)
 
-C=${C:=74} # 72 chars max. per line (RFC 1 has line length <= 77) + two blanks
+C=${C:=76} # 72 chars max. per line (RFC 1 has line length <= 77) + four blanks
 L=${L:=60} # 58 lines max. per page + pager prompt + separator line
 Y=$(xrandr | sed -n '/\*/s/^[^x]*x *\([0-9]*\)[^0-9].*$/\1/p' | head -n1)
 test -z "$Y" && Y=0
@@ -111,7 +111,7 @@ test \( -d "$RFCCACHE" \) -a \( -r "$RFCCACHE" \) &&
 
 version()
 {
-  local V="0.21"
+  local V="0.22"
   printf -- "%s\n" "$B version $V"
   echo 'Copyright (C) 2011-2018 Erik Auerswald <auerswal@unix-ag.uni-kl.de>'
 }
@@ -195,7 +195,7 @@ printf -- 'done\n'
 
 awk -vn_lines="${L}" \
   '!/\f/{line++; print}; /\f/{for (i=line; i<n_lines-1; i++) print ""; line=0}'\
-  "$F" > "$FMT"
+  "$F" | sed '/^$/!s/^/  /' > "$FMT"
 $XT $XO "$XF" $G $T"$B - $(basename $R)" $E "$FMT"
 # gnome-terminal cannot run in the foreground
 wait
