@@ -53,7 +53,7 @@ test "$PAGER" = "less" && test -z "$PO" && PO="-M -S"
 
 # find a terminal program to use
 XT=${XT:=''}
-test -z "$XT" &&
+test -z "$XT" && test -n "${WINDOWID:-}" &&
   XT=$(xprop -id $WINDOWID WM_CLASS | sed -n 's/^[^"]*"\([^"]*\)".*$/\1/p')
 test -x "$(which "$XT")" || XT=""
 test -z "$XT" && { env | fgrep gnome-terminal >/dev/null 2>&1; } &&
