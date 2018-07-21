@@ -22,7 +22,7 @@ set -u
 # shall prevent local fragmentation. Thus the results of this program
 # may be wrong if an IPv6 end point is specified.
 
-VERSION='2018-04-22-01'
+VERSION='2018-07-21-01'
 PROG="$(basename $0)"
 ALGO='binary'
 OVERHEAD=28
