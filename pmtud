@@ -122,6 +122,7 @@ auto_max()
 
 test "x${MAX}x" = 'xautox' && MAX=$(auto_max 2>/dev/null)
 MAX=${MAX:-1500}
+test "${MAX}" -ge 65535 && MAX=65535
 
 # error_msg() prints its parameters as a line to STDERR
 error_msg()
