@@ -82,6 +82,9 @@ Options:
   -w WAIT       set time waited between probes (default ${WAIT}s)
   -W TIMEOUT    set probe timeout (default ${PROBETIMEOUT}s)
   -o OVERHEAD   set overhead in bytes added by ping (default ${OVERHEAD})
+
+Plateau search uses the following values:
+  ${TABLE}
 EOF
 }
 
