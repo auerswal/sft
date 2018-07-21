@@ -194,8 +194,8 @@ plateau()
 {
   cat 1>&2 <<EOF
 [-] performing plateau table based IP PMTUD to $TARGET with ICMP Echo Requests
-[-] plateau values used: $TABLE
-[-] search_low $MIN bytes, search_high $MAX bytes
+[-] values: $TABLE
+[-] using values between $MIN bytes and $MAX bytes
 [-] waiting $WAIT seconds between probes with $PROBETIMEOUT seconds timeout
 [-] for unsuccessful probes
 EOF
