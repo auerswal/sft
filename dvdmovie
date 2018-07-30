@@ -2,7 +2,7 @@
 
 # dvdmovie plays the movie from a video DVD using MPlayer
 #
-# Copyright (c) 2012-2014 Erik Auerswald <auerswal@unix-ag.uni-kl.de>
+# Copyright (c) 2012-2018 Erik Auerswald <auerswal@unix-ag.uni-kl.de>
 #
 # Copying and distribution of this file, with or without modification,
 # are permitted in any medium without royalty provided the copyright
@@ -16,7 +16,7 @@
 # the fields are (in this order): Disc ID, Movie Title, Track, Options
 # every field besides the Disc ID may be empty
 
-# version 2014-09-25-01
+# version 2018-07-30-01
 
 set -u
 
@@ -60,14 +60,13 @@ test "$DVDMOVIE_DISCID" != '0' ||
 echo "Longest title on DVD ${DVDMOVIE_DISCID} is no. $DVDMOVIE_TITLE" \
 	"($DVDMOVIE_LEN min.)."
 test -r "$RC" && test "$DVDMOVIE_DISCID" != '0' &&
-	eval $(awk -F\; "
-		/^${DVDMOVIE_DISCID}/ {
-			print \"DVDMOVIERC_TITLE='\" \$3 \"'\"
-			print \"DVDMOVIERC_OPTS='\" \$4 \"'\"
-		}
-	" "$RC")
+	DVDMOVIERC_NAME="$(fgrep "$DVDMOVIE_DISCID" "$RC" | cut -d\; -f2)" &&
+	DVDMOVIERC_TITLE="$(fgrep "$DVDMOVIE_DISCID" "$RC" | cut -d\; -f3)" &&
+	DVDMOVIERC_OPTS="$(fgrep "$DVDMOVIE_DISCID" "$RC" | cut -d\; -f4)"
+test -n "$DVDMOVIERC_NAME" &&
+	echo "Found $RC entry '$DVDMOVIERC_NAME'."
 test -n "$DVDMOVIERC_TITLE" &&
-	echo "Using title $DVDMOVIERC_TITLE from $RC instead." &&
+	echo "Using title $DVDMOVIERC_TITLE from $RC instead of longest." &&
 	DVDMOVIE_TITLE="$DVDMOVIERC_TITLE"
 test -n "$DVDMOVIERC_OPTS" &&
 	echo "Adding options $DVDMOVIERC_OPTS from ${RC}." &&
