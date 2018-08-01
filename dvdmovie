@@ -64,12 +64,12 @@ test -r "$RC" && test "$DVDMOVIE_DISCID" != '0' &&
 	DVDMOVIERC_NAME="$(fgrep "$DVDMOVIE_DISCID" "$RC" | cut -d\; -f2)" &&
 	DVDMOVIERC_TITLE="$(fgrep "$DVDMOVIE_DISCID" "$RC" | cut -d\; -f3)" &&
 	DVDMOVIERC_OPTS="$(fgrep "$DVDMOVIE_DISCID" "$RC" | cut -d\; -f4)"
-test -n "$DVDMOVIERC_NAME" &&
+test "$DVDMOVIE_DISCID" != '0' && test -n "$DVDMOVIERC_NAME" &&
 	echo "Found $RC entry '$DVDMOVIERC_NAME'."
-test -n "$DVDMOVIERC_TITLE" &&
+test "$DVDMOVIE_DISCID" != '0' && test -n "$DVDMOVIERC_TITLE" &&
 	echo "Using title $DVDMOVIERC_TITLE from $RC instead of longest." &&
 	DVDMOVIE_TITLE="$DVDMOVIERC_TITLE"
-test -n "$DVDMOVIERC_OPTS" &&
+test "$DVDMOVIE_DISCID" != '0' && test -n "$DVDMOVIERC_OPTS" &&
 	echo "Adding options $DVDMOVIERC_OPTS from ${RC}." &&
 	MOPTS="$MOPTS $DVDMOVIERC_OPTS"
 test -n "$*" &&
