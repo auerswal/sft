@@ -44,9 +44,7 @@ DVDMOVIE_ARRAY=($("$MPLAYER" $IOPTS "$@" "$DISC" 2> /dev/null | awk '
 		split($0,A,"=")
 		discid = A[2]
 	}
-	END {
-		printf "%d %.0f %s\n", title, len/60, discid
-	}
+	END {printf "%d %.0f %s\n", title, len/60, discid}
 '))
 echo 'done.'
 DVDMOVIE_TITLE=${DVDMOVIE_ARRAY[0]}
