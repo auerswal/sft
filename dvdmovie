@@ -1,4 +1,4 @@
-#! /usr/bin/env sh
+#! /usr/bin/env bash
 
 # dvdmovie plays the movie from a video DVD using MPlayer
 #
@@ -16,7 +16,7 @@
 # the fields are (in this order): Disc ID, Movie Title, Track, Options
 # every field besides the Disc ID may be empty
 
-# version 2018-07-30-01
+# version 2018-08-01-01
 
 set -u
 
@@ -32,7 +32,7 @@ MOPTS='-really-quiet'
 DISC='dvd://'
 
 printf -- 'Looking for movie title on DVD, this can take some time...'
-eval $("$MPLAYER" $IOPTS "$@" "$DISC" 2> /dev/null | awk '
+DVDMOVIE_ARRAY=($("$MPLAYER" $IOPTS "$@" "$DISC" 2> /dev/null | awk '
 	BEGIN {title = 0; len = 0; discid = 0}
 	/ID_DVD_TITLE_[0-9]+_LENGTH/ {
 		gsub("ID_DVD_TITLE_","")
@@ -45,12 +45,13 @@ eval $("$MPLAYER" $IOPTS "$@" "$DISC" 2> /dev/null | awk '
 		discid = A[2]
 	}
 	END {
-		print "DVDMOVIE_TITLE=" title
-		printf "DVDMOVIE_LEN=%.0f\n", len/60
-		print "DVDMOVIE_DISCID=" discid
+		printf "%d %.0f %s\n", title, len/60, discid
 	}
-')
+'))
 echo 'done.'
+DVDMOVIE_TITLE=${DVDMOVIE_ARRAY[0]}
+DVDMOVIE_LEN=${DVDMOVIE_ARRAY[1]}
+DVDMOVIE_DISCID=${DVDMOVIE_ARRAY[2]}
 test "$DVDMOVIE_TITLE" -gt 0 ||
 	{ echo 'ERROR: Could not read titles of DVD.' ; exit 1; }
 test "$DVDMOVIE_LEN" -gt 0 ||
