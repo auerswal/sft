@@ -8,7 +8,6 @@
 # without any warranty.
 
 # TODO:
-# - enable use of mnemonics from http://www.rfc-editor.org/rfcxx00.txt
 # - check for RFCs updating/obsoleting the requested
 #   see http://www.rfc-editor.org/rfc/rfc-index.txt
 #   see http://www.rfc-editor.org/info/rfcNUMBER
