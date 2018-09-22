@@ -13,11 +13,13 @@
 #   see http://www.rfc-editor.org/info/rfcNUMBER
 #   -> need to cache the list for offline use and better performance
 #   -> need to update the list from time to time
-# - include DRAFTs (name + version number)
+# - include DRAFTs (I-D) (name + version number)
 #   see http://datatracker.ietf.org/doc/all/
 #       http://www.ietf.org/id/all_id2.txt
 #   see http://datatracker.ietf.org/doc/active/
 #       http://www.ietf.org/id/1id-index.txt
+#   use index file to find current version if I-D number is not specified,
+#       and look in archive if I-D has no current version, i.e. is expired
 #   current I-Ds URL https://www.ietf.org/id/NAME.txt
 #   old I-Ds URL https://www.ietf.org/archive/id/NAME.txt
 #   (archive may contain current I-Ds as well)
