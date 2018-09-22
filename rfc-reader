@@ -12,6 +12,8 @@
 # - check for RFCs updating/obsoleting the requested
 #   see http://www.rfc-editor.org/rfc/rfc-index.txt
 #   see http://www.rfc-editor.org/info/rfcNUMBER
+#   -> need to cache the list for offline use and better performance
+#   -> need to update the list from time to time
 # - include DRAFTs (name + version number)
 #   see http://datatracker.ietf.org/doc/all/
 #       http://www.ietf.org/id/all_id2.txt
