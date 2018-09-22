@@ -19,6 +19,9 @@
 #       http://www.ietf.org/id/all_id2.txt
 #   see http://datatracker.ietf.org/doc/active/
 #       http://www.ietf.org/id/1id-index.txt
+#   current I-Ds URL https://www.ietf.org/id/NAME.txt
+#   old I-Ds URL https://www.ietf.org/archive/id/NAME.txt
+#   (archive may contain current I-Ds as well)
 # XXX:
 # - refactor preprocessing (awk + sed) and viewing (xterm + less) into own tools
 # BUGS:
