@@ -24,7 +24,13 @@
 #   - lines of the RFC are too long
 #   - pages of the RFC are too long
 #   -> workaround: env L=64 C=81 XT=xterm XTFS=4 rfc-reader 1347
+# - RFC 713 is not formatted well by rfc-reader
+#   - first two lines are too long (81 characters)
+#   - pages of the RFC are too long
+#   -> workaround: env L=61 C=81 rfc-reader 713
 # - XTerm / GNOME Terminal font size heuristic breaks on high DPI displays
+# - XTerm and GNOME Terminal (and/or the window manager) do not honor size
+#   requests if the size does not fit inside the $DISPLAY
 
 set -u
 
