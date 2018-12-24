@@ -45,6 +45,7 @@ IPv6 ULA addresses using a deterministic algorithm based on [RFC 4193 section 3.
 * `pmtud` - Path MTU discovery to given IP / HOSTNAME using ICMP Echo Request probes
 * `pnmcat-stream` - wrapper for [pnmcat](http://netpbm.sourceforge.net/doc/pnmcat.html) to work with image streams ([web page](https://www.unix-ag.uni-kl.de/~auerswal/netpbm/index.html))
 * `priv_pass.py` - Calculate ROMMON priv password for (some) Cisco routers
+* `renumber` - renumber a set of discontiguously numbered files
 * `rfc-reader` - read IETF RFCs on GNU/Linux ([web page](https://www.unix-ag.uni-kl.de/~auerswal/rfc-reader/))
 * `section` - print all lines matching a regular expression, and the following indented section (inspired by the Cisco IOS output modifier of the same name)
 * `section.pl` - Perl version of the above `section` script, for use on systems without awk, such as some Cisco IOS XR versions

@@ -1,0 +1,54 @@
+#! /bin/bash
+
+# renumber - renumber a set of files with non-contiguous numbering
+#
+#  Copyright (C) 2018 by Erik Auerswald <auerswal@unix-ag.uni-kl.de>
+#
+# Copying and distribution of this file, with or without modification,
+# are permitted in any medium without royalty provided the copyright
+# notice and this notice are preserved.  This file is offered as-is,
+# without any warranty.
+
+PROG=renumber
+set -e
+set -u
+
+# at least one file name must be provided
+test $# -gt 0 || {
+  echo "Usage: $PROG FILES" 1>&2
+  exit 1
+}
+
+# check if first file name conforms to <prefix><number><postfix> pattern
+PREFIX=${1%%[0-9]*}
+POSTFIX=${1##*[0-9]}
+NUM=${1//[^0-9]/}
+NUM_LEN=${#NUM}
+test "${PREFIX}${NUM}${POSTFIX}" = "$1" || {
+  echo "${PROG}: error: file names must be of pattern <pre><num><post>" 1>&2
+  exit 1
+}
+# check if all file names conform to the same pattern
+for F in "$@"; do
+  ERROR=0
+  F_PREFIX=${F%%[0-9]*}
+  F_POSTFIX=${F##*[0-9]}
+  F_NUM=${F//[^0-9]/}
+  F_NUM_LEN=${#F_NUM}
+  test "$F_PREFIX" = "$PREFIX" || ERROR=1
+  test "$F_POSTFIX" = "$POSTFIX" || ERROR=1
+  test "$F_NUM_LEN" = "$NUM_LEN" || ERROR=1
+  test "$ERROR" -ne 0 && {
+    echo "$PROG: error: all file names must conform to the same pattern" 1>&2
+    exit 1
+  }
+done
+
+IDX=1
+for F in "$@"; do
+  NEW_NUM=$(printf -- '%0'"${NUM_LEN}"'d' "${IDX}")
+  NEW_NAME="${PREFIX}${NEW_NUM}${POSTFIX}"
+  test "$F" = "$NEW_NAME" && echo "keeping '$F'"
+  test "$F" != "$NEW_NAME" && mv -iv "$F" "$NEW_NAME"
+  let IDX++
+done
