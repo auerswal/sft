@@ -43,7 +43,7 @@ function print_macs(format) {
 	ct = toupper(a[1] ":" a[2] ":" a[3] ":" a[4] ":" a[5] ":" a[6])
 	bcm = toupper(a[1] a[2] ":" a[3] a[4] ":" a[5] a[6])
 	vmps = toupper(a[1] a[2] "." a[3] a[4] "." a[5] a[6])
-        netsight = toupper(a[1] "." a[2] "." a[3] "." a[4] "." a[5] "." a[6])
+	netsight = toupper(a[1] "." a[2] "." a[3] "." a[4] "." a[5] "." a[6])
 	hp = tolower(a[1] a[2] a[3] "-" a[4] a[5] a[6])
 	hex = tolower(a[1] a[2] a[3] a[4] a[5] a[6])
 	pxe = toupper(a[1] " " a[2] " " a[3] " " a[4] " " a[5] " " a[6])
@@ -55,9 +55,9 @@ function print_macs(format) {
 		ct = tolower(ct)
 		bcm = tolower(bcm)
 		vmps = tolower(vmps)
-                netsight = tolower(netsight)
-                pxe = tolower(pxe)
-                hexpostfix = tolower(hexpostfix)
+		netsight = tolower(netsight)
+		pxe = tolower(pxe)
+		hexpostfix = tolower(hexpostfix)
 	} else if (cap == "upper") {
 		cisco = toupper(cisco)
 		linux = toupper(linux)
@@ -83,22 +83,22 @@ function print_macs(format) {
 	} else if (format == "vmps") {
 		print vmps
 	} else if (format == "netsight") {
-                print netsight
+		print netsight
 	} else if (format == "hp") {
-                print hp
+		print hp
 	} else if (format == "hex") {
-                print hex
+		print hex
 	} else if (format == "hexprefix") {
-                print hexprefix
+		print hexprefix
 	} else if (format == "pxe") {
-                print pxe
+		print pxe
 	} else if (format == "pgsql") {
-                print pgsql
+		print pgsql
 	} else if (format == "hexpostfix") {
-                print hexpostfix
-        } else if (format == "huawei") {
-                print huawei
-        }
+		print hexpostfix
+	} else if (format == "huawei") {
+		print huawei
+	}
 }
 
 BEGIN {
