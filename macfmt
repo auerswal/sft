@@ -20,7 +20,7 @@
 # Prints all formats unless one is specified using the -v format=FORMAT option.
 #        FORMAT is one of: all, cisco, linux, enterasys, cabletron, broadcom,
 #                          vmps, netsight, hp, hex, hexprefix, pxe, pgsql,
-#                          hexpostfix, exos, arista, mikrotik
+#                          hexpostfix, exos, arista, mikrotik, huawei
 # Converts hex digits A-F to lower or upper case if -v cap=CASE is given.
 #        CASE   is one of: lower, upper
 # If cap is not specified, the format's default case is used.
@@ -49,6 +49,7 @@ function print_macs(format) {
 	pxe = toupper(a[1] " " a[2] " " a[3] " " a[4] " " a[5] " " a[6])
 	pgsql = tolower(a[1] a[2] a[3] ":" a[4] a[5] a[6])
 	hexpostfix = toupper(hex) "h"
+	huawei = tolower(a[1] a[2] "-" a[3] a[4] "-" a[5] a[6])
 	if (cap == "lower") {
 		ets = tolower(ets)
 		ct = tolower(ct)
@@ -63,11 +64,12 @@ function print_macs(format) {
 		hp = toupper(hp)
 		hex = toupper(hex)
 		pgsql = toupper(pgsql)
+		huawei = toupper(huawei)
 	}
 	hexprefix = "0x" hex
 	if (!format || format == "all") {
 		print cisco, linux, ets, ct, bcm, vmps, netsight, hp, hex, \
-			hexprefix, pxe, pgsql, hexpostfix
+			hexprefix, pxe, pgsql, hexpostfix, huawei
 	} else if (format == "cisco" || format == "arista") {
 		print cisco
 	} else if (format == "linux" || format == "exos") {
@@ -94,6 +96,8 @@ function print_macs(format) {
                 print pgsql
 	} else if (format == "hexpostfix") {
                 print hexpostfix
+        } else if (format == "huawei") {
+                print huawei
         }
 }
 
