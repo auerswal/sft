@@ -34,6 +34,9 @@
 #   - first two lines are too long (81 characters)
 #   - pages of the RFC are too long
 #   -> workaround: env L=61 C=81 rfc-reader 713
+# - RFC 995 is not formatted well bey rfc-reader
+#   - lines of the RFC are too long
+#   -> workaround: env C=79 rfc-reader 995
 # - XTerm / GNOME Terminal font size heuristic breaks on high DPI displays
 # - XTerm and GNOME Terminal (and/or the window manager) do not honor size
 #   requests if the size does not fit inside the $DISPLAY
