@@ -48,7 +48,8 @@ IPv6 ULA addresses using a deterministic algorithm based on [RFC 4193 section 3.
 * `renumber` - renumber a set of discontiguously numbered files
 * `rfc-reader` - read IETF RFCs on GNU/Linux ([web page](https://www.unix-ag.uni-kl.de/~auerswal/rfc-reader/))
 * `section` - print all lines matching a regular expression, and the following indented section (inspired by the Cisco IOS output modifier of the same name)
-* `section.pl` - Perl version of the above `section` script, for use on systems without awk, such as some Cisco IOS XR versions
+* `section.pl` - Perl version of the above `section` script, for use on systems without awk, but Perl, such as some Cisco IOS XR versions
+* `section.py` - Python version of the above `section` script, for use on systems without awk, but Python
 * `total_video_duration` - print total run time of given video files (uses `ffprobe` from [FFmpeg](https://ffmpeg.org/))
 * `vevent_dump` - print a somewhat readable version of the essential informationen inside an iCalendar (.ics) file to STDOUT (best effort only, not even trying to parse the format...)
 
