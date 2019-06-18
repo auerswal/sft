@@ -1,6 +1,6 @@
 #! /bin/sh
 
-# Copyright (C) 2011-2018 Erik Auerswald <auerswal@unix-ag.uni-kl.de>
+# Copyright (C) 2011-2019 Erik Auerswald <auerswal@unix-ag.uni-kl.de>
 
 # Copying and distribution of this file, with or without modification,
 # are permitted in any medium without royalty provided the copyright
@@ -126,9 +126,9 @@ test \( -d "$RFCCACHE" \) -a \( -r "$RFCCACHE" \) &&
 
 version()
 {
-  local V="0.22"
+  local V="0.23"
   printf -- "%s\n" "$B version $V"
-  echo 'Copyright (C) 2011-2018 Erik Auerswald <auerswal@unix-ag.uni-kl.de>'
+  echo 'Copyright (C) 2011-2019 Erik Auerswald <auerswal@unix-ag.uni-kl.de>'
 }
 
 license()
@@ -200,7 +200,7 @@ test -n "$LR" &&
   esac
 test -s "$F" ||
   { printf -- '%s' "downloading $R ... " &&
-    wget -O"$F" -q http://www.rfc-editor.org/rfc/"${DB}${R}";
+    wget -q -o /dev/null -O"$F" http://www.rfc-editor.org/rfc/"${DB}${R}";
     test \( -s "$F" \) -a \( -n "$RFCCACHE" \) -a \( -d "$RFCCACHE" \) -a \
          \( -w "$RFCCACHE" \) &&
       { printf -- 'copying %s to cache %s ... ' "$R" "$RFCCACHE";
