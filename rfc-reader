@@ -143,7 +143,7 @@ EOL
 
 usage()
 {
-  printf -- '%s\n' "Usage: $B [{rfc[-]|bcp|fyi|ien|std}][ ]NUMBER[.txt]"
+  printf -- '%s\n' "Usage: $B [{rfc|bcp|fyi|ien|std}][{-| }]NUMBER[.txt]"
   echo 'Examples:'
   printf -- '%s\n' "  $B 1        # downloads and displays RFC 1"
   printf -- '%s\n' "  $B rfc1     # downloads and displays RFC 1"
