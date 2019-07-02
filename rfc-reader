@@ -38,7 +38,7 @@ test \( -d "$RFCCACHE" \) -a \( -r "$RFCCACHE" \) &&
 
 version()
 {
-  local V="0.25"
+  local V="0.26"
   printf -- "%s\n" "$B version $V"
   echo 'Copyright (C) 2011-2019 Erik Auerswald <auerswal@unix-ag.uni-kl.de>'
 }
@@ -167,12 +167,12 @@ awk -vn_lines="${L}" \
 
 # use $PAGER or less
 P=${PAGER:=less}
-test -x $(which "$PAGER") || PAGER='less'
-test -x $(which "$PAGER") || PAGER='more'
-test -x $(which "$PAGER") || PAGER='pg'
-test -x $(which "$PAGER") || { echo 'ERROR: no pager found'; exit 1; }
+test -x $(which "$P") || P='less'
+test -x $(which "$P") || P='more'
+test -x $(which "$P") || P='pg'
+test -x $(which "$P") || { echo 'ERROR: no pager found'; exit 1; }
 PO=${PO:=''}
-test "$PAGER" = "less" && test -z "$PO" && PO="-M -S"
+test "$P" = "less" && test -z "$PO" && PO="-M -S"
 
 # open suitable terminal window if X-Windows is available
 test -n "$DISPLAY" && {
