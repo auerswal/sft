@@ -130,16 +130,16 @@ usage()
   printf -- '%s\n' "Usage: $B [{rfc|bcp|fyi|ien|std}][{-| }]NUMBER[.txt]"
   printf -- '%s\n' "       $B {I-D.|draft-}DRAFT_NAME-DRAFT_NUMBER[.txt]"
   echo 'Examples:'
-  printf -- '%s\n' "  $B 1        # downloads and displays RFC 1"
-  printf -- '%s\n' "  $B rfc1     # downloads and displays RFC 1"
-  printf -- '%s\n' "  $B rfc 1    # downloads and displays RFC 1"
-  printf -- '%s\n' "  $B rfc1.txt # downloads and displays RFC 1"
-  printf -- '%s\n' "  $B bcp78    # downloads and displays BCP 78"
-  printf -- '%s\n' "  $B fyi3     # downloads and displays FYI 3"
-  printf -- '%s\n' "  $B ien137   # downloads and displays IEN 137"
-  printf -- '%s\n' "  $B std1     # downloads and displays STD 1"
-  printf -- '%s\n' "  $B draft-rep-wg-topic-00  # downloads & displays REP I-D"
-  printf -- '%s\n' "  $B I-D.rep-wg-topic-00    # downloads & displays REP I-D"
+  printf -- '%s\n' "  $B 1                     # downloads and displays RFC 1"
+  printf -- '%s\n' "  $B rfc1                  # downloads and displays RFC 1"
+  printf -- '%s\n' "  $B rfc 1                 # downloads and displays RFC 1"
+  printf -- '%s\n' "  $B rfc1.txt              # downloads and displays RFC 1"
+  printf -- '%s\n' "  $B bcp78                 # downloads and displays BCP 78"
+  printf -- '%s\n' "  $B fyi3                  # downloads and displays FYI 3"
+  printf -- '%s\n' "  $B ien137                # downloads and displays IEN 137"
+  printf -- '%s\n' "  $B std1                  # downloads and displays STD 1"
+  printf -- '%s\n' "  $B draft-rep-wg-topic-00 # downloads & displays REP I-D"
+  printf -- '%s\n' "  $B I-D.rep-wg-topic-00   # downloads & displays REP I-D"
 }
 
 # exactly one or two arguments must be given
