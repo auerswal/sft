@@ -140,13 +140,41 @@ test -s "$F" ||
 test -s "$F" || { printf -- "ERROR\n"; exit 1; }
 printf -- 'done\n'
 
-# format RFC(-like) text for viewing in a sufficiently sized terminal
+# format RFC(-like) text for viewing in a terminal window
 C=${C:=76} # 72 chars max. per line (RFC 1 has line length <= 77) + 4 blanks
 L=${L:=60} # 58 lines max. per page + pager prompt + separator line
+
+# use current terminal if X-Windows is not available
+DISPLAY=${DISPLAY:=}
+test -z "$DISPLAY" && {
+  # check terminal size
+  TL="${TL:=${LINES:=}}"
+  test -z "$TL" && TL="$(stty size 2>/dev/null | cut -d' ' -f1)"
+  test -z "$TL" && { echo 'ERROR: cannot determine terminal height'; exit 1; }
+  test "$TL" -lt "$L" && { echo 'ERROR: terminal too small'; exit 1; }
+  TC="${TC:=${COLUMNS:=}}"
+  test -z "$TC" && TC="$(stty size 2>/dev/null | cut -d' ' -f2)"
+  test -z "$TL" && { echo 'ERROR: cannot determine terminal width'; exit 1; }
+  test "$TC" -lt "$C" && { echo 'ERROR: terminal too narrow'; exit 1; }
+  # format RFC(-like) text for current terminal's height
+  L="$TL"
+}
+
+# reformat RFC(-like) text for chosen terminal which has L lines
 awk -vn_lines="${L}" \
   '!/\f/{line++; print}; /\f/{for (i=line; i<n_lines-1; i++) print ""; line=0}'\
   "$F" | sed '/^$/!s/^/  /' > "$FMT"
 
+# use $PAGER or less
+P=${PAGER:=less}
+test -x $(which "$PAGER") || PAGER='less'
+test -x $(which "$PAGER") || PAGER='more'
+test -x $(which "$PAGER") || PAGER='pg'
+test -x $(which "$PAGER") || { echo 'ERROR: no pager found'; exit 1; }
+PO=${PO:=''}
+test "$PAGER" = "less" && test -z "$PO" && PO="-M -S"
+
+# open suitable terminal window if X-Windows is available
 test -n "$DISPLAY" && {
   # determine window sizes
   Y=$(xrandr | sed -n '/\*/s/^[^x]*x *\([0-9]*\)[^0-9].*$/\1/p' | head -n1)
@@ -158,15 +186,6 @@ test -n "$DISPLAY" && {
     XTFS=${XTFS:=4} #XTerm font size: 4 is 'medium'
     GTZ='0.9'
   fi
-
-  # use $PAGER or less
-  P=${PAGER:=less}
-  test -x $(which "$PAGER") || PAGER='less'
-  test -x $(which "$PAGER") || PAGER='more'
-  test -x $(which "$PAGER") || PAGER='pg'
-  test -x $(which "$PAGER") || { echo 'ERROR: no pager found'; exit 1; }
-  PO=${PO:=''}
-  test "$PAGER" = "less" && test -z "$PO" && PO="-M -S"
 
   # find a terminal program to use
   XT=${XT:=''}
@@ -224,6 +243,9 @@ test -n "$DISPLAY" && {
 
   # gnome-terminal cannot run in the foreground
   wait
+  exit
 }
+# otherwise open pager in current terminal
+"$P" $PO "$FMT"
 
 # vim:expandtab:sw=2:
