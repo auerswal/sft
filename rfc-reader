@@ -7,14 +7,6 @@
 # notice and this notice are preserved.  This file is offered as-is,
 # without any warranty.
 
-# TODO:
-# - check for RFCs updating/obsoleting the requested
-#   see http://www.rfc-editor.org/rfc/rfc-index.txt
-#   see http://www.rfc-editor.org/info/rfcNUMBER
-#   -> need to cache the list for offline use and better performance
-#   -> need to update the list from time to time
-# XXX:
-# - refactor preprocessing (awk + sed) and viewing (xterm + less) into own tools
 # BUGS:
 # - draft-rep-wg-topic-00.txt is not formatted well by rfc-reader
 #   - the text version lacks the '\f' characters needed for filling the pages
