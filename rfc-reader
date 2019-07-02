@@ -29,79 +29,6 @@ set -u
 
 B=$(basename $0)
 
-# determine window sizes
-C=${C:=76} # 72 chars max. per line (RFC 1 has line length <= 77) + four blanks
-L=${L:=60} # 58 lines max. per page + pager prompt + separator line
-Y=$(xrandr | sed -n '/\*/s/^[^x]*x *\([0-9]*\)[^0-9].*$/\1/p' | head -n1)
-test -z "$Y" && Y=0
-if test "$Y" -ge 1100; then
-  XTFS=${XTFS:=5} #XTerm font size: 5 is 'large'
-  GTZ='1.0'
-else
-  XTFS=${XTFS:=4} #XTerm font size: 4 is 'medium'
-  GTZ='0.9'
-fi
-
-# use $PAGER or less
-P=${PAGER:=less}
-test -x $(which "$PAGER") || PAGER='less'
-test -x $(which "$PAGER") || PAGER='more'
-test -x $(which "$PAGER") || PAGER='pg'
-test -x $(which "$PAGER") || { echo 'ERROR: no pager found'; exit 1; }
-PO=${PO:=''}
-test "$PAGER" = "less" && test -z "$PO" && PO="-M -S"
-
-# find a terminal program to use
-XT=${XT:=''}
-test -z "$XT" && test -n "${WINDOWID:-}" &&
-  XT=$(xprop -id $WINDOWID WM_CLASS | sed -n 's/^[^"]*"\([^"]*\)".*$/\1/p')
-test -x "$(which "$XT")" || XT=""
-test -z "$XT" && { env | fgrep gnome-terminal >/dev/null 2>&1; } &&
-  XT='gnome-terminal'
-test -x "$(which "$XT")" || XT=""
-test -z "$XT" && XT='xterm'
-found=''
-while test -z "$found"; do
-  case "$XT" in
-    xterm|uxterm)
-      # XTerm
-      # (tested on Debian/Lenny, Debian/Sid, Ubuntu 12.04 LTS, openSUSE 12.3)
-      XO='+sb -xrm'
-      XF="xterm*vt100.initialFont: ${XTFS}"
-      G="-g ${C}x${L}" 
-      T='-T '
-      E="-e $P $PO"
-      found='xterm'
-      ;;
-    gnome-terminal)
-      # GNOME Terminal (tested on Debian/Lenny and Ubuntu 12.04 LTS)
-      XO="--hide-menubar --disable-factory --zoom ${GTZ}"
-      XF=''
-      G="--geometry ${C}x${L}"
-      T='-t '
-      E="-x $P $PO"
-      found='gnome-terminal'
-      ;;
-    konsole)
-      # Konsole (tested on openSUSE 12.3 with KDE 4.11.3)
-      # XO="--hide-menubar --hide-tabbar -p ScrollBarPosition=2 --nofork"
-      # XF=''
-      # G="-p TerminalColumns=${C} -p TerminalRows=${R}"
-      # T="-p tabtitle="
-      # E="-e $P $PO"
-      echo "konsole: Geometry doesn't work yet, so try 'xterm' for now"
-      # found='konsole'
-      XT='xterm'
-      ;;
-    *)
-      echo "WARN: terminal program '$XT' not supported, trying 'xterm'"
-      XT='xterm'
-      ;;
-  esac
-done
-test -x "$(which "$XT")" ||
-  { echo 'ERROR: no usable terminal program found'; exit 1; }
-
 # e.g. openSUSE and Ubuntu provide RFCs as a package
 RFCDIRS='/usr/share/doc/rfc /usr/share/doc/RFC/links'
 # use a local cache if available
@@ -214,14 +141,89 @@ test -s "$F" || { printf -- "ERROR\n"; exit 1; }
 printf -- 'done\n'
 
 # format RFC(-like) text for viewing in a sufficiently sized terminal
+C=${C:=76} # 72 chars max. per line (RFC 1 has line length <= 77) + 4 blanks
+L=${L:=60} # 58 lines max. per page + pager prompt + separator line
 awk -vn_lines="${L}" \
   '!/\f/{line++; print}; /\f/{for (i=line; i<n_lines-1; i++) print ""; line=0}'\
   "$F" | sed '/^$/!s/^/  /' > "$FMT"
 
-# open terminal window with a pager displaying the RFC(-like) text
-$XT $XO "$XF" $G $T"$B - $(basename $R)" $E "$FMT"
+test -n "$DISPLAY" && {
+  # determine window sizes
+  Y=$(xrandr | sed -n '/\*/s/^[^x]*x *\([0-9]*\)[^0-9].*$/\1/p' | head -n1)
+  test -z "$Y" && Y=0
+  if test "$Y" -ge 1100; then
+    XTFS=${XTFS:=5} #XTerm font size: 5 is 'large'
+    GTZ='1.0'
+  else
+    XTFS=${XTFS:=4} #XTerm font size: 4 is 'medium'
+    GTZ='0.9'
+  fi
 
-# gnome-terminal cannot run in the foreground
-wait
+  # use $PAGER or less
+  P=${PAGER:=less}
+  test -x $(which "$PAGER") || PAGER='less'
+  test -x $(which "$PAGER") || PAGER='more'
+  test -x $(which "$PAGER") || PAGER='pg'
+  test -x $(which "$PAGER") || { echo 'ERROR: no pager found'; exit 1; }
+  PO=${PO:=''}
+  test "$PAGER" = "less" && test -z "$PO" && PO="-M -S"
+
+  # find a terminal program to use
+  XT=${XT:=''}
+  test -z "$XT" && test -n "${WINDOWID:-}" &&
+    XT=$(xprop -id $WINDOWID WM_CLASS | sed -n 's/^[^"]*"\([^"]*\)".*$/\1/p')
+  test -x "$(which "$XT")" || XT=""
+  test -z "$XT" && { env | fgrep gnome-terminal >/dev/null 2>&1; } &&
+    XT='gnome-terminal'
+  test -x "$(which "$XT")" || XT=""
+  test -z "$XT" && XT='xterm'
+  found=''
+  while test -z "$found"; do
+    case "$XT" in
+      xterm|uxterm)
+        # XTerm
+        # (tested on Debian/Lenny, Debian/Sid, Ubuntu 12.04 LTS, openSUSE 12.3)
+        XO='+sb -xrm'
+        XF="xterm*vt100.initialFont: ${XTFS}"
+        G="-g ${C}x${L}"
+        T='-T '
+        E="-e $P $PO"
+        found='xterm'
+        ;;
+      gnome-terminal)
+        # GNOME Terminal (tested on Debian/Lenny and Ubuntu 12.04 LTS)
+        XO="--hide-menubar --disable-factory --zoom ${GTZ}"
+        XF=''
+        G="--geometry ${C}x${L}"
+        T='-t '
+        E="-x $P $PO"
+        found='gnome-terminal'
+        ;;
+      konsole)
+        # Konsole (tested on openSUSE 12.3 with KDE 4.11.3)
+        # XO="--hide-menubar --hide-tabbar -p ScrollBarPosition=2 --nofork"
+        # XF=''
+        # G="-p TerminalColumns=${C} -p TerminalRows=${R}"
+        # T="-p tabtitle="
+        # E="-e $P $PO"
+        echo "konsole: Geometry doesn't work yet, so try 'xterm' for now"
+        # found='konsole'
+        XT='xterm'
+        ;;
+      *)
+        echo "WARN: terminal program '$XT' not supported, trying 'xterm'"
+        XT='xterm'
+        ;;
+    esac
+  done
+  test -x "$(which "$XT")" ||
+    { echo 'ERROR: no usable terminal program found'; exit 1; }
+
+  # open terminal window with a pager displaying the RFC(-like) text
+  $XT $XO "$XF" $G $T"$B - $(basename $R)" $E "$FMT"
+
+  # gnome-terminal cannot run in the foreground
+  wait
+}
 
 # vim:expandtab:sw=2:
