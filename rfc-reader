@@ -13,19 +13,11 @@
 #   see http://www.rfc-editor.org/info/rfcNUMBER
 #   -> need to cache the list for offline use and better performance
 #   -> need to update the list from time to time
-# - include DRAFTs (I-D) (name + version number)
-#   see http://datatracker.ietf.org/doc/all/
-#       http://www.ietf.org/id/all_id2.txt
-#   see http://datatracker.ietf.org/doc/active/
-#       http://www.ietf.org/id/1id-index.txt
-#   use index file to find current version if I-D number is not specified,
-#       and look in archive if I-D has no current version, i.e. is expired
-#   current I-Ds URL https://www.ietf.org/id/NAME.txt
-#   old I-Ds URL https://www.ietf.org/archive/id/NAME.txt
-#   (archive may contain current I-Ds as well)
 # XXX:
 # - refactor preprocessing (awk + sed) and viewing (xterm + less) into own tools
 # BUGS:
+# - draft-rep-wg-topic-00.txt is not formatted well by rfc-reader
+#   - the text version lacks the '\f' characters needed for filling the pages
 # - RFC 1347 is not formatted well by rfc-reader
 #   - lines of the RFC are too long
 #   - pages of the RFC are too long
@@ -126,7 +118,7 @@ test \( -d "$RFCCACHE" \) -a \( -r "$RFCCACHE" \) &&
 
 version()
 {
-  local V="0.23"
+  local V="0.24"
   printf -- "%s\n" "$B version $V"
   echo 'Copyright (C) 2011-2019 Erik Auerswald <auerswal@unix-ag.uni-kl.de>'
 }
@@ -144,6 +136,7 @@ EOL
 usage()
 {
   printf -- '%s\n' "Usage: $B [{rfc|bcp|fyi|ien|std}][{-| }]NUMBER[.txt]"
+  printf -- '%s\n' "       $B {I-D.|draft-}DRAFT_NAME-DRAFT_NUMBER[.txt]"
   echo 'Examples:'
   printf -- '%s\n' "  $B 1        # downloads and displays RFC 1"
   printf -- '%s\n' "  $B rfc1     # downloads and displays RFC 1"
@@ -153,6 +146,8 @@ usage()
   printf -- '%s\n' "  $B fyi3     # downloads and displays FYI 3"
   printf -- '%s\n' "  $B ien137   # downloads and displays IEN 137"
   printf -- '%s\n' "  $B std1     # downloads and displays STD 1"
+  printf -- '%s\n' "  $B draft-rep-wg-topic-00  # downloads & displays REP I-D"
+  printf -- '%s\n' "  $B I-D.rep-wg-topic-00    # downloads & displays REP I-D"
 }
 
 # exactly one or two arguments must be given
@@ -166,17 +161,32 @@ else
   DOC="$1"
 fi
 expr match " $DOC" '  *[0-9][0-9]* *$' > /dev/null && DOC="rfc$DOC"
-DT="$(expr match " $DOC" ' \([A-Za-z][A-Za-z]*\)' \
+# determine document type
+DT="$(expr match " $DOC" ' \([Dd][Rr][Aa][Ff][Tt]\)' \
       | tr '[:upper:]' '[:lower:]')"
-DN="$(expr match " $DOC" ' [-A-Za-z ]*0*\([1-9][0-9]*\)')"
+test -z "$DT" &&
+  DT="$(expr match " $DOC" ' \([Ii]-[Dd]\)\.' \
+        | tr '[:lower:]' '[:upper:]')"
+test -z "$DT" &&
+  DT="$(expr match " $DOC" ' \([A-Za-z][A-Za-z]*\)' \
+        | tr '[:upper:]' '[:lower:]')"
+# determine document number (or name for I-Ds)
+case "$DT" in
+  draft|I-D) DN="$(printf -- '%s' "$DOC" | tr '[:upper:]' '[:lower:]' \
+    | sed 's/^[[:space:]]\+//;s/\.txt[[:space:]]*$//;s/^i-d\./draft-/')"
+    expr match " $DN" ' .*-[0-9][0-9][0-9]*$' > /dev/null || DN='';;
+  *) DN="$(expr match " $DOC" ' [-A-Za-z ]*0*\([1-9][0-9]*\)')";;
+esac
+# determine download base URL for document
 test -z "$DT" &&
   { echo 'Error: could not determine document type'; usage; exit 1; }
 test -z "$DN" &&
-  { echo 'Error: could not determine document number'; usage; exit 1; }
+  { echo 'Error: could not determine document number or name'; usage; exit 1; }
 R="${DT}${DN}.txt"
 case "$DT" in
   rfc) DB='';;
-  bcp|fyi|ien|std) DB="${DT}/";;
+  bcp|fyi|ien|std) DB="http://www.rfc-editor.org/rfc/${DT}/";;
+  draft|I-D) DB='https://www.ietf.org/archive/id/'; R="${DN}.txt";;
   *) printf -- 'Error: unknown document type "%s"\n' "$DT"; usage; exit 1;;
 esac
 
@@ -200,7 +210,7 @@ test -n "$LR" &&
   esac
 test -s "$F" ||
   { printf -- '%s' "downloading $R ... " &&
-    wget -q -o /dev/null -O"$F" http://www.rfc-editor.org/rfc/"${DB}${R}";
+    wget -q -o /dev/null -O"$F" "${DB}${R}";
     test \( -s "$F" \) -a \( -n "$RFCCACHE" \) -a \( -d "$RFCCACHE" \) -a \
          \( -w "$RFCCACHE" \) &&
       { printf -- 'copying %s to cache %s ... ' "$R" "$RFCCACHE";
