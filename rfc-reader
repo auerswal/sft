@@ -29,6 +29,7 @@ set -u
 
 B=$(basename $0)
 
+# determine window sizes
 C=${C:=76} # 72 chars max. per line (RFC 1 has line length <= 77) + four blanks
 L=${L:=60} # 58 lines max. per page + pager prompt + separator line
 Y=$(xrandr | sed -n '/\*/s/^[^x]*x *\([0-9]*\)[^0-9].*$/\1/p' | head -n1)
@@ -182,11 +183,13 @@ case "$DT" in
   *) printf -- 'Error: unknown document type "%s"\n' "$DT"; usage; exit 1;;
 esac
 
+# create temporary files for original and formatted RFC(-like) text
 F=$(mktemp -t rfc-reader.$$.XXXXXXXXXX)
 trap "rm -rf $F" 0 1 2 3 15
 FMT=$(mktemp -t rfc-reader.$$.XXXXXXXXXX)
 trap "rm -rf $F $FMT" 0 1 2 3 15
 
+# obtain RFC(-like) text
 printf -- '%s' "looking for $R ... "
 LR=$(find $RFCDIRS -name "${R}*" 2>/dev/null | head -n1)
 LRZ=''
@@ -210,10 +213,14 @@ test -s "$F" ||
 test -s "$F" || { printf -- "ERROR\n"; exit 1; }
 printf -- 'done\n'
 
+# format RFC(-like) text for viewing in a sufficiently sized terminal
 awk -vn_lines="${L}" \
   '!/\f/{line++; print}; /\f/{for (i=line; i<n_lines-1; i++) print ""; line=0}'\
   "$F" | sed '/^$/!s/^/  /' > "$FMT"
+
+# open terminal window with a pager displaying the RFC(-like) text
 $XT $XO "$XF" $G $T"$B - $(basename $R)" $E "$FMT"
+
 # gnome-terminal cannot run in the foreground
 wait
 
