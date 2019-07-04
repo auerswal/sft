@@ -38,7 +38,7 @@ test \( -d "$RFCCACHE" \) -a \( -r "$RFCCACHE" \) &&
 
 version()
 {
-  local V="0.27"
+  local V="0.28"
   printf -- "%s\n" "$B version $V"
   echo 'Copyright (C) 2011-2019 Erik Auerswald <auerswal@unix-ag.uni-kl.de>'
 }
@@ -162,7 +162,9 @@ test -z "$DISPLAY" && {
 
 # reformat RFC(-like) text for chosen terminal which has L lines
 awk -vn_lines="${L}" \
-  '!/\f/{line++; print}; /\f/{for (i=line; i<n_lines-1; i++) print ""; line=0}'\
+  '!/\f/{line++; print};
+    /\f/{for (i=line; i<n_lines-1; i++) print ""; line=0}
+    END {for (i=line; i+1<n_lines; i++) print ""}' \
   "$F" | sed '/^$/!s/^/  /' > "$FMT"
 
 # use $PAGER or less
