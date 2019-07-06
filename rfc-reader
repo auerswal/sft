@@ -38,7 +38,7 @@ test \( -d "$RFCCACHE" \) -a \( -r "$RFCCACHE" \) &&
 
 version()
 {
-  local V="0.29"
+  local V="0.30"
   printf -- "%s\n" "$B version $V"
   echo 'Copyright (C) 2011-2019 Erik Auerswald <auerswal@unix-ag.uni-kl.de>'
 }
@@ -142,7 +142,22 @@ printf -- 'done\n'
 
 # format RFC(-like) text for viewing in a terminal window
 C=${C:=76} # 72 chars max. per line (RFC 1 has line length <= 77) + 4 blanks
-L=${L:=60} # 58 lines max. per page + pager prompt + separator line
+L=${L:=59} # 58 lines max. per page + separator line in, e.g., STD 1
+
+# use $PAGER or less
+P=${PAGER:=less}
+test -x $(which "$P") || P='less'  # de-facto GNU/Linux pager
+test -x $(which "$P") || P='most'  # nice alternative pager
+test -x $(which "$P") || P='pager' # pager from Debian's alternatives
+test -x $(which "$P") || P='more'  # POSIX compatibility
+test -x $(which "$P") || P='pg'    # older POSIX and BSD compatibility
+test -x $(which "$P") || { echo 'ERROR: no pager found'; exit 1; }
+PO=${PO:=''}
+# rfc-reader has default options for less only
+test "$P" = "less" && test -z "$PO" && PO="-M -S"
+# most uses two status lines instead of one
+PSL='1'
+test "$P" = 'most' && PSL='2'
 
 # use current terminal if X-Windows is not available
 DISPLAY=${DISPLAY:=}
@@ -157,27 +172,16 @@ test -z "$DISPLAY" && {
   test -z "$TL" && { echo 'ERROR: cannot determine terminal width'; exit 1; }
   test "$TC" -lt "$C" && { echo 'ERROR: terminal too narrow'; exit 1; }
   # format RFC(-like) text for current terminal's height
-  L="$TL"
+  L="$((TL-PSL))"
 }
 
-# reformat RFC(-like) text for chosen terminal which has L lines
-awk -vn_lines="${L}" \
+# reformat RFC(-like) text for chosen terminal which has L lines for viewing
+# text content (including SL status line(s) used by the pager)
+awk -vn_lines="$L" \
   '!/\f/{line++; print};
-    /\f/{for (i=line; i<n_lines-1; i++) print ""; line=0}
+    /\f/{for (i=line; i<n_lines; i++) print ""; line=0}
     END {for (i=line; i+1<n_lines; i++) print ""}' \
   "$F" | sed '/^$/!s/^/  /' > "$FMT"
-
-# use $PAGER or less
-P=${PAGER:=less}
-test -x $(which "$P") || P='less'  # de-facto GNU/Linux pager
-test -x $(which "$P") || P='most'  # nice alternative pager
-test -x $(which "$P") || P='pager' # pager from Debian's alternatives
-test -x $(which "$P") || P='more'  # POSIX compatibility
-test -x $(which "$P") || P='pg'    # older POSIX and BSD compatibility
-test -x $(which "$P") || { echo 'ERROR: no pager found'; exit 1; }
-PO=${PO:=''}
-# rfc-reader has default options for less only
-test "$P" = "less" && test -z "$PO" && PO="-M -S"
 
 # open suitable terminal window if X-Windows is available
 test -n "$DISPLAY" && {
@@ -209,7 +213,7 @@ test -n "$DISPLAY" && {
         # (tested on Debian/Lenny, Debian/Sid, Ubuntu 12.04 LTS, openSUSE 12.3)
         XO='+sb -xrm'
         XF="xterm*vt100.initialFont: ${XTFS}"
-        G="-g ${C}x${L}"
+        G="-g ${C}x$((L+PSL))"
         T='-T '
         E="-e $P $PO"
         found='xterm'
@@ -218,7 +222,7 @@ test -n "$DISPLAY" && {
         # GNOME Terminal (tested on Debian/Lenny and Ubuntu 12.04 LTS)
         XO="--hide-menubar --disable-factory --zoom ${GTZ}"
         XF=''
-        G="--geometry ${C}x${L}"
+        G="--geometry ${C}x$((L+PSL))"
         T='-t '
         E="-x $P $PO"
         found='gnome-terminal'
