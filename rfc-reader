@@ -170,6 +170,7 @@ awk -vn_lines="${L}" \
 # use $PAGER or less
 P=${PAGER:=less}
 test -x $(which "$P") || P='less'
+test -x $(which "$P") || P='pager'
 test -x $(which "$P") || P='more'
 test -x $(which "$P") || P='pg'
 test -x $(which "$P") || { echo 'ERROR: no pager found'; exit 1; }
