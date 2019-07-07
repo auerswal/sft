@@ -10,6 +10,9 @@
 # notice and this notice are preserved.  This file is offered as-is,
 # without any warranty.
 
+# Please note that this program uses Python regular expressions which are
+# not compatible with POSIX extended regular expressions (ERE).
+
 # Make coding more python3-ish
 from __future__ import (
     absolute_import, division, print_function, unicode_literals
