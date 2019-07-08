@@ -22,6 +22,24 @@ version 3 or later.
 Some of the single file tools have been published already using a dedicated
 web page. In that case a link to the web page is provided.
 
+### Documentation
+
+If a dedicated web page for a single file tool exists, it contains
+documentation for the specific tool. Additionally, since all tools
+are comprised of a single file, their documentation, as far as it
+exists, is part of the program itself.
+
+All tools are scripts for some interpreter, thus they can be viewed with
+any text viewer, e.g., a pager or an editor. Usually the documentation
+is included as a comment after the copyright statement.
+
+Sometimes the tool supports a `-h` option to show help.
+
+Sometimes, if the tool is not a filter, it prints out a help screen if
+called without any operands (neither options nor arguments).
+
+### List of Single File Tools
+
 * `capture.sh` - capture traffic on an interface for a given duration with tcpdump
 * `checkzips` - check ZIP files for errors
 * `create_ipv6_ULA_global_prefix_random.sh` - create a random global prefix for IPv6 ULA addresses using `/dev/random`
@@ -57,5 +75,5 @@ IPv6 ULA addresses using a deterministic algorithm based on [RFC 4193 section 3.
 ## Junkcode
 
 If you do not find what you are looking for in this repository, you might
-find example code in my [junkcode](https://github.com/auerswal/junkcode/)
-repository.
+find example code licensed under the GNU Public License version 3 or later
+in my [junkcode](https://github.com/auerswal/junkcode/) repository.
