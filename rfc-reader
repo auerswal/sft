@@ -38,7 +38,7 @@ test \( -d "$RFCCACHE" \) -a \( -r "$RFCCACHE" \) &&
 
 version()
 {
-  local V="0.31"
+  local V="0.32"
   printf -- "%s\n" "$B version $V"
   echo 'Copyright (C) 2011-2019 Erik Auerswald <auerswal@unix-ag.uni-kl.de>'
 }
@@ -150,6 +150,7 @@ test -x $(which "$P") || P='less'  # de-facto GNU/Linux pager
 test -x $(which "$P") || P='most'  # nice alternative pager
 test -x $(which "$P") || P='pager' # pager from Debian's alternatives
 test -x $(which "$P") || P='more'  # POSIX compatibility
+test -x $(which "$P") || P='page'  # alternate name for 'more -p'
 test -x $(which "$P") || P='pg'    # older POSIX and BSD compatibility
 test -x $(which "$P") || { echo 'ERROR: no pager found'; exit 1; }
 PO=${PO:=''}
