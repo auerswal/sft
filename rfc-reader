@@ -24,6 +24,11 @@
 # - XTerm / GNOME Terminal font size heuristic breaks on high DPI displays
 # - XTerm and GNOME Terminal (and/or the window manager) do not honor size
 #   requests if the size does not fit inside the $DISPLAY
+# - The "most" pager adds an additional empty line to the end of a document.
+#   The current formatting mitigates this, but is not strictly correct for
+#   all other pagers, especially "less", although readability is fine in all
+#   pagers. TODO: add variable specifying additional lines introduced by pager,
+#   and use this when formatting the last page.
 
 set -u
 
