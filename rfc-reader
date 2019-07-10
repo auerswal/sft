@@ -38,7 +38,7 @@ test \( -d "$RFCCACHE" \) -a \( -r "$RFCCACHE" \) &&
 
 version()
 {
-  local V="0.32"
+  local V="0.33"
   printf -- "%s\n" "$B version $V"
   echo 'Copyright (C) 2011-2019 Erik Auerswald <auerswal@unix-ag.uni-kl.de>'
 }
@@ -160,7 +160,6 @@ test "$P" = "less" && test -z "$PO" && PO="-M -S"
 PSL='1'
 PA='0'
 test "$P" = 'most' && PSL='2' PA='1'
-echo "L=$L PSL=$PSL PA=$PA"
 
 # use current terminal if X-Windows is not available
 DISPLAY=${DISPLAY:=}
@@ -183,7 +182,7 @@ test -z "$DISPLAY" && {
 awk -vn_lines="$L" -vpg_stat="$PSL" -vpg_adds="$PA" \
   '!/\f/{line++; print};
     /\f/{for (i=line; i<n_lines; i++) print ""; line=0}
-    END {for (i=line; i<n_lines-pg_adds; i++) print ""}' \
+    END {if (line || pg_adds) {for (i=line; i<n_lines-pg_adds; i++) print ""}}'\
   "$F" | sed '/^$/!s/^/  /' > "$FMT"
 
 # open suitable terminal window if X-Windows is available
