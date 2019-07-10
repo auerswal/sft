@@ -179,7 +179,7 @@ test -z "$DISPLAY" && {
 
 # reformat RFC(-like) text for chosen terminal which has L lines for viewing
 # text content (including SL status line(s) used by the pager)
-awk -vn_lines="$L" -vpg_stat="$PSL" -vpg_adds="$PA" \
+awk -vn_lines="$L" -vpg_adds="$PA" \
   '!/\f/{line++; print};
     /\f/{for (i=line; i<n_lines; i++) print ""; line=0}
     END {if (line || pg_adds) {for (i=line; i<n_lines-pg_adds; i++) print ""}}'\
