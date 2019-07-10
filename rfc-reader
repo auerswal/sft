@@ -24,11 +24,6 @@
 # - XTerm / GNOME Terminal font size heuristic breaks on high DPI displays
 # - XTerm and GNOME Terminal (and/or the window manager) do not honor size
 #   requests if the size does not fit inside the $DISPLAY
-# - The "most" pager adds an additional empty line to the end of a document.
-#   The current formatting mitigates this, but is not strictly correct for
-#   all other pagers, especially "less", although readability is fine in all
-#   pagers. TODO: add variable specifying additional lines introduced by pager,
-#   and use this when formatting the last page.
 
 set -u
 
@@ -163,7 +158,9 @@ PO=${PO:=''}
 test "$P" = "less" && test -z "$PO" && PO="-M -S"
 # most uses two status lines instead of one
 PSL='1'
-test "$P" = 'most' && PSL='2'
+PA='0'
+test "$P" = 'most' && PSL='2' PA='1'
+echo "L=$L PSL=$PSL PA=$PA"
 
 # use current terminal if X-Windows is not available
 DISPLAY=${DISPLAY:=}
@@ -183,10 +180,10 @@ test -z "$DISPLAY" && {
 
 # reformat RFC(-like) text for chosen terminal which has L lines for viewing
 # text content (including SL status line(s) used by the pager)
-awk -vn_lines="$L" \
+awk -vn_lines="$L" -vpg_stat="$PSL" -vpg_adds="$PA" \
   '!/\f/{line++; print};
     /\f/{for (i=line; i<n_lines; i++) print ""; line=0}
-    END {for (i=line; i+1<n_lines; i++) print ""}' \
+    END {for (i=line; i<n_lines-pg_adds; i++) print ""}' \
   "$F" | sed '/^$/!s/^/  /' > "$FMT"
 
 # open suitable terminal window if X-Windows is available
