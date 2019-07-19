@@ -35,7 +35,7 @@ RFCDIRS='/usr/share/doc/rfc /usr/share/doc/RFC/links'
 for DIR in "$HOME/.$B/cache" "${XDG_CACHE_HOME:-$HOME/.cache}/$B"; do
   test \( -d "$DIR" \) -a \( -r "$DIR" \) &&
     RFCDIRS="$DIR $RFCDIRS" &&
-    test -w "$DIR" && RFCCACHE=$DIR
+    test -w "$DIR" && RFCCACHE="$DIR"
 done
 
 version()
