@@ -40,7 +40,7 @@ done
 
 version()
 {
-  local V="0.34"
+  local V="0.35"
   printf -- "%s\n" "$B version $V"
   echo 'Copyright (C) 2011-2019 Erik Auerswald <auerswal@unix-ag.uni-kl.de>'
 }
@@ -59,6 +59,7 @@ usage()
 {
   printf -- '%s\n' "Usage: $B [{rfc|bcp|fyi|ien|std}][{-| }]NUMBER[.txt]"
   printf -- '%s\n' "       $B {I-D.|draft-}DRAFT_NAME-DRAFT_NUMBER[.txt]"
+  echo
   echo 'Examples:'
   printf -- '%s\n' "  $B 1                     # downloads and displays RFC 1"
   printf -- '%s\n' "  $B rfc1                  # downloads and displays RFC 1"
@@ -70,6 +71,13 @@ usage()
   printf -- '%s\n' "  $B std1                  # downloads and displays STD 1"
   printf -- '%s\n' "  $B draft-rep-wg-topic-00 # downloads & displays REP I-D"
   printf -- '%s\n' "  $B I-D.rep-wg-topic-00   # downloads & displays REP I-D"
+  echo
+  echo 'Looking for RFCs in the following local directories:'
+  for DIR in $RFCDIRS; do
+    printf -- '  %s\n' "$DIR"
+  done
+  test -n "$RFCCACHE" &&
+    printf -- '\nUsing "%s" as download cache.\n' "$RFCCACHE"
 }
 
 # exactly one or two arguments must be given
