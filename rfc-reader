@@ -32,13 +32,15 @@ B=$(basename $0)
 # e.g. openSUSE and Ubuntu provide RFCs as a package
 RFCDIRS='/usr/share/doc/rfc /usr/share/doc/RFC/links'
 # use a local cache if available
-RFCCACHE="$HOME/.$B/cache"
-test \( -d "$RFCCACHE" \) -a \( -r "$RFCCACHE" \) &&
-  RFCDIRS="$RFCCACHE $RFCDIRS"
+for DIR in "$HOME/.$B/cache" "${XDG_CACHE_HOME:-$HOME/.cache}/$B"; do
+  test \( -d "$DIR" \) -a \( -r "$DIR" \) &&
+    RFCDIRS="$DIR $RFCDIRS" &&
+    test -w "$DIR" && RFCCACHE=$DIR
+done
 
 version()
 {
-  local V="0.33"
+  local V="0.34"
   printf -- "%s\n" "$B version $V"
   echo 'Copyright (C) 2011-2019 Erik Auerswald <auerswal@unix-ag.uni-kl.de>'
 }
