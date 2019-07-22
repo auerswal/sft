@@ -34,6 +34,7 @@ WAIT='.15'
 TARGET=''
 PROBETIMEOUT='2'
 PINGOPTS="-c1 -Mdo -n -W${PROBETIMEOUT}"
+QUIET=''
 
 version() { echo "$PROG version $VERSION"; }
 
@@ -88,6 +89,7 @@ Options:
   -w WAIT       set time waited between probes (default ${WAIT}s)
   -W TIMEOUT    set probe timeout (default ${PROBETIMEOUT}s)
   -o OVERHEAD   set overhead in bytes added by ping (default ${OVERHEAD})
+  -q            quiet operation: omit progress messages
 
 Plateau search uses the following values:
   ${TABLE}
@@ -100,7 +102,7 @@ error_msg()
   echo "[!] ${PROG}: ERROR: $*" 1>&2
 }
 
-while getopts ':hVLlbpP:m:M:i:w:W:o:' OPT; do
+while getopts ':hVLlbpP:m:M:i:w:W:o:q' OPT; do
   case "$OPT" in
     'h') help; exit 0;;
     'V') version; exit 0;;
@@ -115,6 +117,7 @@ while getopts ':hVLlbpP:m:M:i:w:W:o:' OPT; do
     'w') WAIT="$OPTARG";;
     'W') PROBETIMEOUT="$OPTARG"; PINGOPTS="-c1 -Mdo -n -W${PROBETIMEOUT}";;
     'o') OVERHEAD="$OPTARG";;
+    'q') QUIET='quiet';;
     '?') error_msg "unknown option '$OPTARG'"; usage; exit 1;;
     ':') error_msg "argument required for option '$OPTARG'"; usage; exit 1;;
     *) error_msg "option '$OPT' not implemented"; usage; exit 1;;
@@ -125,6 +128,8 @@ shift $(($OPTIND - 1))
 test $# -lt 1 && { error_msg "no target host given"; usage; exit 1; }
 test $# -gt 1 && { error_msg "ERROR: too many arguments"; usage; exit 1; }
 test $# -eq 1 && { TARGET="$1"; shift; }
+
+test -z "$QUIET" && { exec 3>&1; } || { exec 3>/dev/null; }
 
 # auto_max() attempts to determine the outgoing link's MTU
 auto_max()
@@ -158,7 +163,7 @@ binary()
   local HIGH
   local PROBE
 
-  cat 1>&2 <<EOF
+  cat 1>&3 <<EOF
 [-] performing binary search IP PMTUD to $TARGET with ICMP Echo Requests
 [-] search_low starts at $MIN bytes, search_high starts at $MAX bytes
 [-] waiting $WAIT seconds between probes with $PROBETIMEOUT seconds timeout
@@ -169,7 +174,7 @@ EOF
   HIGH=$MAX
   while test "$LOW" -le "$HIGH"; do
     PROBE=$((($LOW + $HIGH) / 2))
-    printf -- '[.] sending %s bytes probe   \r' "$PROBE" 1>&2
+    printf -- '[.] sending %s bytes probe   \r' "$PROBE" 1>&3
     send_probe "$PROBE" "$TARGET"
     if test $? -eq 0; then
       LOW=$(($PROBE+1))
@@ -178,12 +183,12 @@ EOF
     fi
     sleep "$WAIT"
   done | sed -n '$s/^\(.*\)$/[+] IP PMTU is \1 bytes         /p'
-  echo '[+] all probes returned or timed out' 1>&2
+  echo '[+] all probes returned or timed out' 1>&3
 }
 
 linear()
 {
-  cat 1>&2 <<EOF
+  cat 1>&3 <<EOF
 [-] performing linear search IP PMTUD to $TARGET with ICMP Echo Requests
 [-] search_low $MIN bytes, search_high $MAX bytes, $INCREMENT byte(s) increments
 [-] waiting $WAIT seconds between probes with $PROBETIMEOUT seconds timeout
@@ -191,16 +196,16 @@ linear()
 EOF
 
   for S in $(seq "$MIN" "$INCREMENT" "$MAX"); do
-    printf -- '[.] sending %s bytes probe\r' "$S" 1>&2
+    printf -- '[.] sending %s bytes probe\r' "$S" 1>&3
     send_probe "$S" "$TARGET" &
     sleep "$WAIT"
   done | sort -n | sed -n '$s/^\(.*\)$/[+] IP PMTU is \1 bytes/p'
-  echo '[+] all probes returned or timed out' 1>&2
+  echo '[+] all probes returned or timed out' 1>&3
 }
 
 plateau()
 {
-  cat 1>&2 <<EOF
+  cat 1>&3 <<EOF
 [-] performing plateau table based IP PMTUD to $TARGET with ICMP Echo Requests
 [-] values: $TABLE
 [-] using values between $MIN bytes and $MAX bytes
@@ -211,12 +216,12 @@ EOF
   for S in $TABLE; do
     test "$S" -gt "$MAX" && continue
     test "$S" -lt "$MIN" && continue
-    printf -- '[.] sending %s bytes probe   \r' "$S" 1>&2
+    printf -- '[.] sending %s bytes probe   \r' "$S" 1>&3
     send_probe "$S" "$TARGET" &
     sleep "$WAIT"
   done | sort -n | \
     sed -n '$s/^\(.*\)$/[+] plateau estimate for IP PMTU is \1 bytes/p'
-  echo '[+] all probes returned or timed out' 1>&2
+  echo '[+] all probes returned or timed out' 1>&3
 }
 
 PMTU=$("$ALGO")
