@@ -22,7 +22,7 @@ set -u
 # shall prevent local fragmentation. Thus the results of this program
 # may be wrong if an IPv6 end point is specified.
 
-VERSION='2019-07-22-01'
+VERSION='2019-07-22-02'
 PROG="$(basename $0)"
 ALGO='binary'
 OVERHEAD=28
@@ -80,7 +80,7 @@ Options:
   -V            print version and exit
   -L            print license and exit
   -l            use linear search strategy for path MTU discovery
-  -b            use binary search strategy for path MTU discovery
+  -b            use binary search strategy for path MTU discovery (default)
   -p            use plateau table based search as suggested in RFC 1191
   -P VALUES     specify alternate plateau table (values separated by whitespace)
   -m MIN        set minimum probe size in bytes (default ${MIN})
