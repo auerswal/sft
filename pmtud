@@ -134,8 +134,8 @@ test -z "$QUIET" && { exec 3>&1; } || { exec 3>/dev/null; }
 # auto_max() attempts to determine the outgoing link's MTU
 auto_max()
 {
-  DEVICE=$(ip route get "$TARGET" | sed -nr 's/^.*dev +([^ ]+) .*$/\1/p')
-  ip link show dev "$DEVICE" | sed -nr 's/^.*mtu +([^ ]+) .*$/\1/p'
+  DEVICE=$(ip route get "$TARGET" | sed -nE 's/^.*dev +([^ ]+) .*$/\1/p')
+  ip link show dev "$DEVICE" | sed -nE 's/^.*mtu +([^ ]+) .*$/\1/p'
 }
 
 test "x${MAX}x" = 'xautox' && MAX=$(auto_max 2>/dev/null)

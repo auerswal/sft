@@ -2,7 +2,7 @@
 
 # Print externally visible IPv4 and IPv6 addresses.
 #
-# Copyright (c) 2013 Erik Auerswald <auerswal@unix-ag.uni-kl.de>
+# Copyright (c) 2013-2019 Erik Auerswald <auerswal@unix-ag.uni-kl.de>
 #
 # Copying and distribution of this file, with or without modification,
 # are permitted in any medium without royalty provided the copyright
@@ -11,15 +11,15 @@
 
 # get the current IPv4 address using DynDNS
 IPv4=$(lynx -dump -nolist http://checkip.dyndns.com/ 2> /dev/null | \
-       sed -n -r 's/^.*[^0-9]([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}).*$/\1/p'&)
+       sed -n -E 's/^.*[^0-9]([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}).*$/\1/p'&)
 
 # to transparently get the IPv6 or IPv4 address, use Heise's My-IP-Service
 IPv6=$(lynx -dump -nolist http://www.heise.de/netze/tools/meine-ip-adresse/ \
-       2> /dev/null | sed -nr 's/^[[:space:]]*([0-9a-f:]+)[[:space:]]*$/\1/p'&)
+       2> /dev/null | sed -nE 's/^[[:space:]]*([0-9a-f:]+)[[:space:]]*$/\1/p'&)
 
 # Heise sometimes hangs, so use another IPv6 service in addition
 IPv6_2=$(lynx -dump -nolist http://wie-ist-meine-ipv6-adresse.de/ \
-       2> /dev/null | sed -nr 's/^[[:space:]]*([0-9a-f:]+)[[:space:]]*$/\1/p'&)
+       2> /dev/null | sed -nE 's/^[[:space:]]*([0-9a-f:]+)[[:space:]]*$/\1/p'&)
 
 wait
 

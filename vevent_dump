@@ -2,7 +2,7 @@
 
 # Create somewhat readable output from ICS (or similar) files.
 
-# Copyright (C) 2017 Erik Auerswald <auerswal@unix-ag.uni-kl.de>
+# Copyright (C) 2017-2019 Erik Auerswald <auerswal@unix-ag.uni-kl.de>
 
 # Copying and distribution of this file, with or without modification,
 # are permitted in any medium without royalty provided the copyright
@@ -18,7 +18,7 @@ for c in "$@"; do
         -e '/^[[:space:]]*X-MS-OLK/d' \
         -e 's/\r$//' \
   | sed ':RN;$!N;s/\n[[:space:]]//;tRN;P;D' \
-  | sed -nr \
+  | sed -nE \
         -e '/ORGANIZER/s/^.*CN="?([^":;]+)"?.*:[Mm][Aa][Ii][Ll][Tt][Oo]:([^[:space:]]+).*$/Organizer: \1 <\2>/p' \
         -e '/ATTENDEE/s/^.*CN="?([^":;]+)"?.*:[Mm][Aa][Ii][Ll][Tt][Oo]:([^[:space:]]+).*$/Attendee: \1 <\2>/p' \
         -e '/SUMMARY/s/^[^:]*:(.*)$/Summary: \1/p' \
