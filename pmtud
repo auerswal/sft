@@ -52,7 +52,11 @@ without any warranty.
 EOF
 }
 
-usage() { echo "Usage: $PROG [OPTIONS] {IP | HOSTNAME}"; }
+usage()
+{
+  echo "Usage: $PROG [OPTIONS] {IP | HOSTNAME}"
+  echo "Help:  $PROG -h"
+}
 
 help()
 {
@@ -90,6 +94,12 @@ Plateau search uses the following values:
 EOF
 }
 
+# error_msg() prints its parameters as a line to STDERR
+error_msg()
+{
+  echo "[!] ${PROG}: ERROR: $*" 1>&2
+}
+
 while getopts ':hVLlbpP:m:M:i:w:W:o:' OPT; do
   case "$OPT" in
     'h') help; exit 0;;
@@ -105,15 +115,15 @@ while getopts ':hVLlbpP:m:M:i:w:W:o:' OPT; do
     'w') WAIT="$OPTARG";;
     'W') PROBETIMEOUT="$OPTARG"; PINGOPTS="-c1 -Mdo -n -W${PROBETIMEOUT}";;
     'o') OVERHEAD="$OPTARG";;
-    '?') echo "${PROG}: ERROR: unknown option $OPTARG"; exit 1;;
-    ':') echo "${PROG}: ERROR: argument required for option $OPTARG"; exit 1;;
-    *) echo "${PROG}: ERROR: option $OPT not implemented"; exit 1;;
+    '?') error_msg "unknown option '$OPTARG'"; usage; exit 1;;
+    ':') error_msg "argument required for option '$OPTARG'"; usage; exit 1;;
+    *) error_msg "option '$OPT' not implemented"; usage; exit 1;;
   esac
 done
 shift $(($OPTIND - 1))
 
-test $# -lt 1 && { echo "${PROG}: ERROR: no target host given"; usage; exit 1; }
-test $# -gt 1 && { echo "${PROG}: ERROR: too many arguments"; usage; exit 1; }
+test $# -lt 1 && { error_msg "no target host given"; usage; exit 1; }
+test $# -gt 1 && { error_msg "ERROR: too many arguments"; usage; exit 1; }
 test $# -eq 1 && { TARGET="$1"; shift; }
 
 # auto_max() attempts to determine the outgoing link's MTU
@@ -126,12 +136,6 @@ auto_max()
 test "x${MAX}x" = 'xautox' && MAX=$(auto_max 2>/dev/null)
 MAX=${MAX:-1500}
 test "${MAX}" -ge 65535 && MAX=65535
-
-# error_msg() prints its parameters as a line to STDERR
-error_msg()
-{
-  echo "[!] ERROR: $*" 1>&2
-}
 
 # send_probe() has exactly two mandatory parameters:
 # 1) the probe size in bytes
@@ -217,7 +221,7 @@ EOF
 
 PMTU=$("$ALGO")
 test -n "$PMTU" && echo "$PMTU" || {
-  echo '[!] could not determine PMTU'
+  error_msg 'could not determine PMTU'
   exit 1
 }
 
