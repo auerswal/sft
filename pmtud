@@ -52,7 +52,7 @@ without any warranty.
 EOF
 }
 
-usage() { echo "Usage: $PROG [OPTIONS] [IP | HOSTNAME]"; }
+usage() { echo "Usage: $PROG [OPTIONS] {IP | HOSTNAME}"; }
 
 help()
 {
