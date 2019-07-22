@@ -112,9 +112,9 @@ while getopts ':hVLlbpP:m:M:i:w:W:o:' OPT; do
 done
 shift $(($OPTIND - 1))
 
-test $# -eq 1 || { echo "${PROG}: ERROR: no target host given"; exit 1; }
+test $# -lt 1 && { echo "${PROG}: ERROR: no target host given"; usage; exit 1; }
+test $# -gt 1 && { echo "${PROG}: ERROR: too many arguments"; usage; exit 1; }
 test $# -eq 1 && { TARGET="$1"; shift; }
-test $# -eq 0 || { echo "${PROG}: ERROR: too many arguments"; exit 1; }
 
 # auto_max() attempts to determine the outgoing link's MTU
 auto_max()
