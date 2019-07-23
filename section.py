@@ -13,7 +13,9 @@
 # Please note that this program uses Python regular expressions which are
 # not compatible with POSIX extended regular expressions (ERE).
 # Please note that using this program with Python 3 with a non-POSIX
-# locale may result in UnicodeDecodeError with non-UTF-8 input.
+# locale may result in UnicodeDecodeError exceptions with non-UTF-8 input.
+# Using Python 3.7 and newer may result in UnicodeDecodeError exceptions
+# with non-UTF-8 input regardless of locale setting because of PEP 538.
 
 # Make coding more python3-ish
 from __future__ import (
