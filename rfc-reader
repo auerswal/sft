@@ -113,7 +113,7 @@ esac
 IDLST='all_id.txt'
 IDLSTBS='https://www.ietf.org/archive/id'
 test -z "$DN" && { test "$DT" = 'draft' || test "$DT" = 'I-D'; } &&
-  printf -- 'determining latest version of %s ...' "$DOC" &&
+  printf -- 'determining latest version of %s ... ' "$DOC" &&
   if test \( -n "$RFCCACHE" \) -a \( -d "$RFCCACHE" \) -a \( -w "$RFCCACHE" \)
   then
     printf -- 'refreshing I-D list %s/%s ... ' "$RFCCACHE" "$IDLST"
