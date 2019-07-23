@@ -71,6 +71,7 @@ usage()
   printf -- '%s\n' "  $B std1                  # downloads and displays STD 1"
   printf -- '%s\n' "  $B draft-rep-wg-topic-00 # downloads & displays REP I-D"
   printf -- '%s\n' "  $B I-D.rep-wg-topic-00   # downloads & displays REP I-D"
+  printf -- '%s\n' "  $B draft-rep-wg-topic    # downloads & displays REP I-D"
   printf -- '%s\n' "  $B I-D.rep-wg-topic      # downloads & displays REP I-D"
   echo
   echo 'Looking for RFCs in the following local directories:'
