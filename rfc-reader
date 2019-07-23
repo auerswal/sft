@@ -40,7 +40,7 @@ done
 
 version()
 {
-  local V="0.35"
+  local V="0.36"
   printf -- "%s\n" "$B version $V"
   echo 'Copyright (C) 2011-2019 Erik Auerswald <auerswal@unix-ag.uni-kl.de>'
 }
@@ -58,7 +58,7 @@ EOL
 usage()
 {
   printf -- '%s\n' "Usage: $B [{rfc|bcp|fyi|ien|std}][{-| }]NUMBER[.txt]"
-  printf -- '%s\n' "       $B {I-D.|draft-}DRAFT_NAME-DRAFT_NUMBER[.txt]"
+  printf -- '%s\n' "       $B {I-D.|draft-}DRAFT_NAME[-DRAFT_NUMBER][.txt]"
   echo
   echo 'Examples:'
   printf -- '%s\n' "  $B 1                     # downloads and displays RFC 1"
@@ -102,11 +102,28 @@ test -z "$DT" &&
         | tr '[:upper:]' '[:lower:]')"
 # determine document number (or name for I-Ds)
 case "$DT" in
-  draft|I-D) DN="$(printf -- '%s' "$DOC" | tr '[:upper:]' '[:lower:]' \
-    | sed 's/^[[:space:]]\+//;s/\.txt[[:space:]]*$//;s/^i-d\./draft-/')"
+  draft|I-D)
+    DOC="$(printf -- '%s' "$DOC" | sed 's/^[Ii]-[Dd]\./draft-/')"
+    DN="$(printf -- '%s' "$DOC" | tr '[:upper:]' '[:lower:]' \
+          | sed 's/^[[:space:]]\+//;s/\.txt[[:space:]]*$//;s/^i-d\./draft-/')"
     expr match " $DN" ' .*-[0-9][0-9][0-9]*$' > /dev/null || DN='';;
   *) DN="$(expr match " $DOC" ' [-A-Za-z ]*0*\([1-9][0-9]*\)')";;
 esac
+# determine latest I-D version number if I-D name w/o number was provided
+IDLST='all_id.txt'
+IDLSTBS='https://www.ietf.org/archive/id'
+test -z "$DN" && { test "$DT" = 'draft' || test "$DT" = 'I-D'; } &&
+  printf -- 'determining latest version of %s ...' "$DOC" &&
+  if test \( -n "$RFCCACHE" \) -a \( -d "$RFCCACHE" \) -a \( -w "$RFCCACHE" \)
+  then
+    printf -- 'refreshing I-D list %s/%s ... ' "$RFCCACHE" "$IDLST"
+    wget -q -o/dev/null -N -P "$RFCCACHE" -- "${IDLSTBS}/${IDLST}"
+    test -r "${RFCCACHE}/${IDLST}" || { echo 'ERROR'; exit 1; }
+    DN="$(grep -- "^${DOC}" "${RFCCACHE}/${IDLST}" | awk '{print $1}')"
+  else
+    DN="$(wget -q -o/dev/null -O- -- "${IDLSTBS}/${IDLST}" | grep -- "^${DOC}" \
+          | awk '{print $1}')"
+  fi
 # determine download base URL for document
 test -z "$DT" &&
   { echo 'Error: could not determine document type'; usage; exit 1; }
