@@ -40,7 +40,7 @@ done
 
 version()
 {
-  local V="0.36"
+  local V="0.37"
   printf -- "%s\n" "$B version $V"
   echo 'Copyright (C) 2011-2019 Erik Auerswald <auerswal@unix-ag.uni-kl.de>'
 }
