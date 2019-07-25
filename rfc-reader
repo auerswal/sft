@@ -40,7 +40,7 @@ done
 
 version()
 {
-  local V="0.37"
+  local V="0.38"
   printf -- "%s\n" "$B version $V"
   echo 'Copyright (C) 2011-2019 Erik Auerswald <auerswal@unix-ag.uni-kl.de>'
 }
@@ -196,12 +196,14 @@ test -z "$DISPLAY" && {
   # check terminal size
   TL="${TL:=${LINES:=}}"
   test -z "$TL" && TL="$(stty size 2>/dev/null | cut -d' ' -f1)"
+  test -z "$TL" && TL="$(tput lines 2>/dev/null)"
   test -z "$TL" && TL="$(resize -u 2>/dev/null \
                          | sed -n '/LINES/s/^.*=\([0-9]\+\).*$/\1/p')"
   test -z "$TL" && { echo 'ERROR: cannot determine terminal height'; exit 1; }
   test "$TL" -lt "$((L+PSL))" && { echo 'ERROR: terminal too short'; exit 1; }
   TC="${TC:=${COLUMNS:=}}"
   test -z "$TC" && TC="$(stty size 2>/dev/null | cut -d' ' -f2)"
+  test -z "$TC" && TC="$(tput cols 2>/dev/null)"
   test -z "$TC" && TC="$(resize -u 2>/dev/null \
                          | sed -n '/COLUMNS/s/^.*=\([0-9]\+\).*$/\1/p')"
   test -z "$TC" && { echo 'ERROR: cannot determine terminal width'; exit 1; }
