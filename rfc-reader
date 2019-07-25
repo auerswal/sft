@@ -204,7 +204,7 @@ test -z "$DISPLAY" && {
   test -z "$TC" && TC="$(stty size 2>/dev/null | cut -d' ' -f2)"
   test -z "$TC" && TC="$(resize -u 2>/dev/null \
                          | sed -n '/COLUMNS/s/^.*=\([0-9]\+\).*$/\1/p')"
-  test -z "$TL" && { echo 'ERROR: cannot determine terminal width'; exit 1; }
+  test -z "$TC" && { echo 'ERROR: cannot determine terminal width'; exit 1; }
   test "$TC" -lt "$C" && { echo 'ERROR: terminal too narrow'; exit 1; }
   # format RFC(-like) text for current terminal's height
   L="$((TL-PSL))"
