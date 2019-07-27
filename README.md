@@ -55,7 +55,7 @@ IPv6 ULA addresses using a deterministic algorithm based on [RFC 4193 section 3.
 * `interface_status` - query interface status of network devices via SNMP
 * `ipcalc` - simple replacement for [ipcalc](http://jodies.de/ipcalc)
 * `macfmt` - convert MAC address formats ([web page](https://www.unix-ag.uni-kl.de/~auerswal/macfmt/))
-* `macfmt.py` - alternative to the above `macfmt`, implemented in Python instead of Awk
+* `macfmt.py` - alternative to the above `macfmt`, implemented in Python instead of Awk (mentioned on the [`macfmt` web page](https://www.unix-ag.uni-kl.de/~auerswal/macfmt/))
 * `net2ips` - print host addresses of an IPv4 network (uses ipcalc)
 * `netio-kshell-dos` - demonstrate TCP session cleanup bug ([web page](https://www.unix-ag.uni-kl.de/~auerswal/netio-kshell-bug/))
 * `nfoview` - view NFO files on GNU/Linux
