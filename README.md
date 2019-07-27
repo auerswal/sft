@@ -78,3 +78,10 @@ IPv6 ULA addresses using a deterministic algorithm based on [RFC 4193 section 3.
 If you do not find what you are looking for in this repository, you might
 find example code licensed under the GNU Public License version 3 or later
 in my [junkcode](https://github.com/auerswal/junkcode/) repository.
+
+## Homepage
+
+For more of my work you can visit my
+[homepage](https://www.unix-ag.uni-kl.de/~auerswal/) at the
+[Unix-AG](https://www.unix-ag.uni-kl.de/) of the
+[TU Kaiserslautern](https://www.uni-kl.de/).
