@@ -43,7 +43,7 @@ done
 
 version()
 {
-  local V="0.38"
+  local V="0.39"
   printf -- "%s\n" "$B version $V"
   echo 'Copyright (C) 2011-2019 Erik Auerswald <auerswal@unix-ag.uni-kl.de>'
 }
@@ -95,6 +95,8 @@ if test $# -eq 2; then
 else
   DOC="$1"
 fi
+# remove optional extension .txt
+DOC="$(printf -- '%s' "$DOC" | sed s/\.[Tt][Xx][Tt]$//)"
 expr match " $DOC" '  *[0-9][0-9]* *$' > /dev/null && DOC="rfc$DOC"
 # determine document type
 DT="$(expr match " $DOC" ' \([Dd][Rr][Aa][Ff][Tt]\)' \
