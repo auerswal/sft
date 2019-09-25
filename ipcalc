@@ -1,7 +1,7 @@
 #! /usr/bin/env bash
 
 # ipcalc - print information about an IPv4 network
-# Copyright (C) 2013-2017 by Erik Auerswald <auerswal@unix-ag.uni-kl.de>
+# Copyright (C) 2013-2019 by Erik Auerswald <auerswal@unix-ag.uni-kl.de>
 #
 # Copying and distribution of this file, with or without modification,
 # are permitted in any medium without royalty provided the copyright
@@ -11,7 +11,7 @@
 set -u
 
 PROG="$(basename $0)"
-version='2017-11-12-01'
+version='2019-09-25-01'
 
 print_version()
 {
@@ -20,7 +20,7 @@ print_version()
 
 print_copyright()
 {
-  echo 'Copyright (C) 2013-2017 by Erik Auerswald <auerswal@unix-ag.uni-kl.de>'
+  echo 'Copyright (C) 2013-2019 by Erik Auerswald <auerswal@unix-ag.uni-kl.de>'
 }
 
 print_license()
@@ -39,8 +39,8 @@ EOL
 print_usage()
 {
   cat <<EOU
-Usage: $PROG { -h | -V | -L | -t }
-       $PROG [-b] [-c] IPv4ADDRESS [/] { PREFIXLENGTH | NETMASK | WILDCARD }
+Usage: $PROG {-h | -V | -L | -t}
+       $PROG [-b] [-c] [-n] IPv4ADDRESS [/] {PREFIXLENGTH | NETMASK | WILDCARD}
 EOU
 }
 
@@ -57,6 +57,7 @@ Options:
   -t      print table of prefix length, network mask and wildcard
   -b      no function, accepted for compatibility with jodies.de ipcalc
   -c      no function, accepted for compatibility with jodies.de ipcalc
+  -n      no function, accepted for compatibility with jodies.de ipcalc
 Examples:
   $PROG 192.0.2.0/24
   $PROG 192.0.2.0 24
@@ -255,7 +256,7 @@ print_table()
   done
 }
 
-while getopts 'hVLtbc' OPT; do
+while getopts 'hVLtbcn' OPT; do
   case "$OPT" in
     'h') print_help; exit 0;;
     'V') print_version; print_copyright; exit 0;;
@@ -263,6 +264,7 @@ while getopts 'hVLtbc' OPT; do
     't') print_table; exit 0;;
     'b') ;;
     'c') ;;
+    'n') ;;
     '?') echo "$PROG: ERROR: unknown option '$1'";
          print_usage; exit 1;;
     *) echo "$PROG: ERROR: getopts() failure"; exit 1;;
