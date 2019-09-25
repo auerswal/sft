@@ -9,7 +9,7 @@
 # notice and this notice are preserved.  This file is offered as-is,
 # without any warranty.
 
-# Version 2017-04-15-01
+# Version 2019-09-25-01
 
 for c in "$@"; do
   printf -- '========[ %s ]========\n' "$c"
@@ -22,8 +22,12 @@ for c in "$@"; do
         -e '/ORGANIZER/s/^.*CN="?([^":;]+)"?.*:[Mm][Aa][Ii][Ll][Tt][Oo]:([^[:space:]]+).*$/Organizer: \1 <\2>/p' \
         -e '/ATTENDEE/s/^.*CN="?([^":;]+)"?.*:[Mm][Aa][Ii][Ll][Tt][Oo]:([^[:space:]]+).*$/Attendee: \1 <\2>/p' \
         -e '/SUMMARY/s/^[^:]*:(.*)$/Summary: \1/p' \
+        -e '/DTSTART;TZID=/s/^.*TZID=([^:]+):([[:digit:]]{4})([[:digit:]]{2})([[:digit:]]{2})T([[:digit:]]{2})([[:digit:]]{2})([[:digit:]]{2}).*$/Start: \4.\3.\2 at \5:\6:\7 (\1)/p' \
+        -e '/DTSTART/s/^.*:([[:digit:]]{4})([[:digit:]]{2})([[:digit:]]{2})T([[:digit:]]{2})([[:digit:]]{2})([[:digit:]]{2})([A-Z]{1,4}).*$/Start: \3.\2.\1 at \4:\5:\6 (\7)/p' \
         -e '/DTSTART/s/^.*:([[:digit:]]{4})([[:digit:]]{2})([[:digit:]]{2})T([[:digit:]]{2})([[:digit:]]{2})([[:digit:]]{2}).*$/Start: \3.\2.\1 at \4:\5:\6/p' \
         -e '/DTSTART;VALUE=DATE:/s/^.*:([[:digit:]]{4})([[:digit:]]{2})([[:digit:]]{2})/Start: \3.\2.\1/p' \
+        -e '/DTEND;TZID=/s/^.*TZID=([^:]+):([[:digit:]]{4})([[:digit:]]{2})([[:digit:]]{2})T([[:digit:]]{2})([[:digit:]]{2})([[:digit:]]{2}).*$/Start: \4.\3.\2 at \5:\6:\7 (\1)/p' \
+        -e '/DTEND/s/^.*:([[:digit:]]{4})([[:digit:]]{2})([[:digit:]]{2})T([[:digit:]]{2})([[:digit:]]{2})([[:digit:]]{2})([A-Z]{1,4}).*$/End:   \3.\2.\1 at \4:\5:\6 (\7)/p' \
         -e '/DTEND/s/^.*:([[:digit:]]{4})([[:digit:]]{2})([[:digit:]]{2})T([[:digit:]]{2})([[:digit:]]{2})([[:digit:]]{2}).*$/End:   \3.\2.\1 at \4:\5:\6/p' \
         -e '/DTEND;VALUE=DATE:/s/^.*:([[:digit:]]{4})([[:digit:]]{2})([[:digit:]]{2})/End:   \3.\2.\1/p' \
         -e '/DESCRIPTION/s/^[^:]*:(.*)$/----=[ start description ]=----\n\1\n-----=[ end description ]=-----/p' \
