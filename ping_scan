@@ -2,7 +2,7 @@
 
 # Send an ICMP echo request to each of the IPs given.
 #
-# Copyright (C) 2011-2013 Erik Auerswald <auerswal@unix-ag.uni-kl.de>
+# Copyright (C) 2011-2019 Erik Auerswald <auerswal@unix-ag.uni-kl.de>
 #
 # Copying and distribution of this file, with or without modification,
 # are permitted in any medium without royalty provided the copyright
@@ -11,17 +11,17 @@
 #
 # Requires the ping program of Solaris or an output-compatible one.
 
-VERSION=2013-08-06-01
+VERSION=2019-10-20-01
 PROG="$(basename $0)"
 PING="${PING_WRAPPER:-ping}"
 
 version()
 {
   echo "$PROG version $VERSION"
-  echo "Copyright (c) 2011-2013 by Erik Auerswald <auerswal@unix-ag.uni-kl.de>"
+  echo "Copyright (c) 2011-2019 by Erik Auerswald <auerswal@unix-ag.uni-kl.de>"
 }
 
-usage() { echo "Usage: $PROG [-h] [-L] [-t TIMEOUT] [-v] [-u] IP..."; }
+usage() { echo "Usage: $PROG [-h] [-L] [-t TIMEOUT] [-v] [-u] [IP...]"; }
 
 help()
 {
@@ -37,6 +37,9 @@ Options:
 
 $PROG sends ICMP echo requests to the hosts (IP addresses) specified
 and prints every host that answers with an ICMP echo reply.
+
+Specify IP addresses as command line arguments.  If no IP addresses are given
+as arguments, IP addresses are read from STDIN, one IP address per line.
 
 With the -u option, only hosts / IP addresses that do not answer are printed.
 
@@ -55,8 +58,6 @@ license()
 	EOL
 }
 
-test $# -eq 0 && { usage; exit 1; }
-
 TIMEOUT=1
 VERB=0
 UNREACHABLE=0
@@ -72,6 +73,9 @@ while getopts t:hvuL OPT; do
 done
 shift $(($OPTIND - 1))
 
+test "$#" -eq 0 && test "x${VERB}x" = "x1x" &&
+  echo 'reading IP addresses from STDIN, one IP address per line'
+
 test "x${VERB}x" = "x1x" &&
   echo "Sending ICMP echo requests and waiting for results..." \
        "(timeout ${TIMEOUT}s)"
@@ -82,9 +86,15 @@ test \( "x${VERB}x" = "x1x" \) -a \( "x${UNREACHABLE}x" = "x1x" \) &&
 PATTERN='is alive'
 test "x${UNREACHABLE}x" = "x1x" && PATTERN='no answer from'
 
-while test $# -ge 1; do
-  { $PING -n "$1" "$TIMEOUT" | fgrep "$PATTERN"; } &
-  shift
-done | sort -t . -k 1,1n -k 2,2n -k 3,3n -k 4,4n -u
+if test "$#" -gt 0; then
+  while test $# -ge 1; do
+    { $PING -n "$1" "$TIMEOUT" | fgrep "$PATTERN"; } &
+    shift
+  done
+else
+  while read IP; do
+    { $PING -n "$IP" "$TIMEOUT" | fgrep "$PATTERN"; } &
+  done
+fi | sort -t . -k 1,1n -k 2,2n -k 3,3n -k 4,4n -u
 
 exit 0
