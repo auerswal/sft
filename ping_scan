@@ -21,7 +21,7 @@ version()
   echo "Copyright (c) 2011-2019 by Erik Auerswald <auerswal@unix-ag.uni-kl.de>"
 }
 
-usage() { echo "Usage: $PROG [-h] [-L] [-t TIMEOUT] [-v] [-u] [IP...]"; }
+usage() { echo "Usage: $PROG [-h] [-L] [-V] [-t TIMEOUT] [-v] [-u] [IP...]"; }
 
 help()
 {
@@ -34,6 +34,7 @@ Options:
    -v           print additional runtime info
    -u           print not reachable hosts instead
    -L           print license and exit
+   -V           print version information and exit
 
 $PROG sends ICMP echo requests to the hosts (IP addresses) specified
 and prints every host that answers with an ICMP echo reply.
@@ -61,13 +62,14 @@ license()
 TIMEOUT=1
 VERB=0
 UNREACHABLE=0
-while getopts t:hvuL OPT; do
+while getopts t:hvuLV OPT; do
   case "$OPT" in
     t) TIMEOUT=${OPTARG:-2};;
     h) help; exit 0;;
     v) VERB=1;;
     u) UNREACHABLE=1;;
     L) version; license; exit 0;;
+    V) version; exit 0;;
     ?) usage; exit 1;;
   esac
 done
