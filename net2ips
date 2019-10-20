@@ -36,6 +36,7 @@ help()
 Options:
    -h           print this help and exit
    -L           print license and exit
+   -V           print version information and exit
 NETWORK is a network description understood by ipcalc, e.g. 192.0.2.0/24.
 Without arguments, network(s) are read from STDIN, one per line.
 
@@ -57,10 +58,11 @@ license()
 
 test $# -gt 2 && { usage; exit 1; }
 
-while getopts hL OPT; do
+while getopts hLV OPT; do
   case "$OPT" in
     h) help; exit 0;;
     L) version; license; exit 0;;
+    V) version; exit 0;;
     ?) usage; exit 1;;
   esac
 done
