@@ -43,7 +43,7 @@ done
 
 version()
 {
-  local V="0.40"
+  local V="0.41"
   printf -- "%s\n" "$B version $V"
   echo 'Copyright (C) 2011-2019 Erik Auerswald <auerswal@unix-ag.uni-kl.de>'
 }
@@ -219,6 +219,12 @@ test -z "$DISPLAY" && {
 
 # reformat RFC(-like) text for chosen terminal which has L lines for viewing
 # text content (including SL status line(s) used by the pager)
+awk '/\014/{exit 1}' "$F" && {
+  printf -- 'WARN: no Form Feed characters in RFC/I-D "%s"\n' "$R"
+  case "$P" in
+    less|more|most) PO="$PO -s";;
+  esac
+}
 awk -vn_lines="$L" -vpg_adds="$PA" \
   '!/\f/{line++; print};
     /\f/{for (i=line; i<n_lines; i++) print ""; line=0}
