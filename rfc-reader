@@ -1,4 +1,4 @@
-#! /bin/sh
+#! /bin/bash
 
 # Copyright (C) 2011-2019 Erik Auerswald <auerswal@unix-ag.uni-kl.de>
 
@@ -43,7 +43,7 @@ done
 
 version()
 {
-  local V="0.39"
+  local V="0.40"
   printf -- "%s\n" "$B version $V"
   echo 'Copyright (C) 2011-2019 Erik Auerswald <auerswal@unix-ag.uni-kl.de>'
 }
@@ -223,7 +223,7 @@ awk -vn_lines="$L" -vpg_adds="$PA" \
   '!/\f/{line++; print};
     /\f/{for (i=line; i<n_lines; i++) print ""; line=0}
     END {if (line || pg_adds) {for (i=line; i<n_lines-pg_adds; i++) print ""}}'\
-  "$F" | sed '/^$/!s/^/  /' > "$FMT"
+  "$F" | sed '1s/^'$'\uFEFF''//;/^$/!s/^/  /' > "$FMT"
 
 # open suitable terminal window if X-Windows is available
 test -n "$DISPLAY" && {
