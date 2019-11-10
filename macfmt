@@ -20,7 +20,8 @@
 # Prints all formats unless one is specified using the -v format=FORMAT option.
 #        FORMAT is one of: all, cisco, linux, enterasys, cabletron, broadcom,
 #                          vmps, netsight, hp, hex, hexprefix, pxe, pgsql,
-#                          hexpostfix, exos, arista, mikrotik, huawei
+#                          hexpostfix, exos, arista, mikrotik, huawei, ieee,
+#                          ietf
 # Converts hex digits A-F to lower or upper case if -v cap=CASE is given.
 #        CASE   is one of: lower, upper
 # If cap is not specified, the format's default case is used.
@@ -34,7 +35,7 @@
 # usually /usr/bin/awk. Tested on Solaris 10 and with GAWK on GNU/Linux.
 # Does not work with MAWK version 1.3.3-17 on Debian GNU/Linux.
 #
-# Version 2019-02-10-01
+# Version 2019-11-10-01
 
 function print_macs(format) {
 	cisco = tolower(a[1] a[2] "." a[3] a[4] "." a[5] a[6])
@@ -72,9 +73,9 @@ function print_macs(format) {
 			hexprefix, pxe, pgsql, hexpostfix, huawei
 	} else if (format == "cisco" || format == "arista") {
 		print cisco
-	} else if (format == "linux" || format == "exos") {
+	} else if (format == "linux" || format == "exos" || format == "ietf") {
 		print linux
-	} else if (format == "enterasys") {
+	} else if (format == "enterasys" || format == "ieee") {
 		print ets
 	} else if (format == "cabletron" || format == "mikrotik") {
 		print ct
