@@ -34,7 +34,7 @@ __metaclass__ = type
 # Note: doctests require Python 3 (python3 -m doctest macfmt.py)
 
 PROG = 'macfmt.py'
-VERS = '0.1.0'
+VERS = '0.2.0'
 DESC = 'Print MAC address(es) in specified format.'
 EPIL = """\
 The MAC addresses given as input are printed in the selected format, one MAC
@@ -67,6 +67,8 @@ MAC_FORMAT = {
     'hexsuffix': ('', 12, '', 'upper', 'h'),
     'hp': ('', 6, '-', 'lower', ''),
     'huawei': ('', 4, '-', 'lower', ''),
+    'ieee': 'default',
+    'ietf': 'linux',
     'linux': ('', 2, ':', 'lower', ''),
     'mikrotik': 'cabletron',
     'netsight': ('', 2, '.', 'upper', ''),
@@ -302,6 +304,8 @@ def output_formats_with_example_mac():
     hexsuffix :  0123456789ABh
     hp        :  012345-6789ab
     huawei    :  0123-4567-89ab
+    ieee      :  01-23-45-67-89-AB
+    ietf      :  01:23:45:67:89:ab
     linux     :  01:23:45:67:89:ab
     mikrotik  :  01:23:45:67:89:AB
     netsight  :  01.23.45.67.89.AB
