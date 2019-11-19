@@ -16,11 +16,12 @@
 # the fields are (in this order): Disc ID, Movie Title, Track, Options
 # every field besides the Disc ID may be empty
 
-# version 2019-10-06-01
+# version 2019-11-19-01
 
 set -u
 
 RC="${HOME}/.dvdmovierc"
+test -r "$RC" || RC="${XDG_CONFIG_HOME:-$HOME/.config}/dvdmovierc"
 DVDMOVIERC_TITLE=''
 DVDMOVIERC_OPTS=''
 MPLAYER="${HOME}/bin/mplayer"
