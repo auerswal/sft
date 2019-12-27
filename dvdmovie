@@ -16,7 +16,7 @@
 # the fields are (in this order): Disc ID, Movie Title, Track, Options
 # every field besides the Disc ID may be empty
 
-# version 2019-11-19-01
+# version 2019-12-27-01
 
 set -u
 
@@ -75,4 +75,4 @@ test -n "$*" &&
 	echo "Adding options $* from command line." &&
 	MOPTS="$MOPTS $*"
 echo "Playing DVD title $DVDMOVIE_TITLE with options ${MOPTS}."
-exec "$MPLAYER" $MOPTS "$@" "${DISC}${DVDMOVIE_TITLE}" 2> /dev/null
+exec "$MPLAYER" $MOPTS "${DISC}${DVDMOVIE_TITLE}" 2> /dev/null
