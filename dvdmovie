@@ -75,4 +75,5 @@ test -n "$*" &&
 	echo "Adding options $* from command line." &&
 	MOPTS="$MOPTS $*"
 echo "Playing DVD title $DVDMOVIE_TITLE with options ${MOPTS}."
+printf -- '[%s]\n' "$MOPTS ${DISC}${DVDMOVIE_TITLE}"
 exec "$MPLAYER" $MOPTS "${DISC}${DVDMOVIE_TITLE}" 2> /dev/null
