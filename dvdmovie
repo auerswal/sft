@@ -2,7 +2,7 @@
 
 # dvdmovie plays the movie from a video DVD using MPlayer
 #
-# Copyright (c) 2012-2019 Erik Auerswald <auerswal@unix-ag.uni-kl.de>
+# Copyright (c) 2012-2020 Erik Auerswald <auerswal@unix-ag.uni-kl.de>
 #
 # Copying and distribution of this file, with or without modification,
 # are permitted in any medium without royalty provided the copyright
@@ -16,7 +16,7 @@
 # the fields are (in this order): Disc ID, Movie Title, Track, Options
 # every field besides the Disc ID may be empty
 
-# version 2019-12-31-01
+# version 2020-01-02-01
 
 set -u
 
@@ -34,7 +34,7 @@ DISC='dvd://'
 
 printf -- 'Looking for movie title on DVD, this can take some time...'
 DVDMOVIE_ARRAY=($("$MPLAYER" $IOPTS "$@" "$DISC" 2> /dev/null | awk '
-	BEGIN {title = 0; len = 0; discid = 0}
+	BEGIN {title = 0; len = 0; discid = 0; name = 0}
 	/ID_DVD_TITLE_[0-9]+_LENGTH/ {
 		gsub("ID_DVD_TITLE_","")
 		gsub("_LENGTH="," ")
@@ -45,20 +45,26 @@ DVDMOVIE_ARRAY=($("$MPLAYER" $IOPTS "$@" "$DISC" 2> /dev/null | awk '
 		split($0,A,"=")
 		discid = A[2]
 	}
-	END {printf "%d %.0f %s\n", title, len/60, discid}
+	/ID_DVD_VOLUME_ID=/ {
+		split($0,A,"=")
+		name = A[2]
+	}
+	END {printf "%d %.0f %s %s\n", title, len/60, discid, name}
 '))
 echo 'done.'
 DVDMOVIE_TITLE=${DVDMOVIE_ARRAY[0]}
 DVDMOVIE_LEN=${DVDMOVIE_ARRAY[1]}
 DVDMOVIE_DISCID=${DVDMOVIE_ARRAY[2]}
+DVDMOVIE_NAME=${DVDMOVIE_ARRAY[3]}
 test "$DVDMOVIE_TITLE" -gt 0 ||
 	{ echo 'ERROR: Could not read titles of DVD.' ; exit 1; }
 test "$DVDMOVIE_LEN" -gt 0 ||
 	{ echo "ERROR: Longest title $DVDMOVIE_TITLE has zero length.";exit 1; }
 test "$DVDMOVIE_DISCID" != '0' ||
 	echo 'WARNING: Could not determine disc ID of DVD.'
-echo "Longest title on DVD ${DVDMOVIE_DISCID} is no. $DVDMOVIE_TITLE" \
-	"($DVDMOVIE_LEN min.)."
+test "$DVDMOVIE_NAME" != '0' || DVDMOVIE_NAME='no name'
+echo "Longest title on DVD ${DVDMOVIE_DISCID} ($DVDMOVIE_NAME) is no." \
+	"$DVDMOVIE_TITLE ($DVDMOVIE_LEN min.)."
 test -r "$RC" && test "$DVDMOVIE_DISCID" != '0' &&
 	DVDMOVIERC_NAME="$(grep "^${DVDMOVIE_DISCID}" "$RC" | cut -d\; -f2)" &&
 	DVDMOVIERC_TITLE="$(grep "^${DVDMOVIE_DISCID}" "$RC" | cut -d\; -f3)" &&
