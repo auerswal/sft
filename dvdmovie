@@ -74,5 +74,6 @@ test "$DVDMOVIE_DISCID" != '0' && test -n "$DVDMOVIERC_OPTS" &&
 test -n "$*" &&
 	echo "Adding options $* from command line." &&
 	MOPTS="$MOPTS $*"
-printf -- 'Playing DVD title %s with options %s [%s].\n' "$DVDMOVIE_TITLE" "$MOPTS" "$MOPTS ${DISC}${DVDMOVIE_TITLE}"
+printf -- 'Playing DVD title %s with options %s [%s].\n' \
+	"$DVDMOVIE_TITLE" "$MOPTS" "$MOPTS ${DISC}${DVDMOVIE_TITLE}"
 exec "$MPLAYER" $MOPTS "${DISC}${DVDMOVIE_TITLE}" 2> /dev/null
