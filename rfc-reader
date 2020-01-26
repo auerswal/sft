@@ -62,8 +62,10 @@ usage()
 {
   printf -- '%s\n' "Usage: $B [{rfc|bcp|fyi|ien|std}][{-| }]NUMBER[.txt]"
   printf -- '%s\n' "       $B {I-D.|draft-}DRAFT_NAME[-DRAFT_NUMBER][.txt]"
+  printf -- '%s\n' "       $B"
   echo
   echo 'Examples:'
+  printf -- '%s\n' "  $B                       # print version, copyright, help"
   printf -- '%s\n' "  $B 1                     # downloads and displays RFC 1"
   printf -- '%s\n' "  $B rfc1                  # downloads and displays RFC 1"
   printf -- '%s\n' "  $B rfc 1                 # downloads and displays RFC 1"
