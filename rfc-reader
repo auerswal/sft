@@ -1,6 +1,6 @@
 #! /bin/bash
 
-# Copyright (C) 2011-2019 Erik Auerswald <auerswal@unix-ag.uni-kl.de>
+# Copyright (C) 2011-2020 Erik Auerswald <auerswal@unix-ag.uni-kl.de>
 
 # Copying and distribution of this file, with or without modification,
 # are permitted in any medium without royalty provided the copyright
@@ -43,9 +43,9 @@ done
 
 version()
 {
-  local V="0.41"
+  local V="0.42"
   printf -- "%s\n" "$B version $V"
-  echo 'Copyright (C) 2011-2019 Erik Auerswald <auerswal@unix-ag.uni-kl.de>'
+  echo 'Copyright (C) 2011-2020 Erik Auerswald <auerswal@unix-ag.uni-kl.de>'
 }
 
 license()
@@ -197,7 +197,15 @@ test "$P" = 'most' && PSL='2' PA='1'
 
 # use current terminal if X-Windows is not available
 DISPLAY=${DISPLAY:=}
-test -z "$DISPLAY" && {
+PAGINATED=1
+awk '/\014/{exit 1}' "$F" && {
+  printf -- 'WARN: no Form Feed characters in RFC/I-D "%s"\n' "$R"
+  PAGINATED=0
+  case "$P" in
+    less|more|most) PO="$PO -s";;
+  esac
+}
+test -z "$DISPLAY" && test "$PAGINATED" -eq '1' && {
   # check terminal size
   TL="${TL:=${LINES:=}}"
   test -z "$TL" && TL="$(stty size 2>/dev/null | cut -d' ' -f1)"
@@ -219,12 +227,6 @@ test -z "$DISPLAY" && {
 
 # reformat RFC(-like) text for chosen terminal which has L lines for viewing
 # text content (including SL status line(s) used by the pager)
-awk '/\014/{exit 1}' "$F" && {
-  printf -- 'WARN: no Form Feed characters in RFC/I-D "%s"\n' "$R"
-  case "$P" in
-    less|more|most) PO="$PO -s";;
-  esac
-}
 awk -vn_lines="$L" -vpg_adds="$PA" \
   '!/\f/{line++; print};
     /\f/{for (i=line; i<n_lines; i++) print ""; line=0}
