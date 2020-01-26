@@ -43,7 +43,7 @@ done
 
 version()
 {
-  local V="0.42"
+  local V="0.43"
   printf -- "%s\n" "$B version $V"
   echo 'Copyright (C) 2011-2020 Erik Auerswald <auerswal@unix-ag.uni-kl.de>'
 }
@@ -188,8 +188,9 @@ test -x $(which "$P") || P='page'  # alternate name for 'more -p'
 test -x $(which "$P") || P='pg'    # System V compatibility
 test -x $(which "$P") || { echo 'ERROR: no pager found'; exit 1; }
 PO=${PO:=''}
-# rfc-reader has default options for less only
+# rfc-reader has default options for less and most only
 test "$P" = "less" && test -z "$PO" && PO="-M -S"
+test "$P" = "most" && test -z "$PO" && PO="+s"
 # most uses two status lines instead of one
 PSL='1'
 PA='0'
