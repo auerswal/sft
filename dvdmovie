@@ -16,7 +16,7 @@
 # the fields are (in this order): Disc ID, Movie Title, Track, Options
 # every field besides the Disc ID may be empty
 
-# version 2020-01-02-01
+# version 2020-02-06-01
 
 set -u
 
@@ -56,6 +56,9 @@ DVDMOVIE_TITLE=${DVDMOVIE_ARRAY[0]}
 DVDMOVIE_LEN=${DVDMOVIE_ARRAY[1]}
 DVDMOVIE_DISCID=${DVDMOVIE_ARRAY[2]}
 DVDMOVIE_NAME=${DVDMOVIE_ARRAY[3]}
+for ((I=4; I<${#DVDMOVIE_ARRAY[*]}; I+=1)); do
+	DVDMOVIE_NAME="$DVDMOVIE_NAME ${DVDMOVIE_ARRAY[$I]}"
+done
 test "$DVDMOVIE_TITLE" -gt 0 ||
 	{ echo 'ERROR: Could not read titles of DVD.' ; exit 1; }
 test "$DVDMOVIE_LEN" -gt 0 ||
