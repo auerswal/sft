@@ -4,7 +4,7 @@ set -u
 
 # Simplistic Path MTU Discovery using ICMP Echo Request probes.
 #
-# Copyright (C) 2017-2019 Erik Auerswald <auerswal@unix-ag.uni-kl.de>
+# Copyright (C) 2017-2020 Erik Auerswald <auerswal@unix-ag.uni-kl.de>
 #
 # Copying and distribution of this file, with or without modification,
 # are permitted in any medium without royalty provided the copyright
@@ -22,13 +22,13 @@ set -u
 # shall prevent local fragmentation. Thus the results of this program
 # may be wrong if an IPv6 end point is specified.
 
-VERSION='2019-10-31-01'
+VERSION='2020-02-29-01'
 PROG="$(basename $0)"
 ALGO='binary'
 OVERHEAD=28
 MIN=68
 INCREMENT=10
-TABLE='65535 32000 17914 9000 8166 4352 2002 1500 1492 1400 1280 1024 1006 576 508 296 68'
+TABLE='65535 32000 17914 9000 8166 4352 2304 2002 1500 1492 1400 1280 1024 1006 576 508 296 68'
 MAX='auto'
 WAIT='.15'
 TARGET=''
@@ -40,7 +40,7 @@ version() { echo "$PROG version $VERSION"; }
 
 copyright()
 {
-  echo 'Copyright (C) 2017-2019 by Erik Auerswald <auerswal@unix-ag.uni-kl.de>'
+  echo 'Copyright (C) 2017-2020 by Erik Auerswald <auerswal@unix-ag.uni-kl.de>'
 }
 
 license()
