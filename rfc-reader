@@ -30,7 +30,7 @@
 
 set -u
 
-B=$(basename $0)
+B=$(basename "$0")
 
 # e.g. openSUSE and Ubuntu provide RFCs as a package
 RFCDIRS='/usr/share/doc/rfc /usr/share/doc/RFC/links'
@@ -43,7 +43,7 @@ done
 
 version()
 {
-  local V="0.43"
+  local V="0.44"
   printf -- "%s\n" "$B version $V"
   echo 'Copyright (C) 2011-2020 Erik Auerswald <auerswal@unix-ag.uni-kl.de>'
 }
@@ -99,17 +99,22 @@ else
 fi
 # remove optional extension .txt
 DOC="$(printf -- '%s' "$DOC" | sed s/\.[Tt][Xx][Tt]$//)"
+# shellcheck disable=SC2003
 expr match " $DOC" '  *[0-9][0-9]* *$' > /dev/null && DOC="rfc$DOC"
 # determine document type
+# shellcheck disable=SC2003
 DT="$(expr match " $DOC" ' \([Dd][Rr][Aa][Ff][Tt]\)' \
       | tr '[:upper:]' '[:lower:]')"
+# shellcheck disable=SC2003
 test -z "$DT" &&
   DT="$(expr match " $DOC" ' \([Ii]-[Dd]\)\.' \
         | tr '[:lower:]' '[:upper:]')"
+# shellcheck disable=SC2003
 test -z "$DT" &&
   DT="$(expr match " $DOC" ' \([A-Za-z][A-Za-z]*\)' \
         | tr '[:upper:]' '[:lower:]')"
 # determine document number (or name for I-Ds)
+# shellcheck disable=SC2003
 case "$DT" in
   draft|I-D)
     DOC="$(printf -- '%s' "$DOC" | sed 's/^[Ii]-[Dd]\./draft-/')"
@@ -148,12 +153,13 @@ esac
 
 # create temporary files for original and formatted RFC(-like) text
 F=$(mktemp -t rfc-reader.$$.XXXXXXXXXX)
-trap "rm -rf $F" 0 1 2 3 15
+trap 'rm -rf "$F"' 0 1 2 3 15
 FMT=$(mktemp -t rfc-reader.$$.XXXXXXXXXX)
-trap "rm -rf $F $FMT" 0 1 2 3 15
+trap 'rm -rf "$F" "$FMT"' 0 1 2 3 15
 
 # obtain RFC(-like) text
 printf -- '%s' "looking for $R ... "
+# shellcheck disable=SC2086
 LR=$(find $RFCDIRS -name "${R}*" 2>/dev/null | head -n1)
 LRZ=''
 test -n "$LR" && printf -- '%s' "found $LR ... " &&
@@ -182,13 +188,13 @@ L=${L:=59} # 58 lines max. per page + separator line in, e.g., STD 1
 
 # use $PAGER or less
 P=${PAGER:=less}
-test -x $(which "$P") || P='less'  # de-facto GNU/Linux pager
-test -x $(which "$P") || P='most'  # nice alternative pager
-test -x $(which "$P") || P='pager' # pager from Debian's alternatives
-test -x $(which "$P") || P='more'  # POSIX and BSD compatibility
-test -x $(which "$P") || P='page'  # alternate name for 'more -p'
-test -x $(which "$P") || P='pg'    # System V compatibility
-test -x $(which "$P") || { echo 'ERROR: no pager found'; exit 1; }
+test -x "$(which "$P")" || P='less'  # de-facto GNU/Linux pager
+test -x "$(which "$P")" || P='most'  # nice alternative pager
+test -x "$(which "$P")" || P='pager' # pager from Debian's alternatives
+test -x "$(which "$P")" || P='more'  # POSIX and BSD compatibility
+test -x "$(which "$P")" || P='page'  # alternate name for 'more -p'
+test -x "$(which "$P")" || P='pg'    # System V compatibility
+test -x "$(which "$P")" || { echo 'ERROR: no pager found'; exit 1; }
 PO=${PO:=''}
 # rfc-reader has default options for less and most only
 test "$P" = "less" && test -z "$PO" && PO="-M -S"
@@ -230,6 +236,7 @@ test -z "$DISPLAY" && test "$PAGINATED" -eq '1' && {
 
 # reformat RFC(-like) text for chosen terminal which has L lines for viewing
 # text content (including SL status line(s) used by the pager)
+# shellcheck disable=SC2026
 awk -vn_lines="$L" -vpg_adds="$PA" \
   '!/\f/{line++; print};
     /\f/{for (i=line; i<n_lines; i++) print ""; line=0}
@@ -252,9 +259,9 @@ test -n "$DISPLAY" && {
   # find a terminal program to use
   XT=${XT:=''}
   test -z "$XT" && test -n "${WINDOWID:-}" &&
-    XT=$(xprop -id $WINDOWID WM_CLASS | sed -n 's/^[^"]*"\([^"]*\)".*$/\1/p')
+    XT=$(xprop -id "$WINDOWID" WM_CLASS | sed -n 's/^[^"]*"\([^"]*\)".*$/\1/p')
   test -x "$(which "$XT")" || XT=""
-  test -z "$XT" && { env | fgrep gnome-terminal >/dev/null 2>&1; } &&
+  test -z "$XT" && { env | grep -F gnome-terminal >/dev/null 2>&1; } &&
     XT='gnome-terminal'
   test -x "$(which "$XT")" || XT=""
   test -z "$XT" && XT='xterm'
@@ -301,13 +308,15 @@ test -n "$DISPLAY" && {
     { echo 'ERROR: no usable terminal program found'; exit 1; }
 
   # open terminal window with a pager displaying the RFC(-like) text
-  $XT $XO "$XF" $G $T"$B - $(basename $R)" $E "$FMT"
+  # shellcheck disable=SC2086
+  "$XT" $XO "$XF" $G $T"$B - $(basename "$R")" $E "$FMT"
 
   # gnome-terminal cannot run in the foreground
   wait
   exit
 }
 # otherwise open pager in current terminal
+# shellcheck disable=SC2086
 "$P" $PO "$FMT"
 
 # vim:expandtab:sw=2:
