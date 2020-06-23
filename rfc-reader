@@ -43,7 +43,7 @@ done
 
 version()
 {
-  local V="0.45"
+  local V="0.46"
   printf -- "%s\n" "$B version $V"
   echo 'Copyright (C) 2011-2020 Erik Auerswald <auerswal@unix-ag.uni-kl.de>'
 }
@@ -63,6 +63,10 @@ usage()
   printf -- '%s\n' "Usage: $B [{rfc|bcp|fyi|ien|std}][{-| }]NUMBER[.txt]"
   printf -- '%s\n' "       $B {I-D.|draft-}DRAFT_NAME[-DRAFT_NUMBER][.txt]"
   printf -- '%s\n' "       $B"
+  echo
+  echo 'Download specified RFC or I-D (unless found locally), and show it'
+  echo 'in a pager inside a new terminal window of appropriate size.'
+  echo 'Display in current terminal if $DISPLAY is empty or unset.'
   echo
   echo 'Examples:'
   printf -- '%s\n' "  $B                       # print version, copyright, help"
