@@ -43,7 +43,7 @@ done
 
 version()
 {
-  local V="0.46"
+  local V="0.47"
   printf -- "%s\n" "$B version $V"
   echo 'Copyright (C) 2011-2020 Erik Auerswald <auerswal@unix-ag.uni-kl.de>'
 }
@@ -242,11 +242,16 @@ test -z "$DISPLAY" && test "$PAGINATED" -eq '1' && {
 # reformat RFC(-like) text for chosen terminal which has L lines for viewing
 # text content (including SL status line(s) used by the pager)
 # shellcheck disable=SC2026
-awk -vn_lines="$L" -vpg_adds="$PA" \
-  '!/\f/{line++; print};
-    /\f/{for (i=line; i<n_lines; i++) print ""; line=0}
-    END {if (line || pg_adds) {for (i=line; i<n_lines-pg_adds; i++) print ""}}'\
-  "$F" | sed '1s/^'$'\uFEFF''//;/^$/!s/^/  /' > "$FMT"
+if test "$PAGINATED" -eq 1; then
+  awk -vn_lines="$L" -vpg_adds="$PA" \
+    '!/\f/{line++; print};
+     /\f/{for (i=line; i<n_lines; i++) print ""; line=0}
+     END {if (line || pg_adds){for (i=line; i<n_lines-pg_adds; i++) print ""}}'\
+    "$F" | sed '1s/^'$'\uFEFF''//;/^$/!s/^/  /' > "$FMT"
+else
+  sed '1s/^'$'\uFEFF''//;/^$/!s/^/  /' "$F" \
+  | awk '!text && /^[[:space:]]*$/{next}; !text{text=1}; {print}' > "$FMT"
+fi
 
 # open suitable terminal window if X-Windows is available
 test -n "$DISPLAY" && {
