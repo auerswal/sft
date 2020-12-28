@@ -58,6 +58,7 @@ without any warranty.
 EOL
 }
 
+# shellcheck disable=SC2016
 usage()
 {
   printf -- '%s\n' "Usage: $B [{rfc|bcp|fyi|ien|std}][{-| }]NUMBER[.txt]"
