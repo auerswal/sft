@@ -2,7 +2,7 @@
 # coding=utf8
 
 # macfmt.py - print MAC addresses in various formats
-# Copyright (C) 2019  Erik Auerswald <auerswal@unix-ag.uni-kl.de>
+# Copyright (C) 2019-2021  Erik Auerswald <auerswal@unix-ag.uni-kl.de>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -29,12 +29,12 @@ create a string representation of a MAC address in many different formats.
 from __future__ import (
     absolute_import, division, print_function, unicode_literals
 )
-__metaclass__ = type
+__metaclass__ = type  # pylint: disable=invalid-name
 
 # Note: doctests require Python 3 (python3 -m doctest macfmt.py)
 
 PROG = 'macfmt.py'
-VERS = '0.2.0'
+VERS = '0.2.1'
 DESC = 'Print MAC address(es) in specified format.'
 EPIL = """\
 The MAC addresses given as input are printed in the selected format, one MAC
@@ -49,7 +49,7 @@ MAC_LEN = 12
 
 # MAC format is a tupel or an alias
 # tupel (<prefix>, <group size>, <group separator>, <case>, <suffix>)
-# the <group size> is the number of hexadecimal characters (nibbles) of a group
+# the <group size> is the number of hexadecimal characters (nybbles) of a group
 MAC_FORMAT = {
     'arista': 'cisco',
     'bcm': 'broadcom',
@@ -78,8 +78,8 @@ MAC_FORMAT = {
 }
 
 
-def keep_hex(s):
-    """Return list of hexadecimal digits (nibbles) from s.
+def keep_hex(in_str):
+    """Return list of hexadecimal digits (nybbles) from in_str.
 
     Examples:
     >>> keep_hex('01:23:45:67:89:ab')
@@ -100,10 +100,10 @@ def keep_hex(s):
     []
 
     """
-    return [c for c in s if c in HEX_DIGITS]
+    return [c for c in in_str if c in HEX_DIGITS]
 
 
-def find_separator(s):
+def find_separator(in_str):
     """Return separator in MAC address, or None.
 
     Examples:
@@ -119,14 +119,14 @@ def find_separator(s):
     True
 
     """
-    candidates = {c for c in s.strip() if c not in HEX_DIGITS}
+    candidates = {c for c in in_str.strip() if c not in HEX_DIGITS}
     if len(candidates) == 1:
         return candidates.pop()
     return None
 
 
-def keep_zero_padded_hex(s):
-    """Return zero-padded list of nibbles if s is a MAC address, or None.
+def keep_zero_padded_hex(in_str):
+    """Return zero-padded list of nybbles if s is a MAC address, or None.
 
     Examples:
     >>> keep_zero_padded_hex('01:23:45:67:89:ab')
@@ -153,20 +153,20 @@ def keep_zero_padded_hex(s):
     True
 
     """
-    sep = find_separator(s)
+    sep = find_separator(in_str)
     if sep is None:
         return None
-    groups = s.strip().split(sep)
+    groups = in_str.strip().split(sep)
     group_size = MAC_LEN // len(groups)
-    nibbles = []
-    for g in groups:
-        nibbles.extend(['0'] * (group_size - len(g)))
-        nibbles.extend(g)
-    return nibbles
+    nybbles = []
+    for grp in groups:
+        nybbles.extend(['0'] * (group_size - len(grp)))
+        nybbles.extend(grp)
+    return nybbles
 
 
-def is_mac(nibbles):
-    """Return True if nibbles represents a MAC address.
+def is_mac(nybbles):
+    """Return True if nybbles represents a MAC address.
 
     Examples:
     >>> is_mac('112233445566')
@@ -183,7 +183,7 @@ def is_mac(nibbles):
     False
 
     """
-    return len(nibbles) == MAC_LEN and nibbles == keep_hex(nibbles)
+    return len(nybbles) == MAC_LEN and nybbles == keep_hex(nybbles)
 
 
 def lookup_format(name):
@@ -205,13 +205,13 @@ def lookup_format(name):
     ...         print('FAIL')
 
     """
-    f = MAC_FORMAT[name]
-    if isinstance(f, tuple):
-        return f
-    return lookup_format(f)
+    fmt = MAC_FORMAT[name]
+    if isinstance(fmt, tuple):
+        return fmt
+    return lookup_format(fmt)
 
 
-def format_mac(s, fmt):
+def format_mac(in_str, fmt):
     """Return str representation of MAC address formatted according to fmt.
 
     Examples:
@@ -267,15 +267,16 @@ def format_mac(s, fmt):
     """
     out_lst = []
     pref, grp_sz, sep, case, suf = lookup_format(fmt)
-    nibbles = keep_hex(s)
-    if not is_mac(nibbles):
-        nibbles = keep_zero_padded_hex(s)
-    if nibbles is None or not is_mac(nibbles):
-        raise ValueError('"%s" is not a valid MAC address representation' % s)
-    for i, n in enumerate(nibbles):
+    nybbles = keep_hex(in_str)
+    if not is_mac(nybbles):
+        nybbles = keep_zero_padded_hex(in_str)
+    if nybbles is None or not is_mac(nybbles):
+        raise ValueError('"%s" is not a valid MAC address representation'
+                         % in_str)
+    for i, nyb in enumerate(nybbles):
         if i > 0 and i % grp_sz == 0:
             out_lst.append(sep)
-        out_lst.append(n)
+        out_lst.append(nyb)
     out_str = ''.join(out_lst)
     out_str = out_str.upper() if case == 'upper' else out_str.lower()
     return pref + out_str + suf
@@ -316,40 +317,42 @@ def output_formats_with_example_mac():
     """
     mac = '01-23-45-67-89-AB'
     name_width = max(map(len, MAC_FORMAT.keys()))
-    for f in sorted(MAC_FORMAT.keys()):
-        print("%-*s:  %s" % (name_width, f, format_mac(mac, f)))
+    for fmt in sorted(MAC_FORMAT.keys()):
+        print("%-*s:  %s" % (name_width, fmt, format_mac(mac, fmt)))
 
 
 if __name__ == '__main__':
+    # pylint3 version 1.8.3 from Ubuntu 18.04 gets confused here
+    # pylint: disable=all
     import argparse
     import sys
 
-    cmdline = argparse.ArgumentParser(
+    cmd_line = argparse.ArgumentParser(
         prog=PROG, description=DESC, epilog=EPIL,
         formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
-    cmdline.add_argument('-V', '--version', action='version',
-                         version=PROG + ' ' + VERS)
-    cmdline.add_argument('-F', '--format', choices=sorted(MAC_FORMAT.keys()),
-                         default='default',
-                         help='output format for MAC addresses')
-    cmdline.add_argument('-l', '--list-formats', action='store_true',
-                         help='show all output formats with an example')
-    cmdline.add_argument('MAC', nargs='*', help='MAC addresses to format')
-    args = cmdline.parse_args()
+    cmd_line.add_argument('-V', '--version', action='version',
+                          version=PROG + ' ' + VERS)
+    cmd_line.add_argument('-F', '--format', choices=sorted(MAC_FORMAT.keys()),
+                          default='default',
+                          help='output format for MAC addresses')
+    cmd_line.add_argument('-l', '--list-formats', action='store_true',
+                          help='show all output formats with an example')
+    cmd_line.add_argument('MAC', nargs='*', help='MAC addresses to format')
+    args = cmd_line.parse_args()
 
     exit_code = 0
     if args.list_formats:
         output_formats_with_example_mac()
         sys.exit(exit_code)
 
-    MAC_addresses = args.MAC if args.MAC else sys.stdin
-    for M in MAC_addresses:
+    mac_addresses = args.MAC if args.MAC else sys.stdin
+    for mac in mac_addresses:
         try:
-            print(format_mac(M, args.format))
-        except ValueError as e:
+            print(format_mac(mac, args.format))
+        except ValueError as exc:
             exit_code = 1
-            print('%s: ERROR: %s' % (PROG, e), file=sys.stderr)
+            print('%s: ERROR: %s' % (PROG, exc), file=sys.stderr)
 
     sys.exit(exit_code)
 
