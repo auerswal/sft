@@ -1,6 +1,6 @@
 #! /bin/bash
 
-# Copyright (C) 2011-2020 Erik Auerswald <auerswal@unix-ag.uni-kl.de>
+# Copyright (C) 2011-2021 Erik Auerswald <auerswal@unix-ag.uni-kl.de>
 
 # Copying and distribution of this file, with or without modification,
 # are permitted in any medium without royalty provided the copyright
@@ -35,7 +35,10 @@ B=$(basename "$0")
 # e.g. openSUSE and Ubuntu provide RFCs as a package
 RFCDIRS='/usr/share/doc/rfc /usr/share/doc/RFC/links'
 # use a local cache if available
-for DIR in "$HOME/.$B/cache" "${XDG_CACHE_HOME:-$HOME/.cache}/$B"; do
+# a relative XDG_CACHE_HOME must be ignored
+xdg_cache="${XDG_CACHE_HOME:-$HOME/.cache}/$B"
+test "${xdg_cache:0:1}" = '/' || xdg_cache="$HOME/.cache/$B"
+for DIR in "$HOME/.$B/cache" "$xdg_cache"; do
   test \( -d "$DIR" \) -a \( -r "$DIR" \) &&
     RFCDIRS="$DIR $RFCDIRS" &&
     test -w "$DIR" && RFCCACHE="$DIR"
@@ -43,9 +46,9 @@ done
 
 version()
 {
-  local V="0.47"
+  local V="0.48"
   printf -- "%s\n" "$B version $V"
-  echo 'Copyright (C) 2011-2020 Erik Auerswald <auerswal@unix-ag.uni-kl.de>'
+  echo 'Copyright (C) 2011-2021 Erik Auerswald <auerswal@unix-ag.uni-kl.de>'
 }
 
 license()

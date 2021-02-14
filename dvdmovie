@@ -2,7 +2,7 @@
 
 # dvdmovie plays the movie from a video DVD using MPlayer
 #
-# Copyright (c) 2012-2020 Erik Auerswald <auerswal@unix-ag.uni-kl.de>
+# Copyright (c) 2012-2021 Erik Auerswald <auerswal@unix-ag.uni-kl.de>
 #
 # Copying and distribution of this file, with or without modification,
 # are permitted in any medium without royalty provided the copyright
@@ -16,12 +16,16 @@
 # the fields are (in this order): Disc ID, Movie Title, Track, Options
 # every field besides the Disc ID may be empty
 
-# version 2020-02-06-01
+# version 2021-02-14-01
 
 set -u
 
 RC="${HOME}/.dvdmovierc"
-test -r "$RC" || RC="${XDG_CONFIG_HOME:-$HOME/.config}/dvdmovierc"
+test -r "$RC" || {
+  RC="${XDG_CONFIG_HOME:-$HOME/.config}/dvdmovierc"
+  # a relative XDG_CONFIG_HOME must be ignored
+  test "${RC:0:1}" = '/' || RC="${HOME}/.config/dvdmovierc"
+}
 DVDMOVIERC_TITLE=''
 DVDMOVIERC_OPTS=''
 MPLAYER="${HOME}/bin/mplayer"
