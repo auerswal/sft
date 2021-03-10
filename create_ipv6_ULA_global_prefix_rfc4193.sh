@@ -15,7 +15,7 @@ set -e
 set -u
 
 # see RFC 4193 section 3.2.2 for algorithm idea
-# (https://tools.ietf.org/html/rfc4193#section-3.2.2)
+# (https://datatracker.ietf.org/doc/html/rfc4193#section-3.2.2)
 # [SHA-256 instead of SHA-1 as "PRF"]
 
 cur_time_hex=$(ntpq -n -c 'rv 0 clock' localhost \

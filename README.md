@@ -44,7 +44,7 @@ called without any operands (neither options nor arguments).
 * `checkzips` - check ZIP files for errors
 * `create_ipv6_ULA_global_prefix_random.sh` - create a random global prefix for IPv6 ULA addresses using `/dev/random`
 * `create_ipv6_ULA_global_prefix_rfc4193.sh` - create a random global prefix for
-IPv6 ULA addresses using a deterministic algorithm based on [RFC 4193 section 3.2.2](https://tools.ietf.org/html/rfc4193#section-3.2.2)
+IPv6 ULA addresses using a deterministic algorithm based on [RFC 4193 section 3.2.2](https://datatracker.ietf.org/doc/html/rfc4193#section-3.2.2)
 * `dvdmovie` - play the main movie from a video DVD with [MPlayer](http://www.mplayerhq.hu/) ([web page](https://www.unix-ag.uni-kl.de/~auerswal/dvdmovie/))
 * `ext_ip` - print externally visible IPv4 and IPv6 addresses
 * `ffdl` - simple download helper for Firefox
