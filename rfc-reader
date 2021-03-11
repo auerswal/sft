@@ -24,6 +24,9 @@
 # - RFC 698 is not formatted well by rfc-reader
 #   - first line is too long (79 characters)
 #   -> workaround: env C=81 rfc-reader 698
+# - RFC 2329 is not formatted well by rfc-reader
+#   - too long lines
+#   -> workaround: env C=82 rfc-reader 2329
 # - XTerm / GNOME Terminal font size heuristic breaks on high DPI displays
 # - XTerm and GNOME Terminal (and/or the window manager) do not honor size
 #   requests if the size does not fit inside the $DISPLAY
