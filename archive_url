@@ -1,0 +1,136 @@
+#! /bin/sh
+
+# archive_url - save not yet archived URLs in the Wayback Machine
+# Copyright (C) 2021 Erik Auerswald
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+set -u
+set -e
+
+PROG=archive_url
+VERSION='2021-03-14-01'
+FORCE=0
+DRYRUN=0
+VERBOSE=0
+WAITTIME=5
+CHECK='http://archive.org/wayback/available?url='
+ARCHIVE='https://web.archive.org/save/'
+
+print_copyright()
+{
+  echo 'Copyright (C) 2021 Erik Auerswald'
+}
+
+print_version()
+{
+  printf -- '%s version %s\n' "${PROG}" "${VERSION}"
+}
+
+print_usage()
+{
+  printf -- '%s { -h | -V | -L }\n' "$PROG"
+  printf -- '%s [-f] [-n] [-v] [-w TIME] [URL...]\n' "$PROG"
+}
+
+print_license()
+{
+  cat <<EOL
+Copyright (C) 2021 Erik Auerswald
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+EOL
+}
+
+print_help()
+{
+  print_version
+  print_copyright
+  print_license
+  cat <<EOD
+
+Check if the given URLs are already archived in the Wayback Machine
+(web.archive.org), and attempt to archive those that are not.
+
+URLs can be provided as arguments.
+Without arguments, URLs are read from standard input.
+
+EOD
+  print_usage
+  cat <<EOH
+Options:
+  -h       print this help and exit
+  -V       print version information and exit
+  -L       print license and exit
+  -f       save URLs without checking
+  -n       check ULRs only, but do not archive
+  -v       print URL that is processed next
+  -w TIME  wait TIME after each URLs (default $WAITTIME)
+EOH
+}
+
+while getopts hVLfnvw: OPT; do
+  case "$OPT" in
+    'h') print_help; exit 0;;
+    'V') print_version; print_copyright; exit 0;;
+    'L') print_version; print_copyright; echo; print_license; exit 0;;
+    'f') FORCE=1;;
+    'n') DRYRUN=1;;
+    'v') VERBOSE=1;;
+    'w') WAITTIME="$OPTARG";;
+    '?') echo "$PROG: error: unknown option '$1'"; print_usage; exit 1;;
+    *)   echo "$PROG: error: getopts() failure"; exit 1;;
+  esac
+done
+shift $((OPTIND - 1))
+
+check_and_archive_url()
+{
+  URL="$1"
+  test "$VERBOSE" -eq 1 && printf -- '%s' "$URL"
+  test "$FORCE" -eq 1 && STATUS='false' ||
+    STATUS="$(wget -q -O- "${CHECK}${URL}" | jq '.archived_snapshots != {}')"
+  if test "$STATUS" = 'true'; then
+    echo ' is archived'
+  else
+    if test "$DRYRUN" -eq 0; then
+      echo ' will be archived'
+      wget -nv -O/dev/null "${ARCHIVE}${URL}" || echo 'error archiving URL'
+    else
+      echo ' is not archived'
+    fi
+  fi
+  sleep "$WAITTIME"
+}
+
+if test "$#" -eq 0; then
+  while read -r URL; do
+    check_and_archive_url "$URL"
+  done
+else
+  for URL in "$@"; do
+    check_and_archive_url "$URL"
+  done
+fi

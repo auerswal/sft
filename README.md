@@ -40,6 +40,7 @@ called without any operands (neither options nor arguments).
 
 ### List of Single File Tools
 
+* `archive_url` - archive the given URLs in the [Wayback Machine](https://web.archive.org/), unless they are already archived there
 * `capture.sh` - capture traffic on an interface for a given duration with tcpdump
 * `checkzips` - check ZIP files for errors
 * `create_ipv6_ULA_global_prefix_random.sh` - create a random global prefix for IPv6 ULA addresses using `/dev/random`
