@@ -20,7 +20,7 @@ set -u
 set -e
 
 PROG=archive_url
-VERSION='2021-03-14-03'
+VERSION='2021-03-15-01'
 FORCE=0
 DRYRUN=0
 VERBOSE=0
@@ -116,7 +116,7 @@ check_and_archive_url()
     test "$VERBOSE" -eq 1 && echo ' is archived'
   else
     if test "$DRYRUN" -eq 0; then
-      test "$VERBOSE" -eq 1 && echo ' needs to be archived'
+      test "$VERBOSE" -eq 1 && echo ' is attempted to be archived'
       wget -nv -O/dev/null "${ARCHIVE}${URL}" || echo 'error archiving URL'
     else
       test "$VERBOSE" -eq 1 && echo ' is not archived'
