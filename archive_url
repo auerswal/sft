@@ -20,12 +20,12 @@ set -u
 set -e
 
 PROG=archive_url
-VERSION='2021-03-15-01'
+VERSION='2021-03-17-01'
 FORCE=0
 DRYRUN=0
 VERBOSE=0
 WAITTIME=5
-CHECK='http://archive.org/wayback/available?url='
+CHECK='https://archive.org/wayback/available?url='
 ARCHIVE='https://web.archive.org/save/'
 
 print_copyright()
