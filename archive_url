@@ -1,4 +1,4 @@
-#! /bin/sh
+#! /bin/bash
 
 # archive_url - save not yet archived URLs in the Wayback Machine
 # Copyright (C) 2021 Erik Auerswald
@@ -20,11 +20,13 @@ set -u
 set -e
 
 PROG=archive_url
-VERSION='2021-03-17-02'
+VERSION='2021-03-20-01'
 FORCE=0
 DRYRUN=0
+QUIET=0
 VERBOSE=0
 WAITTIME=5
+WGETVERB='-nv'
 CHECK='https://archive.org/wayback/available?url='
 ARCHIVE='https://web.archive.org/save/'
 
@@ -41,7 +43,7 @@ print_version()
 print_usage()
 {
   printf -- '%s { -h | -V | -L }\n' "$PROG"
-  printf -- '%s [-f] [-n] [-v] [-w TIME] [URL...]\n' "$PROG"
+  printf -- '%s [-f] [-n] [-q] [-v] [-w TIME] [URL...]\n' "$PROG"
 }
 
 print_license()
@@ -85,19 +87,35 @@ Options:
   -V       print version information and exit
   -L       print license and exit
   -f       save URLs without checking
-  -n       check ULRs only, but do not archive
+  -n       check URLs only, but do not archive
+  -q       suppress error messages and wget output
   -v       print URL that is processed next
   -w TIME  wait TIME after each URLs (default $WAITTIME)
 EOH
 }
 
-while getopts hVLfnvw: OPT; do
+verb_no_nl() {
+  test "$VERBOSE" -eq 1 || return 0
+  printf -- '%s' "$*"
+}
+
+verb_nl() {
+  verb_no_nl "$@" $'\n'
+}
+
+err() {
+  test "$QUIET" -eq 0 || return 0
+  printf -- '%s: ERROR: %s\n' "$PROG" "$*" 1>&2
+}
+
+while getopts hVLfnqvw: OPT; do
   case "$OPT" in
     'h') print_help; exit 0;;
     'V') print_version; print_copyright; exit 0;;
     'L') print_version; print_copyright; echo; print_license; exit 0;;
     'f') FORCE=1;;
     'n') DRYRUN=1;;
+    'q') QUIET=1 WGETVERB='-q';;
     'v') VERBOSE=1;;
     'w') WAITTIME="$OPTARG";;
     '?') echo "$PROG: error: unknown option '$1'"; print_usage; exit 1;;
@@ -109,17 +127,18 @@ shift $((OPTIND - 1))
 check_and_archive_url()
 {
   URL="$1"
-  test "$VERBOSE" -eq 1 && printf -- 'Checking %s:' "$URL"
+  verb_no_nl "Checking ${URL}:"
   test "$FORCE" -eq 1 && STATUS='false' ||
     STATUS="$(wget -q -O- -- "${CHECK}${URL}" | jq '.archived_snapshots != {}')"
   if test "$STATUS" = 'true'; then
-    test "$VERBOSE" -eq 1 && echo ' archived'
+    verb_nl ' archived'
   else
     if test "$DRYRUN" -eq 0; then
-      test "$VERBOSE" -eq 1 && echo ' triggering archiving...'
-      wget -nv -O/dev/null -- "${ARCHIVE}${URL}" || echo 'error archiving URL'
+      verb_nl ' triggering archiving...'
+      wget "$WGETVERB" -O/dev/null -- "${ARCHIVE}${URL}" ||
+        err 'error archiving URL'
     else
-      test "$VERBOSE" -eq 1 && echo ' not archived'
+      verb_nl ' not archived'
     fi
   fi
   sleep -- "$WAITTIME"
