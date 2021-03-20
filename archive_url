@@ -109,17 +109,17 @@ shift $((OPTIND - 1))
 check_and_archive_url()
 {
   URL="$1"
-  test "$VERBOSE" -eq 1 && printf -- '%s' "$URL"
+  test "$VERBOSE" -eq 1 && printf -- 'Checking %s:' "$URL"
   test "$FORCE" -eq 1 && STATUS='false' ||
     STATUS="$(wget -q -O- -- "${CHECK}${URL}" | jq '.archived_snapshots != {}')"
   if test "$STATUS" = 'true'; then
-    test "$VERBOSE" -eq 1 && echo ' is archived'
+    test "$VERBOSE" -eq 1 && echo ' archived'
   else
     if test "$DRYRUN" -eq 0; then
-      test "$VERBOSE" -eq 1 && echo ' is attempted to be archived'
+      test "$VERBOSE" -eq 1 && echo ' triggering archiving...'
       wget -nv -O/dev/null -- "${ARCHIVE}${URL}" || echo 'error archiving URL'
     else
-      test "$VERBOSE" -eq 1 && echo ' is not archived'
+      test "$VERBOSE" -eq 1 && echo ' not archived'
     fi
   fi
   sleep -- "$WAITTIME"
