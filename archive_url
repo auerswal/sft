@@ -20,7 +20,7 @@ set -u
 set -e
 
 PROG=archive_url
-VERSION='2021-03-21-01'
+VERSION='2021-03-21-02'
 FORCE=0
 DRYRUN=0
 QUIET=0
@@ -128,7 +128,7 @@ shift $((OPTIND - 1))
 check_and_archive_url()
 {
   URL="$1"
-  verb_no_nl "Checking ${URL}:"
+  verb_no_nl "Checking ${URL} ..."
   test "$FORCE" -eq 1 && STATUS='false' ||
     STATUS="$(wget -q -O- -- "${CHECK}${URL}" | jq '.archived_snapshots != {}')"
   if test "$STATUS" = 'true'; then
