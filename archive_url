@@ -1,4 +1,4 @@
-#! /bin/bash
+#! /bin/sh
 
 # archive_url - save not yet archived URLs in the Wayback Machine
 # Copyright (C) 2021 Erik Auerswald
@@ -20,7 +20,7 @@ set -u
 set -e
 
 PROG=archive_url
-VERSION='2021-03-20-01'
+VERSION='2021-03-21-01'
 FORCE=0
 DRYRUN=0
 QUIET=0
@@ -100,7 +100,8 @@ verb_no_nl() {
 }
 
 verb_nl() {
-  verb_no_nl "$@" $'\n'
+  verb_no_nl "$@"
+  echo
 }
 
 err() {
