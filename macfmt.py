@@ -34,7 +34,7 @@ __metaclass__ = type  # pylint: disable=invalid-name
 # Note: doctests require Python 3 (python3 -m doctest macfmt.py)
 
 PROG = 'macfmt.py'
-VERS = '0.3.0'
+VERS = '0.4.0'
 DESC = 'Print MAC address(es) in specified format.'
 EPIL = """\
 The MAC addresses given as input are printed in the selected format, one MAC
@@ -59,9 +59,11 @@ MAC_FORMAT = {
     'ct': 'cabletron',
     'default': ('', 2, '-', 'upper', ''),
     'dell': 'vmps',
+    'dellos9': 'linux',
     'enterasys': 'default',
     'ets': 'default',
     'exos': 'linux',
+    'ftos': 'linux',
     'hex': ('', 12, '', 'lower', ''),
     'hexpostfix': 'hexsuffix',
     'hexprefix': ('0x', 12, '', 'lower', ''),
@@ -298,9 +300,11 @@ def output_formats_with_example_mac():
     ct        :  01:23:45:67:89:AB
     default   :  01-23-45-67-89-AB
     dell      :  0123.4567.89AB
+    dellos9   :  01:23:45:67:89:ab
     enterasys :  01-23-45-67-89-AB
     ets       :  01-23-45-67-89-AB
     exos      :  01:23:45:67:89:ab
+    ftos      :  01:23:45:67:89:ab
     hex       :  0123456789ab
     hexpostfix:  0123456789ABh
     hexprefix :  0x0123456789ab
