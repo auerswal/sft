@@ -5,9 +5,9 @@
 # On Solaris (tested on version 10), the first line of the script is:
 # #! /usr/xpg4/bin/awk -f
 
-# Convert MAC addresses to Cisco, Linux and Enterasys formats.
+# Convert MAC addresses between different formats.
 #
-# Copyright (C) 2012-2019 Erik Auerswald <auerswal@unix-ag.uni-kl.de>
+# Copyright (C) 2012-2021 Erik Auerswald <auerswal@unix-ag.uni-kl.de>
 #
 # Copying and distribution of this file, with or without modification,
 # are permitted in any medium without royalty provided the copyright
@@ -21,7 +21,7 @@
 #        FORMAT is one of: all, cisco, linux, enterasys, cabletron, broadcom,
 #                          vmps, netsight, hp, hex, hexprefix, pxe, pgsql,
 #                          hexpostfix, exos, arista, mikrotik, huawei, ieee,
-#                          ietf
+#                          ietf, dell
 # Converts hex digits A-F to lower or upper case if -v cap=CASE is given.
 #        CASE   is one of: lower, upper
 # If cap is not specified, the format's default case is used.
@@ -35,7 +35,7 @@
 # usually /usr/bin/awk. Tested on Solaris 10 and with GAWK on GNU/Linux.
 # Does not work with MAWK version 1.3.3-17 on Debian GNU/Linux.
 #
-# Version 2019-11-10-01
+# Version 2021-05-01-01
 
 function print_macs(format) {
 	cisco = tolower(a[1] a[2] "." a[3] a[4] "." a[5] a[6])
@@ -81,7 +81,7 @@ function print_macs(format) {
 		print ct
 	} else if (format == "broadcom") {
 		print bcm
-	} else if (format == "vmps") {
+	} else if (format == "vmps" || format == "dell") {
 		print vmps
 	} else if (format == "netsight") {
 		print netsight
