@@ -22,8 +22,8 @@ set -u
 # shall prevent local fragmentation. Thus the results of this program
 # may be wrong if an IPv6 end point is specified.
 
-VERSION='2021-05-13-01'
-PROG="$(basename $0)"
+VERSION='2021-05-13-02'
+PROG="$(basename "$0")"
 ALGO='binary'
 AF='-4'
 OVERHEAD=28
@@ -128,12 +128,13 @@ while getopts ':hVLlbpP:m:M:i:w:W:o:q46' OPT; do
     *) error_msg "option '$OPT' not implemented"; usage; exit 1;;
   esac
 done
-shift $(($OPTIND - 1))
+shift $((OPTIND - 1))
 
 test $# -lt 1 && { error_msg "no target host given"; usage; exit 1; }
 test $# -gt 1 && { error_msg "ERROR: too many arguments"; usage; exit 1; }
 test $# -eq 1 && { TARGET="$1"; shift; }
 
+# shellcheck disable=SC2015
 test -z "$QUIET" && { exec 3>&1; } || { exec 3>/dev/null; }
 
 PINGOPTS="$AF $PINGOPTS"
@@ -161,15 +162,12 @@ send_probe()
   }
   S="$1"
   TARGET="$2"
-  ping $PINGOPTS -s "$(($S - $OVERHEAD))" "$TARGET" >/dev/null 2>&1 && echo "$S"
+# shellcheck disable=SC2086
+  ping $PINGOPTS -s "$((S - OVERHEAD))" "$TARGET" >/dev/null 2>&1 && echo "$S"
 }
 
 binary()
 {
-  local LOW
-  local HIGH
-  local PROBE
-
   cat 1>&3 <<EOF
 [-] performing binary search IP PMTUD to $TARGET with ICMP Echo Requests
 [-] search_low starts at $MIN bytes, search_high starts at $MAX bytes
@@ -180,13 +178,13 @@ EOF
   LOW=$MIN
   HIGH=$MAX
   while test "$LOW" -le "$HIGH"; do
-    PROBE=$((($LOW + $HIGH) / 2))
+    PROBE=$(((LOW + HIGH) / 2))
     printf -- '[.] sending %s bytes probe   \r' "$PROBE" 1>&3
     send_probe "$PROBE" "$TARGET"
     if test $? -eq 0; then
-      LOW=$(($PROBE+1))
+      LOW=$((PROBE+1))
     else
-      HIGH=$(($PROBE-1))
+      HIGH=$((PROBE-1))
     fi
     sleep "$WAIT"
   done | sed -n '$s/^\(.*\)$/[+] IP PMTU is \1 bytes         /p'
@@ -232,6 +230,7 @@ EOF
 }
 
 PMTU=$("$ALGO")
+# shellcheck disable=SC2015
 test -n "$PMTU" && echo "$PMTU" || {
   error_msg 'could not determine PMTU'
   exit 1
