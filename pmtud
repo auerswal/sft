@@ -4,7 +4,7 @@ set -u
 
 # Simplistic Path MTU Discovery using ICMP Echo Request probes.
 #
-# Copyright (C) 2017-2020 Erik Auerswald <auerswal@unix-ag.uni-kl.de>
+# Copyright (C) 2017-2021 Erik Auerswald <auerswal@unix-ag.uni-kl.de>
 #
 # Copying and distribution of this file, with or without modification,
 # are permitted in any medium without royalty provided the copyright
@@ -22,9 +22,10 @@ set -u
 # shall prevent local fragmentation. Thus the results of this program
 # may be wrong if an IPv6 end point is specified.
 
-VERSION='2020-02-29-01'
+VERSION='2021-05-13-01'
 PROG="$(basename $0)"
 ALGO='binary'
+AF='-4'
 OVERHEAD=28
 MIN=68
 INCREMENT=10
@@ -40,7 +41,7 @@ version() { echo "$PROG version $VERSION"; }
 
 copyright()
 {
-  echo 'Copyright (C) 2017-2020 by Erik Auerswald <auerswal@unix-ag.uni-kl.de>'
+  echo 'Copyright (C) 2017-2021 by Erik Auerswald <auerswal@unix-ag.uni-kl.de>'
 }
 
 license()
@@ -90,6 +91,8 @@ Options:
   -W TIMEOUT    set probe timeout (default ${PROBETIMEOUT}s)
   -o OVERHEAD   set overhead in bytes added by ping (default ${OVERHEAD})
   -q            quiet operation: omit progress messages
+  -4            use IPv4 with 28B overhead (default)
+  -6            use IPv6 with 48B overhead
 
 Plateau search uses the following values:
   ${TABLE}
@@ -102,7 +105,7 @@ error_msg()
   echo "[!] ${PROG}: ERROR: $*" 1>&2
 }
 
-while getopts ':hVLlbpP:m:M:i:w:W:o:q' OPT; do
+while getopts ':hVLlbpP:m:M:i:w:W:o:q46' OPT; do
   case "$OPT" in
     'h') help; exit 0;;
     'V') version; exit 0;;
@@ -118,6 +121,8 @@ while getopts ':hVLlbpP:m:M:i:w:W:o:q' OPT; do
     'W') PROBETIMEOUT="$OPTARG"; PINGOPTS="-c1 -Mdo -n -W${PROBETIMEOUT}";;
     'o') OVERHEAD="$OPTARG";;
     'q') QUIET='quiet';;
+    '4') AF='-4' OVERHEAD=28;;
+    '6') AF='-6' OVERHEAD=48;;
     '?') error_msg "unknown option '$OPTARG'"; usage; exit 1;;
     ':') error_msg "argument required for option '$OPTARG'"; usage; exit 1;;
     *) error_msg "option '$OPT' not implemented"; usage; exit 1;;
@@ -131,11 +136,13 @@ test $# -eq 1 && { TARGET="$1"; shift; }
 
 test -z "$QUIET" && { exec 3>&1; } || { exec 3>/dev/null; }
 
+PINGOPTS="$AF $PINGOPTS"
+
 # auto_max() attempts to determine the outgoing link's MTU
 auto_max()
 {
-  DEVICE=$(ip route get "$TARGET" | sed -nE 's/^.*dev +([^ ]+) .*$/\1/p')
-  ip link show dev "$DEVICE" | sed -nE 's/^.*mtu +([^ ]+) .*$/\1/p'
+  DEVICE=$(ip "$AF" route get "$TARGET" | sed -nE 's/^.*dev +([^ ]+) .*$/\1/p')
+  ip "$AF" link show dev "$DEVICE" | sed -nE 's/^.*mtu +([^ ]+) .*$/\1/p'
 }
 
 test "x${MAX}x" = 'xautox' && MAX=$(auto_max 2>/dev/null)
