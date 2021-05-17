@@ -3,7 +3,7 @@
 
 # section.py - print line matching regexp with following indented section
 #
-# Copyright (C) 2019 by Erik Auerswald <auerswal@unix-ag.uni-kl.de>
+# Copyright (C) 2019,2021 by Erik Auerswald <auerswal@unix-ag.uni-kl.de>
 #
 # Copying and distribution of this file, with or without modification,
 # are permitted in any medium without royalty provided the copyright
@@ -16,6 +16,8 @@
 # locale may result in UnicodeDecodeError exceptions with non-UTF-8 input.
 # Using Python 3.7 and newer may result in UnicodeDecodeError exceptions
 # with non-UTF-8 input regardless of locale setting because of PEP 538.
+
+"""Print indented text sections started by matching a regular expression."""
 
 # Make coding more python3-ish
 from __future__ import (
