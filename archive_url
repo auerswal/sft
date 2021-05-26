@@ -20,7 +20,7 @@ set -u
 set -e
 
 PROG=archive_url
-VERSION='2021-03-21-02'
+VERSION='2021-05-26-02'
 FORCE=0
 DRYRUN=0
 QUIET=0
@@ -135,7 +135,7 @@ check_and_archive_url()
     verb_nl ' archived'
   else
     if test "$DRYRUN" -eq 0; then
-      verb_nl ' triggering archiving...'
+      verb_nl ' triggering archiving ...'
       wget "$WGETVERB" -O/dev/null -- "${ARCHIVE}${URL}" ||
         err 'error archiving URL'
     else
