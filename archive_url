@@ -20,7 +20,7 @@ set -u
 set -e
 
 PROG=archive_url
-VERSION='2021-05-26-02'
+VERSION='2021-06-15-01'
 FORCE=0
 DRYRUN=0
 QUIET=0
@@ -100,8 +100,8 @@ verb_no_nl() {
 }
 
 verb_nl() {
-  verb_no_nl "$@"
-  echo
+  test "$VERBOSE" -eq 1 || return 0
+  printf -- '%s\n' "$*"
 }
 
 err() {
