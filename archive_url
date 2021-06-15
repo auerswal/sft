@@ -20,7 +20,7 @@ set -u
 set -e
 
 PROG=archive_url
-VERSION='2021-06-15-01'
+VERSION='2021-06-15-02'
 FORCE=0
 DRYRUN=0
 QUIET=0
@@ -142,7 +142,9 @@ check_and_archive_url()
       verb_nl ' not archived'
     fi
   fi
+  verb_no_nl 'waiting' "$WAITTIME" 'seconds ...'
   sleep -- "$WAITTIME"
+  verb_nl ' done'
 }
 
 if test "$#" -eq 0; then
