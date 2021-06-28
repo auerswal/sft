@@ -20,11 +20,12 @@ set -u
 set -e
 
 PROG=archive_url
-VERSION='2021-06-15-02'
+VERSION='2021-06-28-01'
 FORCE=0
 DRYRUN=0
 QUIET=0
 VERBOSE=0
+WAIT=''
 WAITTIME=5
 WGETVERB='-nv'
 CHECK='https://archive.org/wayback/available?url='
@@ -109,6 +110,12 @@ err() {
   printf -- '%s: ERROR: %s\n' "$PROG" "$*" 1>&2
 }
 
+do_wait() {
+  verb_no_nl 'waiting' "$WAITTIME" 'seconds ...'
+  sleep -- "$WAITTIME"
+  verb_nl ' done'
+}
+
 while getopts hVLfnqvw: OPT; do
   case "$OPT" in
     'h') print_help; exit 0;;
@@ -142,17 +149,18 @@ check_and_archive_url()
       verb_nl ' not archived'
     fi
   fi
-  verb_no_nl 'waiting' "$WAITTIME" 'seconds ...'
-  sleep -- "$WAITTIME"
-  verb_nl ' done'
 }
 
 if test "$#" -eq 0; then
   while read -r URL; do
+    test -n "$WAIT" && do_wait
     check_and_archive_url "$URL"
+    WAIT='true'
   done
 else
   for URL in "$@"; do
+    test -n "$WAIT" && do_wait
     check_and_archive_url "$URL"
+    WAIT='true'
   done
 fi
