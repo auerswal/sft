@@ -1,7 +1,7 @@
 #! /usr/bin/awk -f
 
 # slatel - strip leading and trailing empty lines
-# Copyright (C) 2019  Erik Auerswald <auerswal@unix-ag.uni-kl.de>
+# Copyright (C) 2019-2021  Erik Auerswald <auerswal@unix-ag.uni-kl.de>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -31,5 +31,5 @@
 # with ancient mawk versions as found in contemporary Debian and Ubuntu
 # GNU/Linux distributions, where mawk 1.3.3 from 1996 is the default Awk.
 # This is written in 2019. m(
- /^[ \t]*$/{if (found_non_empty) {empty_lines=empty_lines $0 "\n"}}
-!/^[ \t]*$/{found_non_empty=1; print empty_lines $0; empty_lines=""}
+ /^[ \t\r\f\v]*$/{if (found_non_empty) {empty_lines=empty_lines $0 "\n"}}
+!/^[ \t\r\f\v]*$/{found_non_empty=1; print empty_lines $0; empty_lines=""}
