@@ -20,7 +20,7 @@ set -u
 set -e
 
 PROG=archive_url
-VERSION='2021-06-28-01'
+VERSION='2021-09-06-01'
 FORCE=0
 DRYRUN=0
 QUIET=0
@@ -91,7 +91,7 @@ Options:
   -n       check URLs only, but do not archive
   -q       suppress error messages and wget output
   -v       print URL that is processed next
-  -w TIME  wait TIME after each URLs (default $WAITTIME)
+  -w TIME  wait TIME seconds after each URL (default $WAITTIME)
 EOH
 }
 
