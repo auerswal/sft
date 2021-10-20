@@ -1,0 +1,63 @@
+#! /bin/sh
+
+# top-level-section - print top level section containing line matching regexp
+#
+# Copyright (C) 2021 by Erik Auerswald <auerswal@unix-ag.uni-kl.de>
+#
+# Copying and distribution of this file, with or without modification,
+# are permitted in any medium without royalty provided the copyright
+# notice and this notice are preserved.  This file is offered as-is,
+# without any warranty.
+
+test -z "$1" && { echo 'Usage: top-level-section PATTERN FILE...'; exit 1; }
+PATTERN="$(printf -- '%s' "$1" | sed 's/\\/&&/g')"
+shift
+exec /usr/bin/awk -v pattern="$PATTERN" -- '
+BEGIN {
+	top_ind_len = -1
+	next_line_no = 1
+}
+function print_saved_lines() {
+	for (i = 1; i < next_line_no; i++) {
+		print saved_lines[i]
+	}
+	next_line_no = 1
+}
+function save_current_line() {
+	saved_lines[next_line_no] = $0
+	next_line_no++
+}
+function delete_saved_lines() {
+	next_line_no = 1
+}
+function update_state(pat_match) {
+	if (match($0, /^[ \t]+/)) {
+		loc_ind = substr($0, RSTART, RLENGTH)
+		gsub(/\t/, "        ", loc_ind)
+	} else {
+		loc_ind = ""
+	}
+	loc_ind_len = length(loc_ind)
+	if (top_ind_len == -1) {
+		top_ind_len = loc_ind_len
+		top_ind = loc_ind
+	} else if (loc_ind_len <= top_ind_len) {
+		top_ind_len = loc_ind_len
+		top_ind = loc_ind
+		delete_saved_lines()
+	}
+	if (pat_match && !in_section) {
+		print_saved_lines()
+		print $0
+		in_section = 1
+	} else if ((pat_match && in_section) ||
+		(!pat_match && in_section && loc_ind_len > top_ind_len)) {
+		print $0
+	} else {
+		save_current_line()
+		in_section = 0
+	}
+}
+$0 ~ pattern { update_state(1) }
+$0 !~ pattern { update_state(0) }
+' "$@"

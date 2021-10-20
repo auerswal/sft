@@ -106,6 +106,8 @@ called without any operands (neither options nor arguments).
   [Go implementation of section](https://www.unix-ag.uni-kl.de/~auerswal/section/index.html)
   as well)
 * `slatel` - strip leading and trailing empty lines
+* `top-level-section` - print all top-level sections containing a line matching
+  a regular expression (inspired by the Arista EOS output modifier *section*)
 * `total_video_duration` - print total run time of given video files
   (uses `ffprobe` from [FFmpeg](https://ffmpeg.org/))
 * `vevent_dump` - print a somewhat readable version of the essential information
