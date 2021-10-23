@@ -19,8 +19,8 @@ function update_state(pat_match, loc_ind) {
 		gsub(/\t/, "        ", loc_ind)
 	}
 	loc_ind_len = length(loc_ind)
-	if (pat_match || (in_section && (loc_ind_len > length(ind)))) {
-		if (!in_section || (loc_ind_len <= length(ind))) ind = loc_ind
+	if (pat_match || (in_section && (loc_ind_len > ind_len))) {
+		if (!in_section || (loc_ind_len <= ind_len)) ind_len = loc_ind_len
 		in_section = 1
 		print $0
 	} else {
