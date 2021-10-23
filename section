@@ -18,8 +18,9 @@ function update_state(pat_match, loc_ind) {
 		loc_ind = substr($0, RSTART, RLENGTH)
 		gsub(/\t/, "        ", loc_ind)
 	}
-	if (pat_match || (in_section && (length(loc_ind) > length(ind)))) {
-		if (!in_section || (length(loc_ind) <= length(ind))) ind = loc_ind
+	loc_ind_len = length(loc_ind)
+	if (pat_match || (in_section && (loc_ind_len > length(ind)))) {
+		if (!in_section || (loc_ind_len <= length(ind))) ind = loc_ind
 		in_section = 1
 		print $0
 	} else {
