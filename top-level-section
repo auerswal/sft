@@ -30,12 +30,10 @@ function save_current_line() {
 function delete_saved_lines() {
 	next_line_no = 1
 }
-function update_state(pat_match) {
+function update_state(pat_match, loc_ind) {
 	if (match($0, /^[ \t]+/)) {
 		loc_ind = substr($0, RSTART, RLENGTH)
 		gsub(/\t/, "        ", loc_ind)
-	} else {
-		loc_ind = ""
 	}
 	loc_ind_len = length(loc_ind)
 	if (top_ind_len == -1) {
