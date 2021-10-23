@@ -40,10 +40,8 @@ function update_state(pat_match) {
 	loc_ind_len = length(loc_ind)
 	if (top_ind_len == -1) {
 		top_ind_len = loc_ind_len
-		top_ind = loc_ind
 	} else if (loc_ind_len <= top_ind_len) {
 		top_ind_len = loc_ind_len
-		top_ind = loc_ind
 		delete_saved_lines()
 	}
 	if (pat_match && !in_section) {
