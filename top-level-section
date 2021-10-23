@@ -9,7 +9,7 @@
 # notice and this notice are preserved.  This file is offered as-is,
 # without any warranty.
 
-test -z "$1" && { echo 'Usage: top-level-section PATTERN FILE...'; exit 1; }
+test -z "$1" && { echo 'Usage: top-level-section PATTERN [FILE...]'; exit 1; }
 PATTERN="$(printf -- '%s' "$1" | sed 's/\\/&&/g')"
 shift
 exec /usr/bin/awk -v pattern="$PATTERN" -- '

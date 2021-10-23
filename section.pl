@@ -2,7 +2,7 @@
 
 # section.pl - print line matching regexp with following indented section
 #
-# Copyright (C) 2018 by Erik Auerswald <auerswal@unix-ag.uni-kl.de>
+# Copyright (C) 2018-2021 by Erik Auerswald <auerswal@unix-ag.uni-kl.de>
 #
 # Copying and distribution of this file, with or without modification,
 # are permitted in any medium without royalty provided the copyright
@@ -11,7 +11,7 @@
 
 use strict;
 
-if (scalar(@ARGV) == 0) { print "Usage: section PATTERN FILE...\n"; exit 1;}
+if (scalar(@ARGV) == 0) { print "Usage: section PATTERN [FILE...]\n"; exit 1;}
 
 my $pat = $ARGV[0]; shift;
 my $in_sec = 0;

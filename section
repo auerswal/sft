@@ -2,14 +2,14 @@
 
 # section - print line matching regexp with following indented section
 #
-# Copyright (C) 2018-2019 by Erik Auerswald <auerswal@unix-ag.uni-kl.de>
+# Copyright (C) 2018-2021 by Erik Auerswald <auerswal@unix-ag.uni-kl.de>
 #
 # Copying and distribution of this file, with or without modification,
 # are permitted in any medium without royalty provided the copyright
 # notice and this notice are preserved.  This file is offered as-is,
 # without any warranty.
 
-test -z "$1" && { echo 'Usage: section PATTERN FILE...'; exit 1; }
+test -z "$1" && { echo 'Usage: section PATTERN [FILE...]'; exit 1; }
 PATTERN="$(printf -- '%s' "$1" | sed 's/\\/&&/g')"
 shift
 exec /usr/bin/awk -v pattern="$PATTERN" -- '
