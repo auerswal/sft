@@ -48,8 +48,7 @@ function update_state(pat_match) {
 		print_saved_lines()
 		print $0
 		in_section = 1
-	} else if ((pat_match && in_section) ||
-		(!pat_match && in_section && loc_ind_len > top_ind_len)) {
+	} else if (in_section && (pat_match || loc_ind_len > top_ind_len)) {
 		print $0
 	} else {
 		save_current_line()
