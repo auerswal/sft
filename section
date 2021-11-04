@@ -27,7 +27,7 @@ function update_state(pat_match, loc_ind) {
 		print $0
 	} else {
 		in_section = 0
-		ind = ""
+		ind_len = 0
 	}
 }
 $0 ~ pattern { update_state(1) }
