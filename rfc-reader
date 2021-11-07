@@ -54,7 +54,7 @@ copyright()
 
 version()
 {
-  local V="0.49"
+  local V="0.50"
   printf -- "%s\n" "$B version $V"
 }
 
@@ -115,6 +115,7 @@ while getopts hVLt OPT; do
    'V') version; copyright; exit 0;;
    'L') version; copyright; license; exit 0;;
    't') unset DISPLAY;;
+   *) exit 1;;
  esac
 done
 shift $((OPTIND - 1))
