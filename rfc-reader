@@ -54,7 +54,7 @@ copyright()
 
 version()
 {
-  local V="0.50"
+  local V="0.51"
   printf -- "%s\n" "$B version $V"
 }
 
@@ -109,13 +109,14 @@ usage()
 }
 
 # parse options
-while getopts hVLt OPT; do
+while getopts 'hVLt' OPT; do
  case "$OPT" in
    'h') version; copyright; license; echo; usage; exit 0;;
    'V') version; copyright; exit 0;;
    'L') version; copyright; license; exit 0;;
    't') unset DISPLAY;;
-   *) exit 1;;
+   '?') exit 1;;
+   *) printf -- '%s: Error: getopts() failure\n' "$B"; exit 1;;
  esac
 done
 shift $((OPTIND - 1))
