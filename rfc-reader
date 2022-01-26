@@ -1,6 +1,6 @@
 #! /bin/bash
 
-# Copyright (C) 2011-2021 Erik Auerswald <auerswal@unix-ag.uni-kl.de>
+# Copyright (C) 2011-2022 Erik Auerswald <auerswal@unix-ag.uni-kl.de>
 
 # Copying and distribution of this file, with or without modification,
 # are permitted in any medium without royalty provided the copyright
@@ -57,7 +57,7 @@ copyright()
 
 version()
 {
-  local V="0.51"
+  local V="0.52"
   printf -- "%s\n" "$B version $V"
 }
 
@@ -190,9 +190,9 @@ esac
 
 # create temporary files for original and formatted RFC(-like) text
 F=$(mktemp -t rfc-reader.$$.XXXXXXXXXX)
-trap 'rm -rf "$F"' 0 1 2 3 15
+trap 'rm -rf "$F"' 0
 FMT=$(mktemp -t rfc-reader.$$.XXXXXXXXXX)
-trap 'rm -rf "$F" "$FMT"' 0 1 2 3 15
+trap 'rm -rf "$F" "$FMT"' 0
 
 # obtain RFC(-like) text
 printf -- '%s' "looking for $R ... "

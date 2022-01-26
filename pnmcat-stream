@@ -2,7 +2,7 @@
 
 # pnmcat-stream - pnmcat for a multi image stream
 
-# Copyright (c) 2007 Erik Auerswald <auerswal@unix-ag.uni-kl.de>
+# Copyright (c) 2007-2022 Erik Auerswald <auerswal@unix-ag.uni-kl.de>
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a
 # copy of this software and associated documentation files (the "Software"),
@@ -35,7 +35,7 @@ dir="`mktemp -dt`" || \
     { echo "pnmcat-stream: error: could not create temporary directory" 1>&2; \
       exit 1; }
 
-trap "rm -rf \"${dir}\"" 0 1 3 15
+trap "rm -rf \"${dir}\"" 0
 
 pnmsplit - "${dir}/image%d.pnm" -padname=5 -quiet
 

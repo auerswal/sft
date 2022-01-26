@@ -2,7 +2,7 @@
 
 # Query interface status of network devices.
 #
-# Copyright (C) 2012-2018 Erik Auerswald <auerswal@unix-ag.uni-kl.de>
+# Copyright (C) 2012-2022 Erik Auerswald <auerswal@unix-ag.uni-kl.de>
 #
 # Copying and distribution of this file, with or without modification,
 # are permitted in any medium without royalty provided the copyright
@@ -20,12 +20,12 @@
 #
 # Currently tested with Enterasys Networks switches only.
 #
-# Version 2018-03-03-01
+# Version 2022-01-26-01
 
 STATUS=$(mktemp ifOperStatus.$$.XXXXXX)
 NAME=$(mktemp ifName.$$.XXXXXX)
 
-trap "rm -f $STATUS $NAME" 0 1 2 3 15
+trap "rm -f $STATUS $NAME" 0
 
 # Specify the snmpwalk executable to use.
 # This can be overridden from the environment.
