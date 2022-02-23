@@ -17,8 +17,11 @@
 #   - first two lines are too long (81 characters)
 #   - pages of the RFC are too long
 #   -> workaround: env L=61 C=81 rfc-reader 713
+# - RFC 734 is not formatted well by rfc-reader
+#   - lines are too long and thus truncated
+#   -> workaround: env C=84 rfc-reader 734
 # - RFC 911 is not formatted well by rfc-reader
-#   - lines are too long and thus trunkated
+#   - lines are too long and thus truncated
 #   -> workaround: env C=83 rfc-reader 911
 # - RFC 995 is not formatted well by rfc-reader
 #   - lines of the RFC are too long
