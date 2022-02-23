@@ -55,12 +55,12 @@ done
 
 copyright()
 {
-  echo 'Copyright (C) 2011-2021 Erik Auerswald <auerswal@unix-ag.uni-kl.de>'
+  echo 'Copyright (C) 2011-2022 Erik Auerswald <auerswal@unix-ag.uni-kl.de>'
 }
 
 version()
 {
-  local V="0.52"
+  local V="0.53"
   printf -- "%s\n" "$B version $V"
 }
 
@@ -89,7 +89,7 @@ usage()
   printf -- '  -h   print this help and exit\n'
   printf -- '  -V   print version information and exit\n'
   printf -- '  -L   print license and exit\n'
-  printf -- '  -t   use current terminal\n'
+  printf -- '  -t   display in current terminal (irrespective of $DISPLAY)\n'
   echo
   echo 'Examples:'
   printf -- '%s\n' "  $B                       # print version, copyright, help"
