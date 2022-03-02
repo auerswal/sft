@@ -54,6 +54,9 @@ called without any operands (neither options nor arguments).
 * `dvdmovie` - play the main movie from a video DVD with
   [MPlayer](http://www.mplayerhq.hu/)
   ([web page](https://www.unix-ag.uni-kl.de/~auerswal/dvdmovie/))
+* `enclosing-section` - print all enclosing sections containing a line
+  matching a regular expression (inspired by the Huawei VRP output modifier
+  *section include*)
 * `ext_ip` - print externally visible IPv4 and IPv6 addresses
 * `ffdl` - simple download helper for Firefox
 * `foreachpam` - invoke program for each image in a PAM stream

@@ -1,0 +1,75 @@
+#! /bin/sh
+
+# enclosing-section - print enclosing section containing line matching regexp
+#
+# Copyright (C) 2022 by Erik Auerswald <auerswal@unix-ag.uni-kl.de>
+#
+# Copying and distribution of this file, with or without modification,
+# are permitted in any medium without royalty provided the copyright
+# notice and this notice are preserved.  This file is offered as-is,
+# without any warranty.
+
+test -z "$1" && { echo 'Usage: enclosing-section PATTERN [FILE...]'; exit 1; }
+PATTERN="$(printf -- '%s' "$1" | sed 's/\\/&&/g')"
+shift
+exec /usr/bin/awk -v pattern="$PATTERN" -- '
+BEGIN {
+	top_ind_len = -1
+	next_line_no = 1
+}
+function print_saved_lines() {
+	for (i = 1; i < next_line_no; i++) {
+		if (print_line[i]) {
+			print saved_lines[i]
+		}
+	}
+	next_line_no = 1
+}
+function save_current_line(ind_len, mark) {
+	saved_lines[next_line_no] = $0
+	print_line[next_line_no] = mark
+	line_ind_len[next_line_no] = ind_len
+	next_line_no++
+}
+function delete_saved_lines() {
+	next_line_no = 1
+}
+function find_section_start(cur_ind_len) {
+	for (i = next_line_no - 1; i > 0; i--) {
+		print_line[i] = 1
+		if (line_ind_len[i] < cur_ind_len) {
+			return line_ind_len[i]
+		}
+	}
+}
+function update_state(pat_match, loc_ind) {
+	if (match($0, /^[ \t]+/)) {
+		loc_ind = substr($0, RSTART, RLENGTH)
+		gsub(/\t/, "        ", loc_ind)
+	}
+	loc_ind_len = length(loc_ind)
+	if (top_ind_len == -1) {
+		top_ind_len = loc_ind_len
+	} else if (loc_ind_len <= top_ind_len) {
+		top_ind_len = loc_ind_len
+		print_saved_lines()
+	}
+	if (in_section && loc_ind_len > cur_ind_len) {
+		save_current_line(loc_ind_len, 1)
+	} else if (pat_match) {
+		save_current_line(loc_ind_len, 1)
+		in_section = 1
+		if (loc_ind_len > top_ind_len) {
+			cur_ind_len = find_section_start(loc_ind_len)
+		} else {
+			cur_ind_len = loc_ind_len
+		}
+	} else {
+		save_current_line(loc_ind_len, 0)
+		in_section = 0
+	}
+}
+$0 ~ pattern { update_state(1) }
+$0 !~ pattern { update_state(0) }
+END { print_saved_lines() }
+' "$@"
