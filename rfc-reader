@@ -23,6 +23,9 @@
 # - RFC 827 is not formatted well by rfc-reader
 #   - some lines are too long
 #   -> workaround: env C=82 rfc-reader 827
+# - RFC 888 is not formatted well by rfc-reader
+#   - some lines are too long
+#   -> workaround: env C=79 rfc-reader 827
 # - RFC 911 is not formatted well by rfc-reader
 #   - lines are too long and thus truncated
 #   -> workaround: env C=83 rfc-reader 911
