@@ -25,10 +25,13 @@
 #   -> workaround: env C=82 rfc-reader 827
 # - RFC 888 is not formatted well by rfc-reader
 #   - some lines are too long
-#   -> workaround: env C=79 rfc-reader 827
+#   -> workaround: env C=79 rfc-reader 888
 # - RFC 911 is not formatted well by rfc-reader
 #   - lines are too long and thus truncated
 #   -> workaround: env C=83 rfc-reader 911
+# - RFC 994 is not formatted well by rfc-reader
+#   - some lines are too long
+#   -> workaround: env C=84 rfc-reader 994
 # - RFC 995 is not formatted well by rfc-reader
 #   - lines of the RFC are too long
 #   -> workaround: env C=79 rfc-reader 995
