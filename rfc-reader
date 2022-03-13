@@ -39,6 +39,9 @@
 #   - lines of the RFC are too long
 #   - pages of the RFC are too long
 #   -> workaround: env L=64 C=81 XT=xterm XTFS=4 rfc-reader 1347
+# - RFC 1454 is not formatted well by rfc-reader
+#   - dome lines are too long
+#   -> workaround: env C=80 rfc-reader 1454
 # - RFC 2329 is not formatted well by rfc-reader
 #   - too long lines
 #   -> workaround: env C=82 rfc-reader 2329
