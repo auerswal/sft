@@ -5,7 +5,7 @@ set -e
 
 # Convert an IPv4 network in CIDR notation to a list of IP addresses.
 #
-# Copyright (C) 2013-2019 Erik Auerswald <auerswal@unix-ag.uni-kl.de>
+# Copyright (C) 2013-2022 Erik Auerswald <auerswal@unix-ag.uni-kl.de>
 #
 # Copying and distribution of this file, with or without modification,
 # are permitted in any medium without royalty provided the copyright
@@ -14,7 +14,7 @@ set -e
 #
 # Requires BASH and ipcalc (http://jodies.de/ipcalc) or my ipcalc replacement.
 
-VERSION=2019-10-20-01
+VERSION=2022-03-25-01
 PROG="$(basename $0)"
 IPCALC="ipcalc"
 IPCALCOPTS="-n -b"
@@ -22,7 +22,7 @@ IPCALCOPTS="-n -b"
 version()
 {
   echo "$PROG version $VERSION"
-  echo "Copyright (C) 2013-2019 by Erik Auerswald <auerswal@unix-ag.uni-kl.de>"
+  echo "Copyright (C) 2013-2022 by Erik Auerswald <auerswal@unix-ag.uni-kl.de>"
 }
 
 usage() { echo "Usage: $PROG [ { -h | -L } | NETWORK ]"; }
@@ -70,13 +70,13 @@ shift $(($OPTIND - 1))
 
 if test $# -gt 0; then
   RANGE=$("$IPCALC" $IPCALCOPTS "$@" | \
-    sed -n 's/^\(Address\|Broadcast\): *\([^ ]*\).*$/\2/p' | \
+    sed -n 's/^\(Network\|Broadcast\): *\([^ /]*\).*$/\2/p' | \
     sed 'N;s/^\([^.]*\)\.\([^.]*\)\.\([^.]*\)\.\([^.]*\)\n\([^.]*\)\.\([^.]*\)\.\([^.]*\)\.\([^.]*\)/{\1..\5}.{\2..\6}.{\3..\7}.{\4..\8}/')
   eval printf -- '%s\\n' "$RANGE" | sed '1d;$d'
 else
   while read NET; do
   RANGE=$("$IPCALC" $IPCALCOPTS $NET | \
-    sed -n 's/^\(Address\|Broadcast\): *\([^ ]*\).*$/\2/p' | \
+    sed -n 's/^\(Network\|Broadcast\): *\([^ /]*\).*$/\2/p' | \
     sed 'N;s/^\([^.]*\)\.\([^.]*\)\.\([^.]*\)\.\([^.]*\)\n\([^.]*\)\.\([^.]*\)\.\([^.]*\)\.\([^.]*\)/{\1..\5}.{\2..\6}.{\3..\7}.{\4..\8}/')
   eval printf -- '%s\\n' "$RANGE" | sed '1d;$d'
   done
