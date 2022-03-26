@@ -14,7 +14,7 @@ set -e
 #
 # Requires BASH and ipcalc (http://jodies.de/ipcalc) or my ipcalc replacement.
 
-VERSION=2022-03-25-01
+VERSION=2022-03-26-01
 PROG="$(basename $0)"
 IPCALC="ipcalc"
 IPCALCOPTS="-n -b"
@@ -71,13 +71,13 @@ shift $(($OPTIND - 1))
 if test $# -gt 0; then
   RANGE=$("$IPCALC" $IPCALCOPTS "$@" | \
     sed -n 's/^\(Network\|Broadcast\): *\([^ /]*\).*$/\2/p' | \
-    sed 'N;s/^\([^.]*\)\.\([^.]*\)\.\([^.]*\)\.\([^.]*\)\n\([^.]*\)\.\([^.]*\)\.\([^.]*\)\.\([^.]*\)/{\1..\5}.{\2..\6}.{\3..\7}.{\4..\8}/')
+    sed -n 'N;s/^\([^.]*\)\.\([^.]*\)\.\([^.]*\)\.\([^.]*\)\n\([^.]*\)\.\([^.]*\)\.\([^.]*\)\.\([^.]*\)/{\1..\5}.{\2..\6}.{\3..\7}.{\4..\8}/p')
   eval printf -- '%s\\n' "$RANGE" | sed '1d;$d'
 else
   while read NET; do
   RANGE=$("$IPCALC" $IPCALCOPTS $NET | \
     sed -n 's/^\(Network\|Broadcast\): *\([^ /]*\).*$/\2/p' | \
-    sed 'N;s/^\([^.]*\)\.\([^.]*\)\.\([^.]*\)\.\([^.]*\)\n\([^.]*\)\.\([^.]*\)\.\([^.]*\)\.\([^.]*\)/{\1..\5}.{\2..\6}.{\3..\7}.{\4..\8}/')
+    sed -n 'N;s/^\([^.]*\)\.\([^.]*\)\.\([^.]*\)\.\([^.]*\)\n\([^.]*\)\.\([^.]*\)\.\([^.]*\)\.\([^.]*\)/{\1..\5}.{\2..\6}.{\3..\7}.{\4..\8}/p')
   eval printf -- '%s\\n' "$RANGE" | sed '1d;$d'
   done
 fi
