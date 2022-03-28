@@ -77,6 +77,8 @@ called without any operands (neither options nor arguments).
   instead of Awk (mentioned on the `macfmt`
   [web page](https://www.unix-ag.uni-kl.de/~auerswal/macfmt/))
 * `net2ips` - print host addresses of an IPv4 network (uses ipcalc)
+* `net2ips.py` - print addresses of IPv4 and IPv6 networks, implemented in
+  Python 3 based on the Python standard library (*stdlib*) module `ipaddress`
 * `netio-kshell-dos` - demonstrate TCP session cleanup bug
   ([web page](https://www.unix-ag.uni-kl.de/~auerswal/netio-kshell-bug/))
 * `nfoview` - view NFO files on GNU/Linux
