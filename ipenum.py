@@ -29,7 +29,7 @@ import re
 import sys
 
 PROG = 'ipenum.py'
-VERS = '0.2.0'
+VERS = '0.2.1'
 COPY = 'Copyright (C) 2022  Erik Auerswald <auerswal@unix-ag.uni-kl.de>'
 LICE = '''\
 License GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>.
@@ -74,7 +74,7 @@ def cmd_line_args():
     cmd_line.add_argument('-V', '--version', action='version',
                           version='\n'.join([PROG + ' ' + VERS, COPY, LICE]))
     cmd_line.add_argument('-H', '--hosts-only', action='store_true',
-                          help='print only host addresses')
+                          help='print only host addresses (affects CIDR only)')
     cmd_line.add_argument('RANGE', nargs='*',
                           help='IPv4 or IPv6 address range')
     return cmd_line.parse_args()
