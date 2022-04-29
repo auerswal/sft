@@ -67,6 +67,7 @@ the start and end address.
 
 
 def cmd_line_args():
+    """Parse command line arguments."""
     cmd_line = argparse.ArgumentParser(
         prog=PROG, description=DESC, epilog=EPIL,
         formatter_class=argparse.RawDescriptionHelpFormatter
@@ -81,10 +82,12 @@ def cmd_line_args():
 
 
 def err(msg):
+    """Print message with error prefix to standard error."""
     print(f'{PROG}: ERROR:', msg, file=sys.stderr)
 
 
 def print_cidr(net, hosts_only):
+    """Print addresses of CIDR range."""
     try:
         addresses = ipaddress.ip_network(net, strict=False)
     except ValueError as exc:
@@ -98,11 +101,12 @@ def print_cidr(net, hosts_only):
 
 
 def parse_start_end(r):
+    """Extract start and end addresses from range expression."""
     start = end = ok = None
     # use a regular expression to accept a wide variety of separators
     tmp = re.split(r'\s*(?:\s+(?:to\s)?|,?\.{2,},?|-+>?|[,;→⇒—…])\s*', r)
     #print('%%% DEBUG: tmp =', tmp)
-    tmp = [ elem for elem in tmp if elem ]  # remove empty list elements
+    tmp = [elem for elem in tmp if elem]  # remove empty list elements
     #print('%%% DEBUG: tmp =', tmp)
     num_addrs = len(tmp)
     if num_addrs < 1:
@@ -132,6 +136,7 @@ def parse_start_end(r):
 
 
 def print_start_end(start, end):
+    """Print IP addresses from start to end (inclusive)."""
     address = start
     while address <= end:
         print(address)
@@ -140,6 +145,7 @@ def print_start_end(start, end):
 
 
 def print_ip_range(r, hosts_only):
+    """Print an IP range given in any supported format."""
     if '/' in r:
         return print_cidr(r, hosts_only)
     else:
