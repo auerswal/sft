@@ -29,7 +29,7 @@ import re
 import sys
 
 PROG = 'ipenum.py'
-VERS = '0.3.0'
+VERS = '0.3.1'
 COPY = 'Copyright (C) 2022  Erik Auerswald <auerswal@unix-ag.uni-kl.de>'
 LICE = '''\
 License GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>.
@@ -110,39 +110,39 @@ def print_cidr(net, hosts_only):
     return 0
 
 
-def parse_start_end(r):
+def parse_start_end(rng):
     """Extract start and end addresses from range expression."""
-    start = end = ok = None
+    start = end = is_ok = None
     # use a regular expression to accept a wide variety of separators
-    tmp = re.split(r'\s*(?:\s+(?:to\s)?|,?\.{2,},?|-+>?|[,;→⇒—…])\s*', r)
+    tmp = re.split(r'\s*(?:\s+(?:to\s)?|,?\.{2,},?|-+>?|[,;→⇒—…])\s*', rng)
     dbg(f'tmp = {tmp}')
     tmp = [elem for elem in tmp if elem]  # remove empty list elements
     dbg(f'tmp = {tmp}')
     num_addrs = len(tmp)
     if num_addrs < 1:
-        err(f"cannot parse range '{r}': found no addresses")
+        err(f"cannot parse range '{rng}': found no addresses")
     elif num_addrs > 2:
-        err(f"cannot parse range '{r}': found more than two addresses")
-        ok = False
+        err(f"cannot parse range '{rng}': found more than two addresses")
+        is_ok = False
     else:
         if num_addrs == 1:
             tmp.append(tmp[0])
         start, end = tmp
-        ok = True
+        is_ok = True
         try:
             start = ipaddress.ip_address(start)
         except ValueError as exc:
             err(f"cannot parse address '{start}': {exc}")
-            ok = False
+            is_ok = False
         try:
             end = ipaddress.ip_address(end)
         except ValueError as exc:
             err(f"cannot parse address '{end}': {exc}")
-            ok = False
-        if ok and start.version != end.version:
+            is_ok = False
+        if is_ok and start.version != end.version:
             err('start and end addresses must be of the same IP version')
-            ok = False
-    return (start, end, ok)
+            is_ok = False
+    return (start, end, is_ok)
 
 
 def print_start_end(start, end):
@@ -154,27 +154,27 @@ def print_start_end(start, end):
     return 0
 
 
-def print_ip_range(r, hosts_only):
+def print_ip_range(range_or_cidr, hosts_only):
     """Print an IP range given in any supported format."""
-    if '/' in r:
-        return print_cidr(r, hosts_only)
+    if '/' in range_or_cidr:
+        return print_cidr(range_or_cidr, hosts_only)
     else:
-        start, end, ok = parse_start_end(r)
-        if not ok:
+        start, end, is_ok = parse_start_end(range_or_cidr)
+        if not is_ok:
             return 1
         return print_start_end(start, end)
 
 
 if __name__ == '__main__':
-    args = cmd_line_args()
-    if args.debug:
+    ARGS = cmd_line_args()
+    if ARGS.debug:
         DEBUG = True
-    exit_code = 0
-    ranges = args.RANGE if args.RANGE else sys.stdin
-    for r in ranges:
-        exit_code += print_ip_range(r.strip(), args.hosts_only)
-    if exit_code:
-        exit_code = 1
-    sys.exit(exit_code)
+    EXIT_CODE = 0
+    RANGES = ARGS.RANGE if ARGS.RANGE else sys.stdin
+    for r in RANGES:
+        EXIT_CODE += print_ip_range(r.strip(), ARGS.hosts_only)
+    if EXIT_CODE:
+        EXIT_CODE = 1
+    sys.exit(EXIT_CODE)
 
 # vim:tabstop=4:shiftwidth=4:expandtab:
