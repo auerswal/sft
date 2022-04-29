@@ -71,6 +71,10 @@ called without any operands (neither options nor arguments).
 * `ifstats` - print interface statistics (counters) on Linux
 * `interface_status` - query interface status of network devices via SNMP
 * `ipcalc` - simple replacement for [ipcalc](http://jodies.de/ipcalc)
+* `ipenum.py` - enumerate IPv4 and IPv6 addresses from the given ranges,
+  ranges can be specified via start and end addresses, or in CIDR notation
+  (implemented in Python 3 based on the Python standard library (*stdlib*)
+  modules `ipaddress` and `re`)
 * `macfmt` - convert MAC address formats
   ([web page](https://www.unix-ag.uni-kl.de/~auerswal/macfmt/))
 * `macfmt.py` - alternative to the above `macfmt`, implemented in Python
