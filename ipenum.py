@@ -29,7 +29,7 @@ import re
 import sys
 
 PROG = 'ipenum.py'
-VERS = '0.2.1'
+VERS = '0.3.0'
 COPY = 'Copyright (C) 2022  Erik Auerswald <auerswal@unix-ag.uni-kl.de>'
 LICE = '''\
 License GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>.
@@ -65,6 +65,8 @@ IP address ranges specified via start and end addresses include both
 the start and end address.
 '''
 
+DEBUG = False
+
 
 def cmd_line_args():
     """Parse command line arguments."""
@@ -76,9 +78,17 @@ def cmd_line_args():
                           version='\n'.join([PROG + ' ' + VERS, COPY, LICE]))
     cmd_line.add_argument('-H', '--hosts-only', action='store_true',
                           help='print only host addresses (affects CIDR only)')
+    cmd_line.add_argument('-D', '--debug', action='store_true',
+                          help='emit debug information')
     cmd_line.add_argument('RANGE', nargs='*',
                           help='IPv4 or IPv6 address range')
     return cmd_line.parse_args()
+
+
+def dbg(msg):
+    """Print debug information to standard error."""
+    if DEBUG:
+        print(f'{PROG}: DEBUG:', msg, file=sys.stderr)
 
 
 def err(msg):
@@ -105,9 +115,9 @@ def parse_start_end(r):
     start = end = ok = None
     # use a regular expression to accept a wide variety of separators
     tmp = re.split(r'\s*(?:\s+(?:to\s)?|,?\.{2,},?|-+>?|[,;→⇒—…])\s*', r)
-    #print('%%% DEBUG: tmp =', tmp)
+    dbg(f'tmp = {tmp}')
     tmp = [elem for elem in tmp if elem]  # remove empty list elements
-    #print('%%% DEBUG: tmp =', tmp)
+    dbg(f'tmp = {tmp}')
     num_addrs = len(tmp)
     if num_addrs < 1:
         err(f"cannot parse range '{r}': found no addresses")
@@ -157,6 +167,8 @@ def print_ip_range(r, hosts_only):
 
 if __name__ == '__main__':
     args = cmd_line_args()
+    if args.debug:
+        DEBUG = True
     exit_code = 0
     ranges = args.RANGE if args.RANGE else sys.stdin
     for r in ranges:
