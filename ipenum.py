@@ -29,7 +29,7 @@ import re
 import sys
 
 PROG = 'ipenum.py'
-VERS = '0.3.1'
+VERS = '0.4.0'
 COPY = 'Copyright (C) 2022  Erik Auerswald <auerswal@unix-ag.uni-kl.de>'
 LICE = '''\
 License GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>.
@@ -47,6 +47,11 @@ and end addresses.  Start and end addresses are separated with a usual
 range or sequence indication, e.g, Tabulator or Space characters, two or
 more Period characters, a Comma character, a Semicolon character, or a
 Dash character.
+
+If an address range specified with start and end addresses is enclosed
+in Parenthesis or Square Bracket characters, the range is interpreted
+as a closed, half-open, or open IP address interval, using the respective
+notation from ISO 31-11.
 
 An address range where the start address is greater than the end address
 is valid and interpreted as an empty range.
@@ -145,6 +150,27 @@ def parse_start_end(rng):
     return (start, end, is_ok)
 
 
+def parse_interval(interval):
+    """Extract start and end addresses from interval expression.
+
+    [start, end] includes both start and end addresses.
+    [start, end) includes the start addess, but not the end address.
+    [start, end[ includes the start addess, but not the end address.
+    (start, end] excludes the start address and includes the end address.
+    ]start, end] excludes the start address and includes the end address.
+    (start, end) excludes both start and end addresses.
+    ]start, end[ excludes both start and end addresses.
+    """
+    start, end, is_ok = parse_start_end(interval[1:-1].strip())
+    if not is_ok:
+        return (start, end, is_ok)
+    if interval[0] in '(]':
+        start += 1
+    if interval[-1] in ')[':
+        end -= 1
+    return (start, end, is_ok)
+
+
 def print_start_end(start, end):
     """Print IP addresses from start to end (inclusive)."""
     address = start
@@ -158,11 +184,17 @@ def print_ip_range(range_or_cidr, hosts_only):
     """Print an IP range given in any supported format."""
     if '/' in range_or_cidr:
         return print_cidr(range_or_cidr, hosts_only)
+    elif (len(range_or_cidr) > 1
+          and range_or_cidr[0] in '[]()'
+          and range_or_cidr[-1] in '[]()'):
+        start, end, is_ok = parse_interval(range_or_cidr)
+        if not is_ok:
+            return 1
     else:
         start, end, is_ok = parse_start_end(range_or_cidr)
         if not is_ok:
             return 1
-        return print_start_end(start, end)
+    return print_start_end(start, end)
 
 
 if __name__ == '__main__':
