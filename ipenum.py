@@ -29,7 +29,7 @@ import re
 import sys
 
 PROG = 'ipenum.py'
-VERS = '0.4.0'
+VERS = '0.4.1'
 COPY = 'Copyright (C) 2022  Erik Auerswald <auerswal@unix-ag.uni-kl.de>'
 LICE = '''\
 License GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>.
@@ -185,8 +185,8 @@ def print_ip_range(range_or_cidr, hosts_only):
     if '/' in range_or_cidr:
         return print_cidr(range_or_cidr, hosts_only)
     elif (len(range_or_cidr) > 1
-          and range_or_cidr[0] in '[]()'
-          and range_or_cidr[-1] in '[]()'):
+          and range_or_cidr[0] in '[]('
+          and range_or_cidr[-1] in '[])'):
         start, end, is_ok = parse_interval(range_or_cidr)
         if not is_ok:
             return 1
