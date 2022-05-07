@@ -15,6 +15,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+# Note: doctests require Python 3 (python3 -m doctest macfmt.py)
 
 """Print IP addresses, one per line.
 
@@ -102,7 +104,52 @@ def err(msg):
 
 
 def print_cidr(net, hosts_only):
-    """Print addresses of CIDR range."""
+    """Print addresses of CIDR range.
+
+    >>> r = print_cidr('192.0.2.16/29', False)
+    192.0.2.16
+    192.0.2.17
+    192.0.2.18
+    192.0.2.19
+    192.0.2.20
+    192.0.2.21
+    192.0.2.22
+    192.0.2.23
+    >>> r == 0
+    True
+    >>> r = print_cidr('192.0.2.16/29', True)
+    192.0.2.17
+    192.0.2.18
+    192.0.2.19
+    192.0.2.20
+    192.0.2.21
+    192.0.2.22
+    >>> r == 0
+    True
+    >>> r = print_cidr('192.0.2.8/31', False)
+    192.0.2.8
+    192.0.2.9
+    >>> r == 0
+    True
+    >>> r = print_cidr('192.0.2.8/31', True)
+    192.0.2.8
+    192.0.2.9
+    >>> r == 0
+    True
+    >>> r = print_cidr('2001:db8::/126', False)
+    2001:db8::
+    2001:db8::1
+    2001:db8::2
+    2001:db8::3
+    >>> r == 0
+    True
+    >>> r = print_cidr('2001:db8::/126', True)
+    2001:db8::1
+    2001:db8::2
+    2001:db8::3
+    >>> r == 0
+    True
+    """
     try:
         addresses = ipaddress.ip_network(net, strict=False)
     except ValueError as exc:
@@ -116,7 +163,23 @@ def print_cidr(net, hosts_only):
 
 
 def parse_start_end(rng):
-    """Extract start and end addresses from range expression."""
+    """Extract start and end addresses from range expression.
+
+    >>> s, e, ok = parse_start_end('192.0.2.47...192.0.2.48')
+    >>> s == ipaddress.IPv4Address('192.0.2.47')
+    True
+    >>> e == ipaddress.IPv4Address('192.0.2.48')
+    True
+    >>> ok == True
+    True
+    >>> s, e, ok = parse_start_end('2001:db8::a - 2001:db8::b')
+    >>> s == ipaddress.IPv6Address('2001:db8::a')
+    True
+    >>> e == ipaddress.IPv6Address('2001:db8::b')
+    True
+    >>> ok == True
+    True
+    """
     start = end = is_ok = None
     # use a regular expression to accept a wide variety of separators
     tmp = re.split(r'\s*(?:\s+(?:to\s)?|,?\.{2,},?|-+>?|[,;→⇒—…])\s*', rng)
@@ -160,6 +223,55 @@ def parse_interval(interval):
     ]start, end] excludes the start address and includes the end address.
     (start, end) excludes both start and end addresses.
     ]start, end[ excludes both start and end addresses.
+    >>> s, e, ok = parse_interval('[2001:db8::a,2001:db8::c]')
+    >>> s == ipaddress.IPv6Address('2001:db8::a')
+    True
+    >>> e == ipaddress.IPv6Address('2001:db8::c')
+    True
+    >>> ok == True
+    True
+    >>> s, e, ok = parse_interval('(2001:db8::a,2001:db8::c]')
+    >>> s == ipaddress.IPv6Address('2001:db8::b')
+    True
+    >>> e == ipaddress.IPv6Address('2001:db8::c')
+    True
+    >>> ok == True
+    True
+    >>> s, e, ok = parse_interval(']2001:db8::a,2001:db8::c]')
+    >>> s == ipaddress.IPv6Address('2001:db8::b')
+    True
+    >>> e == ipaddress.IPv6Address('2001:db8::c')
+    True
+    >>> ok == True
+    True
+    >>> s, e, ok = parse_interval('[2001:db8::a,2001:db8::c)')
+    >>> s == ipaddress.IPv6Address('2001:db8::a')
+    True
+    >>> e == ipaddress.IPv6Address('2001:db8::b')
+    True
+    >>> ok == True
+    True
+    >>> s, e, ok = parse_interval('[2001:db8::a,2001:db8::c[')
+    >>> s == ipaddress.IPv6Address('2001:db8::a')
+    True
+    >>> e == ipaddress.IPv6Address('2001:db8::b')
+    True
+    >>> ok == True
+    True
+    >>> s, e, ok = parse_interval('(2001:db8::a,2001:db8::c)')
+    >>> s == ipaddress.IPv6Address('2001:db8::b')
+    True
+    >>> e == ipaddress.IPv6Address('2001:db8::b')
+    True
+    >>> ok == True
+    True
+    >>> s, e, ok = parse_interval(']2001:db8::a,2001:db8::c[')
+    >>> s == ipaddress.IPv6Address('2001:db8::b')
+    True
+    >>> e == ipaddress.IPv6Address('2001:db8::b')
+    True
+    >>> ok == True
+    True
     """
     start, end, is_ok = parse_start_end(interval[1:-1].strip())
     if not is_ok:
@@ -172,7 +284,45 @@ def parse_interval(interval):
 
 
 def print_start_end(start, end):
-    """Print IP addresses from start to end (inclusive)."""
+    """Print IP addresses from start to end (inclusive).
+
+    >>> s = ipaddress.IPv4Address('192.0.2.1')
+    >>> e = ipaddress.IPv4Address('192.0.2.0')
+    >>> r = print_start_end(s, e)
+    >>> r == 0
+    True
+    >>> s = ipaddress.IPv4Address('192.0.2.1')
+    >>> e = ipaddress.IPv4Address('192.0.2.1')
+    >>> r = print_start_end(s, e)
+    192.0.2.1
+    >>> r == 0
+    True
+    >>> s = ipaddress.IPv4Address('192.0.2.1')
+    >>> e = ipaddress.IPv4Address('192.0.2.2')
+    >>> r = print_start_end(s, e)
+    192.0.2.1
+    192.0.2.2
+    >>> r == 0
+    True
+    >>> s = ipaddress.IPv6Address('2001:db8::1')
+    >>> e = ipaddress.IPv6Address('2001:db8::')
+    >>> r = print_start_end(s, e)
+    >>> r == 0
+    True
+    >>> s = ipaddress.IPv6Address('2001:db8::1')
+    >>> e = ipaddress.IPv6Address('2001:db8::1')
+    >>> r = print_start_end(s, e)
+    2001:db8::1
+    >>> r == 0
+    True
+    >>> s = ipaddress.IPv6Address('2001:db8::1')
+    >>> e = ipaddress.IPv6Address('2001:db8::2')
+    >>> r = print_start_end(s, e)
+    2001:db8::1
+    2001:db8::2
+    >>> r == 0
+    True
+    """
     address = start
     while address <= end:
         print(address)
@@ -181,7 +331,38 @@ def print_start_end(start, end):
 
 
 def print_ip_range(range_or_cidr, hosts_only):
-    """Print an IP range given in any supported format."""
+    """Print an IP range given in any supported format.
+
+    >>> r = print_ip_range('192.0.2.0/30', False)
+    192.0.2.0
+    192.0.2.1
+    192.0.2.2
+    192.0.2.3
+    >>> r == 0
+    True
+    >>> r = print_ip_range('2001:db8::7/127', True)
+    2001:db8::6
+    2001:db8::7
+    >>> r == 0
+    True
+    >>> r = print_ip_range('2001:db8::1234..2001:db8::1236', False)
+    2001:db8::1234
+    2001:db8::1235
+    2001:db8::1236
+    >>> r == 0
+    True
+    >>> r = print_ip_range('2001:db8::1234..2001:db8::1236', True)
+    2001:db8::1234
+    2001:db8::1235
+    2001:db8::1236
+    >>> r == 0
+    True
+    >>> r = print_ip_range('[ 2001:db8::1234 ... 2001:db8::1236 )', True)
+    2001:db8::1234
+    2001:db8::1235
+    >>> r == 0
+    True
+    """
     if '/' in range_or_cidr:
         return print_cidr(range_or_cidr, hosts_only)
     elif (len(range_or_cidr) > 1
