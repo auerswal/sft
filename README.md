@@ -126,6 +126,9 @@ called without any operands (neither options nor arguments).
 * `vevent_dump` - print a somewhat readable version of the essential information
   inside an iCalendar (.ics) file to STDOUT (best effort only, not even trying
   to parse the format...)
+* `vrp_output_to_yaml.awk` - convert log from command execution on Huawei VRP
+  device into YAML encoded list of dictionaries each comprising an executed
+  command and its output
 
 ## Junkcode
 
