@@ -57,6 +57,10 @@ called without any operands (neither options nor arguments).
 * `enclosing-section` - print all enclosing sections containing a line
   matching a regular expression (inspired by the Huawei VRP output modifier
   *section include*)
+* `ensure_bom_crlf` - Prepare a UTF-8 encoded POSIX text file for use on
+  Windows by ensuring it starts with the UTF-8 encoded unicode code point
+  U+FEFF "zero-width no-break space" (the old UCS-2 byte order mark (BOM)),
+  and uses the CR LF (`"\r\n"`) end-of-line character sequence
 * `ext_ip` - print externally visible IPv4 and IPv6 addresses
 * `ffdl` - simple download helper for Firefox
 * `foreachpam` - invoke program for each image in a PAM stream
