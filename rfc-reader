@@ -72,7 +72,7 @@ copyright()
 
 version()
 {
-  local V="0.53"
+  local V="0.54"
   printf -- "%s\n" "$B version $V"
 }
 
@@ -89,7 +89,7 @@ EOL
 # shellcheck disable=SC2016
 usage()
 {
-  printf -- '%s\n' "Usage: $B [OPTS] [{rfc|bcp|fyi|ien|std}][{-| }]NUMBER[.txt]"
+  printf -- '%s\n' "Usage: $B [OPTS] [{rfc|bcp|fyi|ien|std}][{-|.| }]NUMBER[.txt]"
   printf -- '%s\n' "       $B [OPTS] {I-D.|draft-}DRAFT_NAME[-NUMBER][.txt]"
   printf -- '%s\n' "       $B [OPTS]"
   echo
@@ -108,7 +108,10 @@ usage()
   printf -- '%s\n' "  $B 1                     # downloads and displays RFC 1"
   printf -- '%s\n' "  $B rfc1                  # downloads and displays RFC 1"
   printf -- '%s\n' "  $B rfc 1                 # downloads and displays RFC 1"
+  printf -- '%s\n' "  $B rfc-1                 # downloads and displays RFC 1"
+  printf -- '%s\n' "  $B rfc.1                 # downloads and displays RFC 1"
   printf -- '%s\n' "  $B rfc1.txt              # downloads and displays RFC 1"
+  printf -- '%s\n' "  $B rfc0001.txt           # downloads and displays RFC 1"
   printf -- '%s\n' "  $B bcp78                 # downloads and displays BCP 78"
   printf -- '%s\n' "  $B fyi3                  # downloads and displays FYI 3"
   printf -- '%s\n' "  $B ien137                # downloads and displays IEN 137"
@@ -173,7 +176,7 @@ case "$DT" in
     DN="$(printf -- '%s' "$DOC" | tr '[:upper:]' '[:lower:]' \
           | sed 's/^[[:space:]]\+//;s/\.txt[[:space:]]*$//;s/^i-d\./draft-/')"
     expr match " $DN" ' .*-[0-9][0-9][0-9]*$' > /dev/null || DN='';;
-  *) DN="$(expr match " $DOC" ' [-A-Za-z ]*0*\([1-9][0-9]*\)')";;
+  *) DN="$(expr match " $DOC" ' [-A-Za-z .]*0*\([1-9][0-9]*\)')";;
 esac
 # determine latest I-D version number if I-D name w/o number was provided
 IDLST='all_id.txt'
