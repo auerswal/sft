@@ -71,7 +71,7 @@ BEGIN {
         if ($0 !~ /"/ && $0 !~ /'/) {
             $0 = "\"" $0 "\""
         } else if ($0 ~ /"/ && $0 ~ /'/) {
-            print progname ": error: cannot quote command '" $0 "'" > "/dev/stderr"
+            print progname": error: cannot quote command '"$0"'" > "/dev/stderr"
             exit 1
         } else if ($0 ~ /"/) {
             $0 = "'" $0 "'"
