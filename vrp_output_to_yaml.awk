@@ -56,7 +56,7 @@ BEGIN {
 # This line has a prompt and might thus contain a command.
 /^(<[^ >]+>|\[[^ \]]+\]) */ {
     # a prompt followed by nothing but whitespace is ignored
-    if ($0 ~ /^(<[^>]+>|\\[[^\\]]+\\]) *\r?$/) next
+    if ($0 ~ /^(<[^>]+>|\[[^\]]+\]) *\r?$/) next
     # start a new command entry
     found_command = 1
     # remove prompt and whitespace in front of command
