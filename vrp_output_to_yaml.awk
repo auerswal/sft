@@ -36,6 +36,7 @@
 
 BEGIN {
     progname = "vrp_output_to_yaml.awk"
+    prompt = "^(HRP_[MS])?(<[^ >]+>|\\[[^ \\]]+\\])[ \\t]*"
     found_command = 0
     print "---"
 }
@@ -43,7 +44,7 @@ BEGIN {
 # All commands are preceded by the device prompt
 # thus this line is not a command invocation.
 # Ignore all output before the first command.
-! /^(HRP_[MS])?(<[^ >]+>|\[[^ \]]+\])[ \t]*/ {
+$0 !~ prompt {
     if (found_command) {
         # remove all CR characters
         gsub("\r", "")
@@ -54,13 +55,13 @@ BEGIN {
     }
 }
 # This line has a prompt and might thus contain a command.
-/^(HRP_[MS])?(<[^ >]+>|\[[^ \]]+\])[ \t]*/ {
+$0 ~ prompt {
     # a prompt followed by nothing but whitespace is ignored
-    if ($0 ~ /^(HRP_[MS])?(<[^ >]+>|\[[^ \]]+\])[ \t]*\r?$/) next
+    if ($0 ~ prompt"\\r?$") next
     # start a new command entry
     found_command = 1
     # remove prompt and whitespace in front of command
-    gsub("^(HRP_[MS])?(<[^ >]+>|\\[[^ \\]]+\\])[ \\t]*","")
+    gsub(prompt, "")
     # remove all CR characters
     gsub("\r", "")
     # remove VRP line wrap related terminal control sequences (long commands)
