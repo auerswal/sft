@@ -139,7 +139,7 @@ while getopts 'hVLt' OPT; do
    'L') version; copyright; license; exit 0;;
    't') unset DISPLAY;;
    '?') exit 1;;
-   *) printf -- '%s: Error: getopts() failure\n' "$B"; exit 1;;
+   *) printf -- '%s: ERROR: getopts() failure\n' "$B"; exit 1;;
  esac
 done
 shift $((OPTIND - 1))
@@ -217,15 +217,15 @@ test -z "$DN" && { test "$DT" = 'draft' || test "$DT" = 'I-D'; } &&
   fi
 # determine download base URL for document
 test -z "$DT" &&
-  { echo 'Error: could not determine document type'; usage; exit 1; }
+  { echo 'ERROR: could not determine document type'; usage; exit 1; }
 test -z "$DN" &&
-  { echo 'Error: could not determine document number or name'; usage; exit 1; }
+  { echo 'ERROR: could not determine document number or name'; usage; exit 1; }
 R="${DT}${DN}.txt"
 case "$DT" in
   rfc) DB='http://www.rfc-editor.org/rfc/';;
   bcp|fyi|ien|std) DB="http://www.rfc-editor.org/rfc/${DT}/";;
   draft|I-D) DB='https://www.ietf.org/archive/id/'; R="${DN}.txt";;
-  *) printf -- 'Error: unknown document type "%s"\n' "$DT"; usage; exit 1;;
+  *) printf -- 'ERROR: unknown document type "%s"\n' "$DT"; usage; exit 1;;
 esac
 
 # create temporary files for original and formatted RFC(-like) text
