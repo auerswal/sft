@@ -251,7 +251,7 @@ test -n "$LR" &&
   esac
 test -s "$F" ||
   { printf -- '%s' "downloading $R ... " &&
-    wget -q -o /dev/null -O"$F" "${DB}${R}";
+    wget -q -o/dev/null -O"$F" "${DB}${R}";
     test \( -s "$F" \) -a \( -n "$RFCCACHE" \) -a \( -d "$RFCCACHE" \) -a \
          \( -w "$RFCCACHE" \) &&
       { printf -- 'copying %s to cache %s ... ' "$R" "$RFCCACHE";
