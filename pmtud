@@ -4,7 +4,7 @@ set -u
 
 # Simplistic Path MTU Discovery using ICMP Echo Request probes.
 #
-# Copyright (C) 2017-2021 Erik Auerswald <auerswal@unix-ag.uni-kl.de>
+# Copyright (C) 2017-2022 Erik Auerswald <auerswal@unix-ag.uni-kl.de>
 #
 # Copying and distribution of this file, with or without modification,
 # are permitted in any medium without royalty provided the copyright
@@ -22,7 +22,7 @@ set -u
 # shall prevent local fragmentation. Thus the results of this program
 # may be wrong if an IPv6 end point is specified.
 
-VERSION='2021-05-13-02'
+VERSION='2022-06-16-01'
 PROG="$(basename "$0")"
 ALGO='binary'
 AF='-4'
@@ -41,7 +41,7 @@ version() { echo "$PROG version $VERSION"; }
 
 copyright()
 {
-  echo 'Copyright (C) 2017-2021 by Erik Auerswald <auerswal@unix-ag.uni-kl.de>'
+  echo 'Copyright (C) 2017-2022 by Erik Auerswald <auerswal@unix-ag.uni-kl.de>'
 }
 
 license()
@@ -138,6 +138,9 @@ test $# -eq 1 && { TARGET="$1"; shift; }
 test -z "$QUIET" && { exec 3>&1; } || { exec 3>/dev/null; }
 
 PINGOPTS="$AF $PINGOPTS"
+IP="IPv${AF##-}"
+ICMP="ICMP"
+test "$IP" = 'IPv6' && ICMP="${ICMP}v6"
 
 # auto_max() attempts to determine the outgoing link's MTU
 auto_max()
@@ -169,7 +172,7 @@ send_probe()
 binary()
 {
   cat 1>&3 <<EOF
-[-] performing binary search IP PMTUD to $TARGET with ICMP Echo Requests
+[-] performing binary search $IP PMTUD to $TARGET with $ICMP Echo Requests
 [-] search_low starts at $MIN bytes, search_high starts at $MAX bytes
 [-] waiting $WAIT seconds between probes with $PROBETIMEOUT seconds timeout
 [-] for unsuccessful probes
@@ -194,7 +197,7 @@ EOF
 linear()
 {
   cat 1>&3 <<EOF
-[-] performing linear search IP PMTUD to $TARGET with ICMP Echo Requests
+[-] performing linear search $IP PMTUD to $TARGET with $ICMP Echo Requests
 [-] search_low $MIN bytes, search_high $MAX bytes, $INCREMENT byte(s) increments
 [-] waiting $WAIT seconds between probes with $PROBETIMEOUT seconds timeout
 [-] for unsuccessful probes
@@ -211,7 +214,7 @@ EOF
 plateau()
 {
   cat 1>&3 <<EOF
-[-] performing plateau table based IP PMTUD to $TARGET with ICMP Echo Requests
+[-] performing plateau table based $IP PMTUD to $TARGET with $ICMP Echo Requests
 [-] values: $TABLE
 [-] using values between $MIN bytes and $MAX bytes
 [-] waiting $WAIT seconds between probes with $PROBETIMEOUT seconds timeout
