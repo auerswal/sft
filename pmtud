@@ -22,10 +22,10 @@ set -u
 # shall prevent local fragmentation. Thus the results of this program
 # may be wrong if an IPv6 end point is specified.
 
-VERSION='2022-06-16-01'
+VERSION='2022-06-16-02'
 PROG="$(basename "$0")"
 ALGO='binary'
-AF='-4'
+AF=''
 OVERHEAD=28
 MIN=68
 INCREMENT=10
@@ -136,6 +136,17 @@ test $# -eq 1 && { TARGET="$1"; shift; }
 
 # shellcheck disable=SC2015
 test -z "$QUIET" && { exec 3>&1; } || { exec 3>/dev/null; }
+
+# guess at intended IP version if neither option -4 nor -6 is used:
+#  use IPv6 is the target looks similar to an IPv6 address,
+#  otherwise use IPv4
+if test -z "$AF"; then
+  if expr " $TARGET" : ' [0-9A-Fa-f:][0-9A-Fa-f:]*$' >/dev/null; then
+    AF='-6' OVERHEAD=48
+  else
+    AF='-4' OVERHEAD=28
+  fi
+fi
 
 PINGOPTS="$AF $PINGOPTS"
 IP="IPv${AF##-}"
