@@ -72,7 +72,7 @@ copyright()
 
 version()
 {
-  local V="0.54"
+  local V="0.55"
   printf -- "%s\n" "$B version $V"
 }
 
@@ -156,18 +156,18 @@ fi
 # remove optional extension .txt
 DOC="$(printf -- '%s' "$DOC" | sed s/\.[Tt][Xx][Tt]$//)"
 # shellcheck disable=SC2003
-expr match " $DOC" '  *[0-9][0-9]* *$' > /dev/null && DOC="rfc$DOC"
+expr " $DOC" : '  *[0-9][0-9]* *$' > /dev/null && DOC="rfc$DOC"
 # determine document type
 # shellcheck disable=SC2003
-DT="$(expr match " $DOC" ' \([Dd][Rr][Aa][Ff][Tt]\)' \
+DT="$(expr " $DOC" : ' \([Dd][Rr][Aa][Ff][Tt]\)' \
       | tr '[:upper:]' '[:lower:]')"
 # shellcheck disable=SC2003
 test -z "$DT" &&
-  DT="$(expr match " $DOC" ' \([Ii]-[Dd]\)\.' \
+  DT="$(expr " $DOC" : ' \([Ii]-[Dd]\)\.' \
         | tr '[:lower:]' '[:upper:]')"
 # shellcheck disable=SC2003
 test -z "$DT" &&
-  DT="$(expr match " $DOC" ' \([A-Za-z][A-Za-z]*\)' \
+  DT="$(expr " $DOC" : ' \([A-Za-z][A-Za-z]*\)' \
         | tr '[:upper:]' '[:lower:]')"
 # determine document number (or name for I-Ds)
 # shellcheck disable=SC2003
@@ -176,8 +176,8 @@ case "$DT" in
     DOC="$(printf -- '%s' "$DOC" | sed 's/^[Ii]-[Dd]\./draft-/')"
     DN="$(printf -- '%s' "$DOC" | tr '[:upper:]' '[:lower:]' \
           | sed 's/^[[:space:]]\+//;s/\.txt[[:space:]]*$//;s/^i-d\./draft-/')"
-    expr match " $DN" ' .*-[0-9][0-9][0-9]*$' > /dev/null || DN='';;
-  *) DN="$(expr match " $DOC" ' [-A-Za-z .]*0*\([1-9][0-9]*\)')";;
+    expr " $DN" : ' .*-[0-9][0-9][0-9]*$' > /dev/null || DN='';;
+  *) DN="$(expr " $DOC" : ' [-A-Za-z .]*0*\([1-9][0-9]*\)')";;
 esac
 # determine latest I-D version number if I-D name w/o number was provided
 IDLST='all_id.txt'
