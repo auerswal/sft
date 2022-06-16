@@ -73,7 +73,7 @@ copyright()
 
 version()
 {
-  local V="0.56"
+  local V="0.57"
   printf -- "%s\n" "$B version $V"
 }
 
@@ -147,6 +147,26 @@ shift $((OPTIND - 1))
 # exactly one or two arguments must be given
 test \( $# -eq 1 \) -o \( $# -eq 2 \) ||
   { version; copyright; license; echo; usage; exit 1; }
+
+# check some prerequisites:
+# wget is needed to download files
+HAVE_WGET=0
+command -v wget >/dev/null 2>&1 && HAVE_WGET=1
+# local directories with RFC (and similar) files can obviate donwloads
+HAVE_LOCAL_DIRS=0
+for DIR in $RFCDIRS; do
+  test -d "$DIR" && test -r "$DIR" && test -x "$DIR" && HAVE_LOCAL_DIRS=1 &&
+    break
+done
+# no wget is worth a warning
+test "$HAVE_WGET" -eq 0 &&
+  printf -- '%s: WARN: no wget found, cannot download files\n' "$B"
+# no local RFC directory is rather common and not worth a warning
+# neither wget nor local RFCs means rfc-reader cannot work
+test "$HAVE_WGET" -eq 0 && "$HAVE_LOCAL_DIRS" -eq 0 && {
+  printf -- '%s: ERROR: neither wget nor local file repo available\n' "$B"
+  exit 1
+}
 
 # parse arguments into type and number of document and build file name
 if test $# -eq 2; then
