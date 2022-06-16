@@ -258,7 +258,7 @@ test -n "$LR" &&
     *) printf -- '\n%s\n' "WARN: unknown compression '$LRZ' of '$LR'";;
   esac
 test -s "$F" ||
-  { printf -- '%s' "downloading $R ... " &&
+  { printf -- 'downloading "%s" from "%s" ... ' "$R" "${DB}${R}" &&
     wget -q -o/dev/null -O"$F" "${DB}${R}";
     test \( -s "$F" \) -a \( -n "$RFCCACHE" \) -a \( -d "$RFCCACHE" \) -a \
          \( -w "$RFCCACHE" \) &&
