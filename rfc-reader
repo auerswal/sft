@@ -86,7 +86,6 @@ without any warranty.
 EOL
 }
 
-# shellcheck disable=SC2016
 usage()
 {
   printf -- '%s\n' "Usage: $B [OPTS] [{rfc|bcp|fyi|ien|std}][{-|.| }]NUMBER[.txt]"
@@ -95,12 +94,14 @@ usage()
   echo
   echo 'Download specified RFC or I-D (unless found locally), and show it'
   echo 'in a pager inside a new terminal window of appropriate size.'
+  # shellcheck disable=SC2016
   echo 'Display in current terminal if $DISPLAY is empty or unset.'
   echo
   echo 'Options:'
   printf -- '  -h   print this help and exit\n'
   printf -- '  -V   print version information and exit\n'
   printf -- '  -L   print license and exit\n'
+  # shellcheck disable=SC2016
   printf -- '  -t   display in current terminal (irrespective of $DISPLAY)\n'
   echo
   echo 'Examples:'
