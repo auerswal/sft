@@ -73,7 +73,7 @@ copyright()
 
 version()
 {
-  local V="0.57"
+  local V="0.58"
   printf -- "%s\n" "$B version $V"
 }
 
@@ -230,8 +230,16 @@ esac
 
 # create temporary files for original and formatted RFC(-like) text
 F=$(mktemp -t rfc-reader.$$.XXXXXXXXXX)
+test -e "$F" || {
+  printf -- '%s: ERROR: could not create temp. file for unformatted RFC\n' "$B"
+  exit 1
+}
 trap 'rm -rf "$F"' 0
 FMT=$(mktemp -t rfc-reader.$$.XXXXXXXXXX)
+test -e "$F" || {
+  printf -- '%s: ERROR: could not create temp. file for formatted RFC\n' "$B"
+  exit 1
+}
 trap 'rm -rf "$F" "$FMT"' 0
 
 # obtain RFC(-like) text
