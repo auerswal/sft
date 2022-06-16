@@ -149,7 +149,7 @@ auto_max()
   ip "$AF" link show dev "$DEVICE" | sed -nE 's/^.*mtu +([^ ]+) .*$/\1/p'
 }
 
-test "x${MAX}x" = 'xautox' && MAX=$(auto_max 2>/dev/null)
+test "${MAX}" = 'auto' && MAX=$(auto_max 2>/dev/null)
 MAX=${MAX:-1500}
 test "${MAX}" -ge 65535 && MAX=65535
 
