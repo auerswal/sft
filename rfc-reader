@@ -57,6 +57,7 @@ B=$(basename "$0")
 RFCDIRS='/usr/share/doc/rfc /usr/share/doc/RFC/links'
 # use a local cache if available
 # a relative XDG_CACHE_HOME must be ignored
+RFCCACHE=''
 xdg_cache="${XDG_CACHE_HOME:-$HOME/.cache}/$B"
 test "${xdg_cache:0:1}" = '/' || xdg_cache="$HOME/.cache/$B"
 for DIR in "$HOME/.$B/cache" "$xdg_cache"; do
@@ -72,7 +73,7 @@ copyright()
 
 version()
 {
-  local V="0.55"
+  local V="0.56"
   printf -- "%s\n" "$B version $V"
 }
 
