@@ -73,7 +73,7 @@ copyright()
 
 version()
 {
-  local V="0.58"
+  local V="0.59"
   printf -- "%s\n" "$B version $V"
 }
 
@@ -259,7 +259,7 @@ test -n "$LR" &&
   esac
 test -s "$F" ||
   { printf -- 'downloading "%s" from "%s" ... ' "$R" "${DB}${R}" &&
-    wget -q -o/dev/null -O"$F" "${DB}${R}";
+    wget -q -o/dev/null -O"$F" -- "${DB}${R}";
     test \( -s "$F" \) -a \( -n "$RFCCACHE" \) -a \( -d "$RFCCACHE" \) -a \
          \( -w "$RFCCACHE" \) &&
       { printf -- 'copying %s to cache %s ... ' "$R" "$RFCCACHE";
