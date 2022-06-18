@@ -299,13 +299,13 @@ L=${L:=59} # 58 lines max. per page + separator line in, e.g., STD 1
 
 # use $PAGER or less
 P=${PAGER:=less}
-test -x "$(which "$P")" || P='less'  # de-facto GNU/Linux pager
-test -x "$(which "$P")" || P='most'  # nice alternative pager
-test -x "$(which "$P")" || P='pager' # pager from Debian's alternatives
-test -x "$(which "$P")" || P='more'  # POSIX and BSD compatibility
-test -x "$(which "$P")" || P='page'  # alternate name for 'more -p'
-test -x "$(which "$P")" || P='pg'    # System V compatibility
-test -x "$(which "$P")" || {
+test -x "$(command -v "$P")" || P='less'  # de-facto GNU/Linux pager
+test -x "$(command -v "$P")" || P='most'  # nice alternative pager
+test -x "$(command -v "$P")" || P='pager' # pager from Debian's alternatives
+test -x "$(command -v "$P")" || P='more'  # POSIX and BSD compatibility
+test -x "$(command -v "$P")" || P='page'  # alternate name for 'more -p'
+test -x "$(command -v "$P")" || P='pg'    # System V compatibility
+test -x "$(command -v "$P")" || {
   printf -- '%s: ERROR: no pager found\n' "$B"
   exit 1
 }
@@ -389,10 +389,10 @@ test -n "$DISPLAY" && {
   XT=${XT:=''}
   test -z "$XT" && test -n "${WINDOWID:-}" &&
     XT=$(xprop -id "$WINDOWID" WM_CLASS | sed -n 's/^[^"]*"\([^"]*\)".*$/\1/p')
-  test -x "$(which "$XT")" || XT=""
+  test -x "$(command -v "$XT")" || XT=""
   test -z "$XT" && { env | grep -F gnome-terminal >/dev/null 2>&1; } &&
     XT='gnome-terminal'
-  test -x "$(which "$XT")" || XT=""
+  test -x "$(command -v "$XT")" || XT=""
   test -z "$XT" && XT='xterm'
   found=''
   while test -z "$found"; do
@@ -437,7 +437,7 @@ test -n "$DISPLAY" && {
         ;;
     esac
   done
-  test -x "$(which "$XT")" ||
+  test -x "$(command -v "$XT")" ||
     { printf -- '%s: ERROR: no usable terminal program found\n' "$B"; exit 1; }
 
   # open terminal window with a pager displaying the RFC(-like) text
