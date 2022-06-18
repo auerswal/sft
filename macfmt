@@ -7,7 +7,7 @@
 
 # Convert MAC addresses between different formats.
 #
-# Copyright (C) 2012-2021 Erik Auerswald <auerswal@unix-ag.uni-kl.de>
+# Copyright (C) 2012-2022 Erik Auerswald <auerswal@unix-ag.uni-kl.de>
 #
 # Copying and distribution of this file, with or without modification,
 # are permitted in any medium without royalty provided the copyright
@@ -21,7 +21,9 @@
 #        FORMAT is one of: all, cisco, linux, enterasys, cabletron, broadcom,
 #                          vmps, netsight, hp, hex, hexprefix, pxe, pgsql,
 #                          hexpostfix, exos, arista, mikrotik, huawei, ieee,
-#                          ietf, dell, ftos, dellos9
+#                          ietf, dell, ftos, dellos9, macos, apple_ios, android,
+#                          chromeos, ps3, ps4, ps5, switch, wii, xbox, xbox360,
+#                          windows
 # Converts hex digits A-F to lower or upper case if -v cap=CASE is given.
 #        CASE   is one of: lower, upper
 # If cap is not specified, the format's default case is used.
@@ -35,7 +37,7 @@
 # usually /usr/bin/awk. Tested on Solaris 10 and with GAWK on GNU/Linux.
 # Does not work with MAWK version 1.3.3-17 on Debian GNU/Linux.
 #
-# Version 2021-05-01-02
+# Version 2022-06-18-01
 
 function print_macs(format) {
 	cisco = tolower(a[1] a[2] "." a[3] a[4] "." a[5] a[6])
@@ -51,6 +53,8 @@ function print_macs(format) {
 	pgsql = tolower(a[1] a[2] a[3] ":" a[4] a[5] a[6])
 	hexpostfix = toupper(hex) "h"
 	huawei = tolower(a[1] a[2] "-" a[3] a[4] "-" a[5] a[6])
+	wii = tolower(a[1] "-" a[2] "-" a[3] "-" a[4] "-" a[5] "-" a[6])
+	xbox360 = toupper(a[1] a[2] a[3] a[4] a[5] a[6])
 	if (cap == "lower") {
 		ets = tolower(ets)
 		ct = tolower(ct)
@@ -70,15 +74,21 @@ function print_macs(format) {
 	hexprefix = "0x" hex
 	if (!format || format == "all") {
 		print cisco, linux, ets, ct, bcm, vmps, netsight, hp, hex, \
-			hexprefix, pxe, pgsql, hexpostfix, huawei
+			hexprefix, pxe, pgsql, hexpostfix, huawei, wii, xbox360
 	} else if (format == "cisco" || format == "arista") {
 		print cisco
 	} else if (format == "linux" || format == "exos" || format == "ietf" ||
-	           format == "ftos" || format == "dellos9") {
+			format == "ftos" || format == "dellos9" ||
+			format == "macos" || format == "ps4" ||
+			format == "ps5") {
 		print linux
-	} else if (format == "enterasys" || format == "ieee") {
+	} else if (format == "enterasys" || format == "ieee" ||
+			format == "windows") {
 		print ets
-	} else if (format == "cabletron" || format == "mikrotik") {
+	} else if (format == "cabletron" || format == "mikrotik" ||
+		format == "apple_ios" || format == "android" ||
+		format == "chromeos" || format == "ps3" || format == "switch" ||
+		format == "xbox") {
 		print ct
 	} else if (format == "broadcom") {
 		print bcm
@@ -100,6 +110,10 @@ function print_macs(format) {
 		print hexpostfix
 	} else if (format == "huawei") {
 		print huawei
+	} else if (format == "wii") {
+		print wii
+	} else if (format == "xbox360") {
+		print xbox360
 	}
 }
 

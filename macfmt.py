@@ -2,7 +2,7 @@
 # coding=utf8
 
 # macfmt.py - print MAC addresses in various formats
-# Copyright (C) 2019-2021  Erik Auerswald <auerswal@unix-ag.uni-kl.de>
+# Copyright (C) 2019-2022  Erik Auerswald <auerswal@unix-ag.uni-kl.de>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -34,7 +34,7 @@ __metaclass__ = type  # pylint: disable=invalid-name
 # Note: doctests require Python 3 (python3 -m doctest macfmt.py)
 
 PROG = 'macfmt.py'
-VERS = '0.4.0'
+VERS = '0.5.0'
 DESC = 'Print MAC address(es) in specified format.'
 EPIL = """\
 The MAC addresses given as input are printed in the selected format, one MAC
@@ -51,9 +51,12 @@ MAC_LEN = 12
 # tupel (<prefix>, <group size>, <group separator>, <case>, <suffix>)
 # the <group size> is the number of hexadecimal characters (nybbles) of a group
 MAC_FORMAT = {
+    'android': 'cabletron',
+    'apple_ios': 'cabletron',
     'arista': 'cisco',
     'bcm': 'broadcom',
     'broadcom': ('', 4, ':', 'upper', ''),
+    'chromeos': 'cabletron',
     'cisco': ('', 4, '.', 'lower', ''),
     'cabletron': ('', 2, ':', 'upper', ''),
     'ct': 'cabletron',
@@ -73,11 +76,20 @@ MAC_FORMAT = {
     'ieee': 'default',
     'ietf': 'linux',
     'linux': ('', 2, ':', 'lower', ''),
+    'macos': 'linux',
     'mikrotik': 'cabletron',
     'netsight': ('', 2, '.', 'upper', ''),
     'pgsql': ('', 6, ':', 'lower', ''),
+    'ps3': 'cabletron',
+    'ps4': 'linux',
+    'ps5': 'linux',
     'pxe': ('', 2, ' ', 'upper', ''),
+    'switch': 'cabletron',
     'vmps': ('', 4, '.', 'upper', ''),
+    'wii': ('', 2, '-', 'lower', ''),
+    'windows': 'default',
+    'xbox': 'cabletron',
+    'xbox360': ('', 12, '', 'upper', ''),
 }
 
 
@@ -292,10 +304,13 @@ def output_formats_with_example_mac():
     this format.
 
     >>> output_formats_with_example_mac()
+    android   :  01:23:45:67:89:AB
+    apple_ios :  01:23:45:67:89:AB
     arista    :  0123.4567.89ab
     bcm       :  0123:4567:89AB
     broadcom  :  0123:4567:89AB
     cabletron :  01:23:45:67:89:AB
+    chromeos  :  01:23:45:67:89:AB
     cisco     :  0123.4567.89ab
     ct        :  01:23:45:67:89:AB
     default   :  01-23-45-67-89-AB
@@ -314,11 +329,20 @@ def output_formats_with_example_mac():
     ieee      :  01-23-45-67-89-AB
     ietf      :  01:23:45:67:89:ab
     linux     :  01:23:45:67:89:ab
+    macos     :  01:23:45:67:89:ab
     mikrotik  :  01:23:45:67:89:AB
     netsight  :  01.23.45.67.89.AB
     pgsql     :  012345:6789ab
+    ps3       :  01:23:45:67:89:AB
+    ps4       :  01:23:45:67:89:ab
+    ps5       :  01:23:45:67:89:ab
     pxe       :  01 23 45 67 89 AB
+    switch    :  01:23:45:67:89:AB
     vmps      :  0123.4567.89AB
+    wii       :  01-23-45-67-89-ab
+    windows   :  01-23-45-67-89-AB
+    xbox      :  01:23:45:67:89:AB
+    xbox360   :  0123456789AB
 
     """
     mac = '01-23-45-67-89-AB'
