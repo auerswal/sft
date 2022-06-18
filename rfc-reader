@@ -73,7 +73,7 @@ copyright()
 
 version()
 {
-  local V="0.59"
+  local V="0.60"
   printf -- "%s\n" "$B version $V"
 }
 
@@ -249,6 +249,13 @@ LR=$(find $RFCDIRS -name "${R}*" 2>/dev/null | head -n1)
 LRZ=''
 test -n "$LR" && printf -- '%s' "found $LR ... " &&
   LRZ=$(file -L "$LR" | sed -n 's/^.* \([^ ]*\) compressed .*$/\1/p')
+# BCP contents change with time, so refresh a cached copy if possible
+test "$DT" = 'bcp' && test -n "$LR" && test -z "$LRZ" && test -n "$RFCCACHE" &&
+  test "$(dirname "$LR")" = "$RFCCACHE" && {
+  printf -- 'refreshing BCP ... '
+  wget -q -o/dev/null -N -P"$RFCCACHE" -- "${DB}${R}" ||
+    printf -- 'ERROR, using cached BCP version ... '
+}
 test -n "$LR" &&
   case "$LRZ" in
     '') cp "$LR" "$F";;
