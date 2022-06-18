@@ -204,28 +204,42 @@ esac
 IDLST='all_id.txt'
 IDLSTBS='https://www.ietf.org/archive/id'
 test -z "$DN" && { test "$DT" = 'draft' || test "$DT" = 'I-D'; } &&
-  printf -- 'determining latest version of %s ... ' "$DOC" &&
+  printf -- '%s: determining latest version of %s ... ' "$B" "$DOC" &&
   if test \( -n "$RFCCACHE" \) -a \( -d "$RFCCACHE" \) -a \( -w "$RFCCACHE" \)
   then
     printf -- 'refreshing I-D list %s/%s ... ' "$RFCCACHE" "$IDLST"
-    wget -q -o/dev/null -N -P "$RFCCACHE" -- "${IDLSTBS}/${IDLST}"
-    test -r "${RFCCACHE}/${IDLST}" || { echo 'ERROR'; exit 1; }
+    if wget -q -o/dev/null -N -P "$RFCCACHE" -- "${IDLSTBS}/${IDLST}"; then
+      echo 'done'
+    else
+      echo 'failed, using cached I-D list if available'
+    fi
+    test -r "${RFCCACHE}/${IDLST}" ||
+      { printf -- '%s: ERROR: no I-D list available\n' "$B"; exit 1; }
     DN="$(grep -- "^${DOC}-[0-9][0-9]" "${RFCCACHE}/${IDLST}"|awk '{print $1}')"
   else
     DN="$(wget -q -o/dev/null -O- -- "${IDLSTBS}/${IDLST}" | grep -- "^${DOC}" \
           | awk '{print $1}')"
   fi
 # determine download base URL for document
-test -z "$DT" &&
-  { echo 'ERROR: could not determine document type'; usage; exit 1; }
-test -z "$DN" &&
-  { echo 'ERROR: could not determine document number or name'; usage; exit 1; }
+test -z "$DT" && {
+  printf -- '%s: ERROR: could not determine document type\n' "$B"
+  usage
+  exit 1
+}
+test -z "$DN" && {
+  printf --  '%s: ERROR: could not determine document number or name\n' "$B"
+  usage
+  exit 1
+}
 R="${DT}${DN}.txt"
 case "$DT" in
   rfc) DB='http://www.rfc-editor.org/rfc/';;
   bcp|fyi|ien|std) DB="http://www.rfc-editor.org/rfc/${DT}/";;
   draft|I-D) DB='https://www.ietf.org/archive/id/'; R="${DN}.txt";;
-  *) printf -- 'ERROR: unknown document type "%s"\n' "$DT"; usage; exit 1;;
+  *) printf -- '%s: ERROR: unknown document type "%s"\n' "$B" "$DT"
+     usage
+     exit 1
+     ;;
 esac
 
 # create temporary files for original and formatted RFC(-like) text
@@ -243,7 +257,7 @@ test -e "$F" || {
 trap 'rm -rf "$F" "$FMT"' 0
 
 # obtain RFC(-like) text
-printf -- '%s' "looking for $R ... "
+printf -- '%s: looking for %s ... ' "$B" "$R"
 # shellcheck disable=SC2086
 LR=$(find $RFCDIRS -name "${R}*" 2>/dev/null | head -n1)
 LRZ=''
@@ -264,7 +278,8 @@ test -n "$LR" &&
     'gzip') printf -- '%s' 'decompressing ... '; zcat "$LR" > "$F";;
     'bzip2') printf -- '%s' 'decompressing ... '; bzcat "$LR" > "$F";;
     'XZ') printf -- '%s' 'decompressing ... '; xzcat "$LR" > "$F";;
-    *) printf -- '\n%s\n' "WARN: unknown compression '$LRZ' of '$LR'";;
+    *) printf -- 'WARN: ignoring "%s" with unknown compression "%s" ... ' \
+                 "$LR" "$LRZ";;
   esac
 # if no usable local copy was found, then download document
 test -s "$F" ||
@@ -290,7 +305,10 @@ test -x "$(which "$P")" || P='pager' # pager from Debian's alternatives
 test -x "$(which "$P")" || P='more'  # POSIX and BSD compatibility
 test -x "$(which "$P")" || P='page'  # alternate name for 'more -p'
 test -x "$(which "$P")" || P='pg'    # System V compatibility
-test -x "$(which "$P")" || { echo 'ERROR: no pager found'; exit 1; }
+test -x "$(which "$P")" || {
+  printf -- '%s: ERROR: no pager found\n' "$B"
+  exit 1
+}
 PO=${PO:=''}
 # rfc-reader has default options for less and most only
 test "$P" = "less" && test -z "$PO" && PO="-M -S"
@@ -304,7 +322,7 @@ test "$P" = 'most' && PSL='2' PA='1'
 DISPLAY=${DISPLAY:=}
 PAGINATED=1
 awk '/\014/{exit 1}' "$F" && {
-  printf -- 'WARN: no Form Feed characters in RFC/I-D "%s"\n' "$R"
+  printf -- '%s: WARN: no Form Feed characters in RFC/I-D "%s"\n' "$B" "$R"
   PAGINATED=0
   case "$P" in
     less|more|most) PO="$PO -s";;
@@ -317,7 +335,8 @@ test -z "$DISPLAY" && test "$PAGINATED" -eq '1' && {
   test -z "$TL" && TL="$(tput lines 2>/dev/null)"
   test -z "$TL" && TL="$(resize -u 2>/dev/null \
                          | sed -n '/LINES/s/^.*=\([0-9]\+\).*$/\1/p')"
-  test -z "$TL" && { echo 'ERROR: cannot determine terminal height'; exit 1; }
+  test -z "$TL" &&
+    { printf -- '%s: ERROR: cannot determine terminal height\n' "$B"; exit 1; }
   test "$TL" -lt "$((L+PSL))" && {
     printf -- '%s: ERROR: terminal too short (%d lines, but %d needed)\n' \
                "$B" "$TL" "$((L+PSL))"
@@ -328,7 +347,8 @@ test -z "$DISPLAY" && test "$PAGINATED" -eq '1' && {
   test -z "$TC" && TC="$(tput cols 2>/dev/null)"
   test -z "$TC" && TC="$(resize -u 2>/dev/null \
                          | sed -n '/COLUMNS/s/^.*=\([0-9]\+\).*$/\1/p')"
-  test -z "$TC" && { echo 'ERROR: cannot determine terminal width'; exit 1; }
+  test -z "$TC" &&
+    { printf -- '%s: ERROR: cannot determine terminal width\n' "$B"; exit 1; }
   test "$TC" -lt "$C" && {
     printf -- '%s: ERROR: terminal too narrow (%d columns, but %d needed)\n' \
               "$B" "$TC" "$C"
@@ -403,18 +423,22 @@ test -n "$DISPLAY" && {
         # G="-p TerminalColumns=${C} -p TerminalRows=${R}"
         # T="-p tabtitle="
         # E="-e $P $PO"
-        echo "konsole: Geometry doesn't work yet, so try 'xterm' for now"
+        printf -- \
+          '%s: WARN: found "%s", but cannot set geometry, trying "xterm"\n' \
+          "$B" "$XT"
         # found='konsole'
         XT='xterm'
         ;;
       *)
-        echo "WARN: terminal program '$XT' not supported, trying 'xterm'"
+        printf -- \
+          '%s: WARN: found unsupported terminal "%s", trying "xterm"\n' \
+          "$B" "$XT"
         XT='xterm'
         ;;
     esac
   done
   test -x "$(which "$XT")" ||
-    { echo 'ERROR: no usable terminal program found'; exit 1; }
+    { printf -- '%s: ERROR: no usable terminal program found\n' "$B"; exit 1; }
 
   # open terminal window with a pager displaying the RFC(-like) text
   # shellcheck disable=SC2086
