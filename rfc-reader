@@ -73,7 +73,7 @@ copyright()
 
 version()
 {
-  local V="0.61"
+  local V="0.62"
   printf -- "%s\n" "$B version $V"
 }
 
@@ -395,7 +395,8 @@ test -n "$DISPLAY" && {
 # use current terminal if X Window System is not usable
 PAGINATED=1
 awk '/\014/{exit 1}' "$F" && {
-  printf -- '%s: WARN: no Form Feed characters in RFC/I-D "%s"\n' "$B" "$R"
+  test "$DT" = 'rfc' && test "$DN" -ge 8650 || \
+    printf -- '%s: WARN: no Form Feed characters in RFC/I-D "%s"\n' "$B" "$R"
   PAGINATED=0
   case "$P" in
     less|more|most) PO="$PO -s";;
