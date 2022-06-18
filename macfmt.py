@@ -34,7 +34,7 @@ __metaclass__ = type  # pylint: disable=invalid-name
 # Note: doctests require Python 3 (python3 -m doctest macfmt.py)
 
 PROG = 'macfmt.py'
-VERS = '0.5.0'
+VERS = '0.6.0'
 DESC = 'Print MAC address(es) in specified format.'
 EPIL = """\
 The MAC addresses given as input are printed in the selected format, one MAC

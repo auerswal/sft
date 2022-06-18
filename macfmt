@@ -37,7 +37,7 @@
 # usually /usr/bin/awk. Tested on Solaris 10 and with GAWK on GNU/Linux.
 # Does not work with MAWK version 1.3.3-17 on Debian GNU/Linux.
 #
-# Version 2022-06-18-01
+# Version 2022-06-18-02
 
 function print_macs(format) {
 	cisco = tolower(a[1] a[2] "." a[3] a[4] "." a[5] a[6])
