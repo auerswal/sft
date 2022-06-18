@@ -318,14 +318,22 @@ test -z "$DISPLAY" && test "$PAGINATED" -eq '1' && {
   test -z "$TL" && TL="$(resize -u 2>/dev/null \
                          | sed -n '/LINES/s/^.*=\([0-9]\+\).*$/\1/p')"
   test -z "$TL" && { echo 'ERROR: cannot determine terminal height'; exit 1; }
-  test "$TL" -lt "$((L+PSL))" && { echo 'ERROR: terminal too short'; exit 1; }
+  test "$TL" -lt "$((L+PSL))" && {
+    printf -- '%s: ERROR: terminal too short (%d lines, but %d needed)\n' \
+               "$B" "$TL" "$((L+PSL))"
+    exit 1
+  }
   TC="${TC:=${COLUMNS:=}}"
   test -z "$TC" && TC="$(stty size 2>/dev/null | cut -d' ' -f2)"
   test -z "$TC" && TC="$(tput cols 2>/dev/null)"
   test -z "$TC" && TC="$(resize -u 2>/dev/null \
                          | sed -n '/COLUMNS/s/^.*=\([0-9]\+\).*$/\1/p')"
   test -z "$TC" && { echo 'ERROR: cannot determine terminal width'; exit 1; }
-  test "$TC" -lt "$C" && { echo 'ERROR: terminal too narrow'; exit 1; }
+  test "$TC" -lt "$C" && {
+    printf -- '%s: ERROR: terminal too narrow (%d columns, but %d needed)\n' \
+              "$B" "$TC" "$C"
+    exit 1
+  }
   # format RFC(-like) text for current terminal's height
   L="$((TL-PSL))"
 }
