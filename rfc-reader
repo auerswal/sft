@@ -247,6 +247,7 @@ printf -- '%s' "looking for $R ... "
 # shellcheck disable=SC2086
 LR=$(find $RFCDIRS -name "${R}*" 2>/dev/null | head -n1)
 LRZ=''
+# search local directories (a local copy may be compressed)
 test -n "$LR" && printf -- '%s' "found $LR ... " &&
   LRZ=$(file -L "$LR" | sed -n 's/^.* \([^ ]*\) compressed .*$/\1/p')
 # BCP contents change with time, so refresh a cached copy if possible
@@ -256,6 +257,7 @@ test "$DT" = 'bcp' && test -n "$LR" && test -z "$LRZ" && test -n "$RFCCACHE" &&
   wget -q -o/dev/null -N -P"$RFCCACHE" -- "${DB}${R}" ||
     printf -- 'ERROR, using cached BCP version ... '
 }
+# decompress a compressed local copy
 test -n "$LR" &&
   case "$LRZ" in
     '') cp "$LR" "$F";;
@@ -264,9 +266,11 @@ test -n "$LR" &&
     'XZ') printf -- '%s' 'decompressing ... '; xzcat "$LR" > "$F";;
     *) printf -- '\n%s\n' "WARN: unknown compression '$LRZ' of '$LR'";;
   esac
+# if no usable local copy was found, then download document
 test -s "$F" ||
   { printf -- 'downloading "%s" from "%s" ... ' "$R" "${DB}${R}" &&
     wget -q -o/dev/null -O"$F" -- "${DB}${R}";
+    # optionally cache downloaded document
     test \( -s "$F" \) -a \( -n "$RFCCACHE" \) -a \( -d "$RFCCACHE" \) -a \
          \( -w "$RFCCACHE" \) &&
       { printf -- 'copying %s to cache %s ... ' "$R" "$RFCCACHE";
