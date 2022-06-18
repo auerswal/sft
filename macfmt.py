@@ -88,6 +88,7 @@ MAC_FORMAT = {
     'vmps': ('', 4, '.', 'upper', ''),
     'wii': ('', 2, '-', 'lower', ''),
     'windows': 'default',
+    'windows_arp': 'wii',
     'xbox': 'cabletron',
     'xbox360': ('', 12, '', 'upper', ''),
 }
@@ -304,45 +305,46 @@ def output_formats_with_example_mac():
     this format.
 
     >>> output_formats_with_example_mac()
-    android   :  01:23:45:67:89:AB
-    apple_ios :  01:23:45:67:89:AB
-    arista    :  0123.4567.89ab
-    bcm       :  0123:4567:89AB
-    broadcom  :  0123:4567:89AB
-    cabletron :  01:23:45:67:89:AB
-    chromeos  :  01:23:45:67:89:AB
-    cisco     :  0123.4567.89ab
-    ct        :  01:23:45:67:89:AB
-    default   :  01-23-45-67-89-AB
-    dell      :  0123.4567.89AB
-    dellos9   :  01:23:45:67:89:ab
-    enterasys :  01-23-45-67-89-AB
-    ets       :  01-23-45-67-89-AB
-    exos      :  01:23:45:67:89:ab
-    ftos      :  01:23:45:67:89:ab
-    hex       :  0123456789ab
-    hexpostfix:  0123456789ABh
-    hexprefix :  0x0123456789ab
-    hexsuffix :  0123456789ABh
-    hp        :  012345-6789ab
-    huawei    :  0123-4567-89ab
-    ieee      :  01-23-45-67-89-AB
-    ietf      :  01:23:45:67:89:ab
-    linux     :  01:23:45:67:89:ab
-    macos     :  01:23:45:67:89:ab
-    mikrotik  :  01:23:45:67:89:AB
-    netsight  :  01.23.45.67.89.AB
-    pgsql     :  012345:6789ab
-    ps3       :  01:23:45:67:89:AB
-    ps4       :  01:23:45:67:89:ab
-    ps5       :  01:23:45:67:89:ab
-    pxe       :  01 23 45 67 89 AB
-    switch    :  01:23:45:67:89:AB
-    vmps      :  0123.4567.89AB
-    wii       :  01-23-45-67-89-ab
-    windows   :  01-23-45-67-89-AB
-    xbox      :  01:23:45:67:89:AB
-    xbox360   :  0123456789AB
+    android    :  01:23:45:67:89:AB
+    apple_ios  :  01:23:45:67:89:AB
+    arista     :  0123.4567.89ab
+    bcm        :  0123:4567:89AB
+    broadcom   :  0123:4567:89AB
+    cabletron  :  01:23:45:67:89:AB
+    chromeos   :  01:23:45:67:89:AB
+    cisco      :  0123.4567.89ab
+    ct         :  01:23:45:67:89:AB
+    default    :  01-23-45-67-89-AB
+    dell       :  0123.4567.89AB
+    dellos9    :  01:23:45:67:89:ab
+    enterasys  :  01-23-45-67-89-AB
+    ets        :  01-23-45-67-89-AB
+    exos       :  01:23:45:67:89:ab
+    ftos       :  01:23:45:67:89:ab
+    hex        :  0123456789ab
+    hexpostfix :  0123456789ABh
+    hexprefix  :  0x0123456789ab
+    hexsuffix  :  0123456789ABh
+    hp         :  012345-6789ab
+    huawei     :  0123-4567-89ab
+    ieee       :  01-23-45-67-89-AB
+    ietf       :  01:23:45:67:89:ab
+    linux      :  01:23:45:67:89:ab
+    macos      :  01:23:45:67:89:ab
+    mikrotik   :  01:23:45:67:89:AB
+    netsight   :  01.23.45.67.89.AB
+    pgsql      :  012345:6789ab
+    ps3        :  01:23:45:67:89:AB
+    ps4        :  01:23:45:67:89:ab
+    ps5        :  01:23:45:67:89:ab
+    pxe        :  01 23 45 67 89 AB
+    switch     :  01:23:45:67:89:AB
+    vmps       :  0123.4567.89AB
+    wii        :  01-23-45-67-89-ab
+    windows    :  01-23-45-67-89-AB
+    windows_arp:  01-23-45-67-89-ab
+    xbox       :  01:23:45:67:89:AB
+    xbox360    :  0123456789AB
 
     """
     mac = '01-23-45-67-89-AB'

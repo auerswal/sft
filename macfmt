@@ -23,7 +23,7 @@
 #                          hexpostfix, exos, arista, mikrotik, huawei, ieee,
 #                          ietf, dell, ftos, dellos9, macos, apple_ios, android,
 #                          chromeos, ps3, ps4, ps5, switch, wii, xbox, xbox360,
-#                          windows
+#                          windows, windows_arp
 # Converts hex digits A-F to lower or upper case if -v cap=CASE is given.
 #        CASE   is one of: lower, upper
 # If cap is not specified, the format's default case is used.
@@ -110,7 +110,7 @@ function print_macs(format) {
 		print hexpostfix
 	} else if (format == "huawei") {
 		print huawei
-	} else if (format == "wii") {
+	} else if (format == "wii" || format == "windows_arp") {
 		print wii
 	} else if (format == "xbox360") {
 		print xbox360
