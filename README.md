@@ -79,6 +79,7 @@ called without any operands (neither options nor arguments).
   ranges can be specified via start and end addresses, or in CIDR notation
   (implemented in Python 3 based on the Python standard library (*stdlib*)
   modules `ipaddress` and `re`)
+* `isascii` - check if all input bytes contain 7-bit ASCII values
 * `macfmt` - convert MAC address formats
   ([web page](https://www.unix-ag.uni-kl.de/~auerswal/macfmt/))
 * `macfmt.py` - alternative to the above `macfmt`, implemented in Python
