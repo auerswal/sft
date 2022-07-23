@@ -101,12 +101,12 @@ done
 shift $((OPTIND - 1))
 
 not_ascii() {
-  test "$VERBOSE" -eq 1 && echo 'non-ASCII'
+  test "$VERBOSE" -eq 1 && echo 'no'
   exit 1
 }
 
 is_ascii() {
-  test "$VERBOSE" -eq 1 && echo 'ASCII'
+  test "$VERBOSE" -eq 1 && echo 'yes'
   exit 0
 }
 
