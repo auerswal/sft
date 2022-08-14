@@ -73,7 +73,7 @@ copyright()
 
 version()
 {
-  local V="0.62"
+  local V="0.63"
   printf -- "%s\n" "$B version $V"
 }
 
@@ -128,7 +128,8 @@ usage()
     printf -- '  %s\n' "$DIR"
   done
   test -n "$RFCCACHE" &&
-    printf -- '\nUsing "%s" as download cache.\n' "$RFCCACHE"
+    printf -- '\nUsing "%s" as download cache.\n' "$RFCCACHE" &&
+    echo '(BCP and STD files in the download cache are refreshed if possible.)'
 }
 
 # parse options
@@ -270,6 +271,13 @@ test "$DT" = 'bcp' && test -n "$LR" && test -z "$LRZ" && test -n "$RFCCACHE" &&
   printf -- 'refreshing BCP ... '
   wget -q -o/dev/null -N -P"$RFCCACHE" -- "${DB}${R}" ||
     printf -- 'ERROR, using cached BCP version ... '
+}
+# STD contents change with time, so refresh a cached copy if possible
+test "$DT" = 'std' && test -n "$LR" && test -z "$LRZ" && test -n "$RFCCACHE" &&
+  test "$(dirname "$LR")" = "$RFCCACHE" && {
+  printf -- 'refreshing STD ... '
+  wget -q -o/dev/null -N -P"$RFCCACHE" -- "${DB}${R}" ||
+    printf -- 'ERROR, using cached STD version ... '
 }
 # decompress a compressed local copy
 test -n "$LR" &&
