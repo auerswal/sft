@@ -22,7 +22,7 @@ set -u
 # shall prevent local fragmentation. Thus the results of this program
 # may be wrong if an IPv6 end point is specified.
 
-VERSION='2022-10-22-01'
+VERSION='2022-10-22-02'
 PROG="$(basename "$0")"
 ALGO='binary'
 AF=''
@@ -41,7 +41,7 @@ version() { echo "$PROG version $VERSION"; }
 
 copyright()
 {
-  echo 'Copyright (C) 2017-2022 by Erik Auerswald <auerswal@unix-ag.uni-kl.de>'
+  echo 'Copyright (C) 2017-2022 Erik Auerswald <auerswal@unix-ag.uni-kl.de>'
 }
 
 license()
@@ -185,8 +185,8 @@ binary()
   cat 1>&3 <<EOF
 [-] performing binary search $IP PMTUD to $TARGET with $ICMP Echo Requests
 [-] search_low starts at $MIN bytes, search_high starts at $MAX bytes
-[-] waiting $WAIT seconds between probes with $PROBETIMEOUT seconds timeout
-[-] for unsuccessful probes
+[-] waiting $WAIT seconds between probes
+[-] using $PROBETIMEOUT seconds timeout for unsuccessful probes
 EOF
 
   LOW=$MIN
@@ -210,8 +210,8 @@ linear()
   cat 1>&3 <<EOF
 [-] performing linear search $IP PMTUD to $TARGET with $ICMP Echo Requests
 [-] search_low $MIN bytes, search_high $MAX bytes, $INCREMENT byte(s) increments
-[-] waiting $WAIT seconds between probes with $PROBETIMEOUT seconds timeout
-[-] for unsuccessful probes
+[-] waiting $WAIT seconds between probes
+[-] using $PROBETIMEOUT seconds timeout for unsuccessful probes
 EOF
 
   for S in $(seq "$MIN" "$INCREMENT" "$MAX"); do
@@ -228,8 +228,8 @@ plateau()
 [-] performing plateau table based $IP PMTUD to $TARGET with $ICMP Echo Requests
 [-] values: $TABLE
 [-] using values between $MIN bytes and $MAX bytes
-[-] waiting $WAIT seconds between probes with $PROBETIMEOUT seconds timeout
-[-] for unsuccessful probes
+[-] waiting $WAIT seconds between probes
+[-] using $PROBETIMEOUT seconds timeout for unsuccessful probes
 EOF
 
   for S in $TABLE; do
