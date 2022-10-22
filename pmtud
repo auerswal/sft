@@ -22,12 +22,12 @@ set -u
 # shall prevent local fragmentation. Thus the results of this program
 # may be wrong if an IPv6 end point is specified.
 
-VERSION='2022-10-22-02'
+VERSION='2022-10-22-03'
 PROG="$(basename "$0")"
 ALGO='binary'
 AF=''
 OVERHEAD=28
-MIN=68
+MIN='auto'
 INCREMENT=10
 TABLE='65535 32000 17914 9000 8166 4352 2304 2002 1500 1492 1400 1358 1280 1024 1006 576 508 296 68'
 MAX='auto'
@@ -152,6 +152,13 @@ PINGOPTS="$AF $PINGOPTS"
 IP="IPv${AF##-}"
 ICMP="ICMP"
 test "$IP" = 'IPv6' && ICMP="${ICMP}v6"
+
+test "$MIN" = 'auto' &&
+  case "$AF" in
+    '-4') MIN=68;;
+    '-6') MIN=1280;;
+    *)    MIN="$OVERHEAD";;
+  esac
 
 # auto_max() attempts to determine the outgoing link's MTU
 auto_max()
