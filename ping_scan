@@ -18,7 +18,7 @@ PING="${PING_WRAPPER:-ping}"
 version()
 {
   echo "$PROG version $VERSION"
-  echo "Copyright (c) 2011-2019 by Erik Auerswald <auerswal@unix-ag.uni-kl.de>"
+  echo "Copyright (c) 2011-2022 by Erik Auerswald <auerswal@unix-ag.uni-kl.de>"
 }
 
 usage() { echo "Usage: $PROG [-h] [-L] [-V] [-t TIMEOUT] [-v] [-u] [IP...]"; }
@@ -73,7 +73,7 @@ while getopts t:hvuLV OPT; do
     ?) usage; exit 1;;
   esac
 done
-shift $(($OPTIND - 1))
+shift $((OPTIND - 1))
 
 test "$#" -eq 0 && test "x${VERB}x" = "x1x" &&
   echo 'reading IP addresses from STDIN, one IP address per line'
