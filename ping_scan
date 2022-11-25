@@ -75,18 +75,18 @@ while getopts t:hvuLV OPT; do
 done
 shift $((OPTIND - 1))
 
-test "$#" -eq 0 && test "${VERB}" = "1" &&
+test "$#" -eq 0 && test "${VERB}" -eq 1 &&
   echo 'reading IP addresses from STDIN, one IP address per line'
 
-test "${VERB}" = "1" &&
+test "${VERB}" -eq 1 &&
   echo "Sending ICMP echo requests and waiting for results..." \
        "(timeout ${TIMEOUT}s)"
 
-test \( "${VERB}" = "1" \) -a \( "${UNREACHABLE}" = "1" \) &&
+test \( "${VERB}" -eq 1 \) -a \( "${UNREACHABLE}" -eq 1 \) &&
   echo "Printing not reachable hosts."
 
 PATTERN='is alive'
-test "${UNREACHABLE}" = "1" && PATTERN='no answer from'
+test "${UNREACHABLE}" -eq 1 && PATTERN='no answer from'
 
 if test "$#" -gt 0; then
   while test $# -ge 1; do
