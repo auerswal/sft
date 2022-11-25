@@ -94,7 +94,7 @@ if test "$#" -gt 0; then
     shift
   done
 else
-  while read IP; do
+  while read -r IP; do
     { $PING -n "$IP" "$TIMEOUT" | grep -F "$PATTERN"; } &
   done
 fi | sort -t . -k 1,1n -k 2,2n -k 3,3n -k 4,4n -u
