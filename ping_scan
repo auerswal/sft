@@ -2,7 +2,7 @@
 
 # Send an ICMP echo request to each of the IPs given.
 #
-# Copyright (C) 2011-2019 Erik Auerswald <auerswal@unix-ag.uni-kl.de>
+# Copyright (C) 2011-2022 Erik Auerswald <auerswal@unix-ag.uni-kl.de>
 #
 # Copying and distribution of this file, with or without modification,
 # are permitted in any medium without royalty provided the copyright
@@ -11,7 +11,7 @@
 #
 # Requires the ping program of Solaris or an output-compatible one.
 
-VERSION=2019-10-20-01
+VERSION=2022-11-25-01
 PROG="$(basename $0)"
 PING="${PING_WRAPPER:-ping}"
 
@@ -90,12 +90,12 @@ test "x${UNREACHABLE}x" = "x1x" && PATTERN='no answer from'
 
 if test "$#" -gt 0; then
   while test $# -ge 1; do
-    { $PING -n "$1" "$TIMEOUT" | fgrep "$PATTERN"; } &
+    { $PING -n "$1" "$TIMEOUT" | grep -F "$PATTERN"; } &
     shift
   done
 else
   while read IP; do
-    { $PING -n "$IP" "$TIMEOUT" | fgrep "$PATTERN"; } &
+    { $PING -n "$IP" "$TIMEOUT" | grep -F "$PATTERN"; } &
   done
 fi | sort -t . -k 1,1n -k 2,2n -k 3,3n -k 4,4n -u
 
