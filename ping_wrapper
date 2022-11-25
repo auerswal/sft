@@ -1,6 +1,6 @@
 #! /usr/bin/env sh
 
-# Copyright (C) 2012 by Erik Auerswald <auerswal@unix-ag.uni-kl.de>
+# Copyright (C) 2012,2022 by Erik Auerswald <auerswal@unix-ag.uni-kl.de>
 #
 # Copying and distribution of this file, with or without modification,
 # are permitted in any medium without royalty provided the copyright
@@ -14,6 +14,7 @@
 OPTS='-c1'
 test "$1x" = "-nx" && { OPTS="$OPTS -n"; shift; }
 TIMEOUT=${2:-20}
+# shellcheck disable=SC2086
 ping $OPTS -W"$TIMEOUT" "$1" > /dev/null 2>&1 &&
   printf -- '%s is alive\n' "$1" ||
   echo "no answer from $1"
