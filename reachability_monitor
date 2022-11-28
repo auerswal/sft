@@ -1,0 +1,217 @@
+#! /bin/bash
+
+# reachability_monitor - report reachability changes for a set of hosts
+# Copyright (C) 2022 Erik Auerswald
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+set -e
+
+PROG="$(basename "$0")"
+VERSION='2022-11-28-01'
+
+# this needs to match the "ping" program used
+PINGOPTS=(-c1 -W1 -q -n)
+
+# global state variables used in top-level shell
+declare -a PROCS
+declare RELOADING PRINTING
+RELOADING=0
+PRINTING=0
+
+print_copyright() {
+  echo 'Copyright (C) 2022 Erik Auerswald'
+}
+
+print_version() {
+  printf -- '%s version %s\n' "${PROG}" "${VERSION}"
+}
+
+print_usage() {
+  printf -- 'Usage: %s { -h | -V | -L }\n' "$PROG"
+  printf -- '       %s [-f FILE] [HOST...]\n' "$PROG"
+}
+
+print_short_license() {
+  cat <<EOL
+License GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>.
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+EOL
+}
+
+print_license() {
+  cat <<EOL
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+EOL
+}
+
+print_help() {
+  print_version
+  print_copyright
+  print_short_license
+  echo
+  print_usage
+  cat <<EOH
+Options:
+  -h       print this help and exit
+  -V       print version information and exit
+  -L       print license and exit
+  -f FILE  read HOSTs from FILE (one HOST per line)
+Signals:
+  SIGUSR1  print current reachability status
+  SIGUSR2  stop all HOST monitors;
+           if a FILE is used, read current contents to add new HOST monitors
+EOH
+  cat <<EOD
+
+Check reachability of the given HOSTs with ICMP Echo, and report changes.
+HOSTs (e.g., IP addresses) can be provided as command line arguments,
+via FILE (one HOST per line), or via standard input (one HOST per line).
+Signals can be used to control program behavior.
+
+One HOST monitor process is started for every HOST provided during program
+invocation.  Running HOST monitors can be stopped.  If a FILE is used to
+provide (some of) the HOSTs, its current contents are used to start HOST
+monitors.
+
+When standard input is connected to a terminal, HOSTs can be added while
+$PROG is running by typing them in, one HOST per line.
+
+$PROG terminates after all HOST monitors have been stopped
+and there are no more new HOST monitors to start (i.e., either FILE is empty,
+FILE is no longer readable, or no FILE was given).
+
+EOD
+}
+
+# global variables used by each host monitor subshell (per subshell globals)
+declare HOST STATE
+
+# function usage: print_state
+print_state() {
+  case "$STATE" in
+    up)   echo "[$(date --iso-8601=seconds)] contact established: $HOST";;
+    down) echo "[$(date --iso-8601=seconds)] contact lost: $HOST";;
+  esac
+}
+
+# function usage: monitor_host HOST
+monitor_host() {
+  local CUR
+  HOST="$1"
+  STATE='unknown'
+  while true; do
+    ping "${PINGOPTS[@]}" "$HOST" >/dev/null 2>&1 && CUR='up' || CUR='down'
+    test "$CUR" != "$STATE" && { STATE="$CUR"; print_state; }
+    sleep 1
+  done
+}
+
+# function usage: add_host_monitor HOST
+add_host_monitor() {
+  local HOST
+  HOST="$1"
+  test -z "$HOST" && return
+  echo "[$(date --iso-8601=seconds)] adding monitor: $HOST"
+  (trap 'print_state' SIGUSR1; monitor_host "$HOST") &
+  PROCS[${#PROCS[@]}]=$!
+}
+
+# usage: read_hosts_from_file
+read_hosts_from_file() {
+  if test -n "$FILE" && test -r "$FILE"; then
+    while read -r IP; do
+      add_host_monitor "$IP"
+    done <"$FILE"
+  fi
+}
+
+# function usage: print_status
+print_status() {
+  PRINTING=1
+  echo "[$(date --iso-8601=seconds)] printing current state..."
+  for MONITOR in "${PROCS[@]}"; do
+    kill -SIGUSR1 "$MONITOR"
+  done
+  PRINTING=0
+}
+trap 'print_status' 'SIGUSR1'
+
+# function usage: stop_monitors
+stop_monitors() {
+  echo "[$(date --iso-8601=seconds)] stopping reachability monitors"
+  RELOADING=1
+  test ${#PROCS[@]} -gt 0 && { kill "${PROCS[@]}"; PROCS=(); }
+  read_hosts_from_file
+  RELOADING=0
+}
+trap 'stop_monitors' 'SIGUSR2'
+
+while getopts hVLf: OPT; do
+  case "$OPT" in
+    'h') print_help; exit 0;;
+    'V') print_version; print_copyright; print_short_license; exit 0;;
+    'L') print_version; print_copyright; echo; print_license; exit 0;;
+    'f') FILE="$OPTARG";;
+    '?') echo "$PROG: error: unknown option '$1'"; print_usage; exit 1;;
+    *)   echo "$PROG: error: getopts() failure"; exit 1;;
+  esac
+done
+shift $((OPTIND - 1))
+
+# the process ID is needed for program control via signals ---> print it
+echo "[$(date --iso-8601=seconds)] $PROG PID $$"
+trap 'echo "[$(date --iso-8601=seconds)] $PROG shutting down";' 'EXIT'
+
+# monitor HOSTs given as command line arguments
+if test "$#" -gt 0; then
+  while test $# -ge 1; do
+    add_host_monitor "$1"
+    shift
+  done
+fi
+
+# monitor HOSTs read from FILE
+read_hosts_from_file
+
+# read additional HOSTs from standard input (this keeps the program alive)
+while read -r IP; do
+  add_host_monitor "$IP"
+done
+
+# got EOF on standard input ---> need different method to keep program alive
+echo "[$(date --iso-8601=seconds)] standard input depleted"
+
+# keep program running despite signal actions
+while test ${#PROCS[@]} -gt 0 ||
+      test "$RELOADING" -eq 1 ||
+      test "$PRINTING" -eq 1; do
+  # sleep to make this busy loop less busy ;-)
+  sleep 1
+done
+
+wait
+exit 0
