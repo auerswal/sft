@@ -12,7 +12,7 @@
 # Synopsis: ping_wrapper [-n] host [timeout]
 # Version 2012-07-21-01
 OPTS='-c1'
-test "$1x" = "-nx" && { OPTS="$OPTS -n"; shift; }
+test "$1" = "-n" && { OPTS="$OPTS -n"; shift; }
 TIMEOUT=${2:-20}
 # shellcheck disable=SC2086
 ping $OPTS -W"$TIMEOUT" "$1" > /dev/null 2>&1 &&
