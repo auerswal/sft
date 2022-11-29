@@ -48,7 +48,7 @@ https://jodies.de/ipcalc or the `ipcalc` script from this collection.
   [Wayback Machine](https://web.archive.org/), unless they are already
   archived there
 * `capture.sh` - capture traffic on an interface for a given duration with
-  tcpdump
+  `tcpdump`
 * `checkzips` - check ZIP files for errors
 * `create_ipv6_ULA_global_prefix_random.sh` - create a random global prefix
   for IPv6 ULA addresses using `/dev/random`
@@ -90,7 +90,7 @@ https://jodies.de/ipcalc or the `ipcalc` script from this collection.
 * `macfmt.py` - alternative to the above `macfmt`, implemented in Python
   instead of Awk (mentioned on the `macfmt`
   [web page](https://www.unix-ag.uni-kl.de/~auerswal/macfmt/))
-* `net2ips` - print host addresses of an IPv4 network (uses ipcalc)
+* `net2ips` - print host addresses of an IPv4 network (uses `ipcalc`)
 * `net2ips.py` - print addresses of IPv4 and IPv6 networks, implemented in
   Python 3 based on the Python standard library (*stdlib*) module `ipaddress`
 * `netio-kshell-dos` - demonstrate TCP session cleanup bug
@@ -98,7 +98,7 @@ https://jodies.de/ipcalc or the `ipcalc` script from this collection.
 * `nfoview` - view NFO files on GNU/Linux
 * `ping_scan` - ping many hosts at once
   ([web page](https://www.unix-ag.uni-kl.de/~auerswal/ping_scan/))
-* `ping_wrapper` - wrapper around iputils ping for use with `ping_scan`
+* `ping_wrapper` - wrapper around iputils `ping` for use with `ping_scan`
   ([web page](https://www.unix-ag.uni-kl.de/~auerswal/ping_scan/))
 * `pmtud` - Path MTU discovery to given IP / HOSTNAME using ICMP Echo Request
   probes
@@ -122,7 +122,7 @@ https://jodies.de/ipcalc or the `ipcalc` script from this collection.
   [Go implementation of section](https://www.unix-ag.uni-kl.de/~auerswal/section/index.html)
   as well)
 * `section.py` - Python version of the above `section` script, for use on
-  systems without awk or Perl, but Python (see my more featureful
+  systems without Awk or Perl, but Python (see my more featureful
   [Go implementation of section](https://www.unix-ag.uni-kl.de/~auerswal/section/index.html)
   as well)
 * `slatel` - strip leading and trailing empty lines
@@ -131,7 +131,7 @@ https://jodies.de/ipcalc or the `ipcalc` script from this collection.
 * `total_video_duration` - print total run time of given video files
   (uses `ffprobe` from [FFmpeg](https://ffmpeg.org/))
 * `vevent_dump` - print a somewhat readable version of the essential information
-  inside an iCalendar (.ics) file to STDOUT (best effort only, not even trying
+  inside an iCalendar (`.ics`) file to STDOUT (best effort only, not even trying
   to parse the format...)
 * `vrp_output_to_yaml.awk` - convert log from command execution on Huawei VRP
   device into YAML encoded list of dictionaries each comprising an executed
