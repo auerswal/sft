@@ -74,7 +74,8 @@ called without any operands (neither options nor arguments).
   web page)
 * `ifstats` - print interface statistics (counters) on Linux
 * `interface_status` - query interface status of network devices via SNMP
-* `ipcalc` - simple replacement for [ipcalc](http://jodies.de/ipcalc)
+* `ipcalc` - simple replacement for the *jodies.de*
+   [IP Calculator](https://jodies.de/ipcalc) of the same name
 * `ipenum.py` - enumerate IPv4 and IPv6 addresses from the given ranges,
   ranges can be specified via start and end addresses, or in CIDR notation
   (implemented in Python 3 based on the Python standard library (*stdlib*)
