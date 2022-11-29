@@ -10,11 +10,15 @@
 # Wrapper for ping from "iputils" to report reachability only.
 # Intended for use with "ping_scan" script on GNU/Linux and similar systems.
 # Synopsis: ping_wrapper [-n] host [timeout]
-# Version 2012-07-21-01
+# Version 2022-11-29-01
 OPTS='-c1'
 test "$1" = "-n" && { OPTS="$OPTS -n"; shift; }
 TIMEOUT=${2:-20}
 # shellcheck disable=SC2086
-ping $OPTS -W"$TIMEOUT" "$1" > /dev/null 2>&1 &&
-  printf -- '%s is alive\n' "$1" ||
+if ping $OPTS -W"$TIMEOUT" "$1" > /dev/null 2>&1; then
+  printf -- '%s is alive\n' "$1"
+  exit 0
+else
   echo "no answer from $1"
+  exit 1
+fi
