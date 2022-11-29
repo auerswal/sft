@@ -38,6 +38,10 @@ Sometimes the tool supports a `-h` option to show help.
 Sometimes, if the tool is not a filter, it prints out a help screen if
 called without any operands (neither options nor arguments).
 
+Some of the tools complement each other.  E.g., `ping_wrapper` allows
+using `ping_scan` on GNU/Linux, and `net2ips` uses `ipcalc`, either
+https://jodies.de/ipcalc or the `ipcalc` script from this collection.
+
 ### List of Single File Tools
 
 * `archive_url` - archive the given URLs in the
