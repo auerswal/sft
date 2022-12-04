@@ -19,10 +19,15 @@
 set -e
 
 PROG="$(basename "$0")"
-VERSION='2022-11-28-01'
+VERSION='2022-12-04-01'
 
-# this needs to match the "ping" program used
-PINGOPTS=(-c1 -W1 -q -n)
+# different ping implementations require different options to send one probe
+# and wait at most 1s for an answer
+declare -A POPTS
+POPTS=( ['gnu']='-c1 -W1 -q -n'    ['freebsd']='-c1 -W1000 -q -n' \
+        ['netbsd']='-c1 -w1 -q -n' ['solaris']='-W1 -n' )
+# this is set later; needs to match the "ping" program used
+declare -a PINGOPTS
 
 # global state variables used in top-level shell
 declare -a PROCS
@@ -40,7 +45,7 @@ print_version() {
 
 print_usage() {
   printf -- 'Usage: %s { -h | -V | -L }\n' "$PROG"
-  printf -- '       %s [-f FILE] [HOST...]\n' "$PROG"
+  printf -- '       %s [-p KW] [-f FILE] [HOST...]\n' "$PROG"
 }
 
 print_short_license() {
@@ -80,6 +85,7 @@ Options:
   -V       print version information and exit
   -L       print license and exit
   -f FILE  read HOSTs from FILE (one HOST per line)
+  -p KW    choose ping option set named KW (use "list" for available keywords)
 Signals:
   SIGUSR1  print current reachability status
   SIGUSR2  stop all HOST monitors;
@@ -105,6 +111,31 @@ and there are no more new HOST monitors to start (i.e., either FILE is empty,
 FILE is no longer readable, or no FILE was given).
 
 EOD
+}
+
+# function usage: list_pingopts
+list_pingopts() {
+  echo 'accepted keywords to select ping options:'
+  for KW in "${!POPTS[@]}"; do
+    printf -- '  %-10s %s\n' "$KW" "${POPTS[$KW]}"
+  done
+}
+
+# function usage: set_pingopts NAME
+set_pingopts() {
+  local NAME KW TMP
+  NAME="$1"
+  if test "$NAME" = 'list'; then
+    list_pingopts
+    exit 0
+  fi
+  TMP=${POPTS["$NAME"]}
+  test -z "$TMP" && {
+    echo "$PROG: error: unknown ping option set '$NAME'"
+    list_pingopts
+    exit 1
+  }
+  read -r -a PINGOPTS <<<"$TMP"
 }
 
 # global variables used by each host monitor subshell (per subshell globals)
@@ -170,12 +201,17 @@ stop_monitors() {
 }
 trap 'stop_monitors' 'SIGUSR2'
 
-while getopts hVLf: OPT; do
+# set default values
+set_pingopts 'gnu'
+
+# evaluate command line options
+while getopts 'hVLf:p:' OPT; do
   case "$OPT" in
     'h') print_help; exit 0;;
     'V') print_version; print_copyright; print_short_license; exit 0;;
     'L') print_version; print_copyright; echo; print_license; exit 0;;
     'f') FILE="$OPTARG";;
+    'p') set_pingopts "$OPTARG";;
     '?') echo "$PROG: error: unknown option '$1'"; print_usage; exit 1;;
     *)   echo "$PROG: error: getopts() failure"; exit 1;;
   esac
