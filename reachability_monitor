@@ -184,7 +184,7 @@ shift $((OPTIND - 1))
 
 # the process ID is needed for program control via signals ---> print it
 echo "[$(date --iso-8601=seconds)] $PROG PID $$"
-trap 'echo "[$(date --iso-8601=seconds)] $PROG shutting down";' 'EXIT'
+trap 'echo "[$(date --iso-8601=seconds)] $PROG shutting down"' 'EXIT'
 
 # monitor HOSTs given as command line arguments
 if test "$#" -gt 0; then
