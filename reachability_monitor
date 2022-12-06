@@ -24,7 +24,7 @@ VERSION='2022-12-04-01'
 # different ping implementations require different options to send one probe
 # and wait at most 1s for an answer
 declare -A POPTS
-POPTS=( ['gnu']='-c1 -W1 -q -n'    ['freebsd']='-c1 -W1000 -q -n' \
+POPTS=( ['gnu']='-c1 -W1 -q -n'    ['freebsd']='-c1 -i0.1 -W900 -q -n' \
         ['netbsd']='-c1 -w1 -q -n' ['solaris']='-W1 -n' )
 # this is set later; needs to match the "ping" program used
 declare -a PINGOPTS
