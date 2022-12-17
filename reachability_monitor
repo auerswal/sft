@@ -19,7 +19,7 @@
 set -e
 
 PROG="$(basename "$0")"
-VERSION='2022-12-04-01'
+VERSION='2022-12-06-01'
 
 # different ping implementations require different options to send one probe
 # and wait at most 1s for an answer
