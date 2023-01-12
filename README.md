@@ -60,7 +60,9 @@ https://jodies.de/ipcalc or the `ipcalc` script from this collection.
   ([web page](https://www.unix-ag.uni-kl.de/~auerswal/dvdmovie/))
 * `enclosing-section` - print all enclosing sections containing a line
   matching a regular expression (inspired by the Huawei VRP output modifier
-  *section include*)
+  *section include*; see my more featureful
+  [Go implementation of section](https://www.unix-ag.uni-kl.de/~auerswal/section/index.html)
+  as well)
 * `ensure_bom_crlf` - Prepare a UTF-8 encoded POSIX text file for use on
   Windows by ensuring it starts with the UTF-8 encoded unicode code point
   U+FEFF "zero-width no-break space" (the old UCS-2 byte order mark (BOM)),
@@ -127,7 +129,10 @@ https://jodies.de/ipcalc or the `ipcalc` script from this collection.
   as well)
 * `slatel` - strip leading and trailing empty lines
 * `top-level-section` - print all top-level sections containing a line matching
-  a regular expression (inspired by the Arista EOS output modifier *section*)
+  a regular expression (inspired by the Arista EOS output modifier *section*;
+  see my more featureful
+  [Go implementation of section](https://www.unix-ag.uni-kl.de/~auerswal/section/index.html)
+  as well)
 * `total_video_duration` - print total run time of given video files
   (uses `ffprobe` from [FFmpeg](https://ffmpeg.org/))
 * `vevent_dump` - print a somewhat readable version of the essential information
