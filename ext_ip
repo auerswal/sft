@@ -1,4 +1,4 @@
-#! /bin/sh
+#! /bin/bash
 
 # Print externally visible IPv4 and IPv6 addresses.
 #
@@ -9,16 +9,40 @@
 # notice and this notice are preserved.  This file is offered as-is,
 # without any warranty.
 
-# get the current IPv4 address using DynDNS
-IPv4=$(lynx -dump -nolist http://checkip.dyndns.com/ 2> /dev/null | \
+set -u
+
+HAVE_LYNX=''
+HAVE_WGET=''
+declare -a LYNX WGET
+# use lynx to create text from HTML
+if command -v lynx >/dev/null; then
+  LYNX=('lynx' '-dump' '-nolist')
+  HAVE_LYNX='lynx'
+  WGET=('lynx' '-dump' '-nolist')
+  HAVE_WGET='lynx'
+fi
+# icanhazip works with wget and curl, too
+if command -v wget >/dev/null; then
+  WGET=('wget' '-q' '-O-')
+  HAVE_WGET='wget'
+elif command -v curl >/dev/null; then
+  WGET=('curl')
+  HAVE_WGET='curl'
+fi
+
+# get the current IPv4 address using DynDNS (returns HTML)
+IPv4=''
+test -n "$HAVE_LYNX" && IPv4=$("${LYNX[@]}" http://checkip.dyndns.com/ 2> /dev/null | \
        sed -n -E 's/^.*[^0-9]([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}).*$/\1/p'&)
 
-# transparently get the IPv6 or IPv4 address using icanhazip
-IPv46=$(lynx -dump -nolist https://icanhazip.com/ \
+# transparently get the IPv6 or IPv4 address using icanhazip (returns text)
+IPv46=''
+test -n "$HAVE_WGET" && IPv46=$("${WGET[@]}" https://icanhazip.com/ \
        2> /dev/null | sed -nE 's/^[[:space:]]*([0-9a-f:.]+)[[:space:]]*$/\1/p'&)
 
-# get the current IPv6 address using manitu
-IPv6=$(lynx -dump -nolist http://wie-ist-meine-ipv6-adresse.de/ \
+# get the current IPv6 address using manitu (returns HTML)
+IPv6=''
+test -n "$HAVE_LYNX" && IPv6=$("${LYNX[@]}" http://wie-ist-meine-ipv6-adresse.de/ \
        2> /dev/null | sed -nE 's/^[[:space:]]*([0-9a-f:]+)[[:space:]]*$/\1/p'&)
 
 wait
@@ -27,4 +51,5 @@ test -n "$IPv4" && echo "Current IPv4 address (DynDNS): $IPv4"
 test -n "$IPv46" && echo "Current IPv4 or IPv6 address (icanhazip): $IPv46"
 test -n "$IPv6" && echo "Current IPv6 address (manitu): $IPv6"
 
+test -z "$IPv4" && test -z "$IPv46" && test -z "$IPv6" && exit 1
 exit 0
