@@ -109,7 +109,6 @@ https://jodies.de/ipcalc or the `ipcalc` script from this collection.
   to work with image streams
   ([web page](https://www.unix-ag.uni-kl.de/~auerswal/netpbm/index.html))
 * `priv_pass.py` - calculate ROMMON priv password for (some) Cisco routers
-* `reachability_monitor` - Check a set of hosts with ICMP and report changes
 * `renumber` - renumber a set of discontiguously numbered files
 * `rfc-reader` - read IETF RFCs and I-Ds on GNU/Linux
   ([web page](https://www.unix-ag.uni-kl.de/~auerswal/rfc-reader/))
