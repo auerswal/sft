@@ -1,6 +1,6 @@
 #! /bin/bash
 
-# Copyright (C) 2011-2022 Erik Auerswald <auerswal@unix-ag.uni-kl.de>
+# Copyright (C) 2011-2023 Erik Auerswald <auerswal@unix-ag.uni-kl.de>
 
 # Copying and distribution of this file, with or without modification,
 # are permitted in any medium without royalty provided the copyright
@@ -68,12 +68,12 @@ done
 
 copyright()
 {
-  echo 'Copyright (C) 2011-2022 Erik Auerswald <auerswal@unix-ag.uni-kl.de>'
+  echo 'Copyright (C) 2011-2023 Erik Auerswald <auerswal@unix-ag.uni-kl.de>'
 }
 
 version()
 {
-  local V="0.63"
+  local V="0.64"
   printf -- "%s\n" "$B version $V"
 }
 
@@ -407,7 +407,8 @@ awk '/\014/{exit 1}' "$F" && {
     printf -- '%s: WARN: no Form Feed characters in RFC/I-D "%s"\n' "$B" "$R"
   PAGINATED=0
   case "$P" in
-    less|more|most) PO="$PO -s";;
+    more|less) PO="$PO -s -c";;
+    most) PO="$PO -s";;
   esac
 }
 test -z "$DISPLAY" && test "$PAGINATED" -eq '1' && {
