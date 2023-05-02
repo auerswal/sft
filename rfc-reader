@@ -73,7 +73,7 @@ copyright()
 
 version()
 {
-  local V="0.64"
+  local V="0.65"
   printf -- "%s\n" "$B version $V"
 }
 
@@ -326,6 +326,20 @@ PSL='1'
 PA='0'
 test "$P" = 'most' && PSL='2' PA='1'
 
+# check if RFC / I-D is paginated (i.e., contains Form Feeds)
+PAGINATED=1
+awk '/\014/{exit 1}' "$F" && {
+  # do not warn about current RFCs w/o pagination
+  test "$DT" = 'rfc' && test "$DN" -ge 8650 || \
+    printf -- '%s: WARN: no Form Feed characters in RFC/I-D "%s"\n' "$B" "$R"
+  PAGINATED=0
+  # adjust pager options to unpaginated text
+  case "$P" in
+    more|less) PO="$PO -s -c";;
+    most) PO="$PO -s";;
+  esac
+}
+
 # find a usable terminal emulator program or disable X Window System use
 DISPLAY=${DISPLAY:=}
 test -n "$DISPLAY" && {
@@ -401,16 +415,6 @@ test -n "$DISPLAY" && {
 }
 
 # use current terminal if X Window System is not usable
-PAGINATED=1
-awk '/\014/{exit 1}' "$F" && {
-  test "$DT" = 'rfc' && test "$DN" -ge 8650 || \
-    printf -- '%s: WARN: no Form Feed characters in RFC/I-D "%s"\n' "$B" "$R"
-  PAGINATED=0
-  case "$P" in
-    more|less) PO="$PO -s -c";;
-    most) PO="$PO -s";;
-  esac
-}
 test -z "$DISPLAY" && test "$PAGINATED" -eq '1' && {
   # check terminal size
   TL="${TL:=${LINES:=}}"
