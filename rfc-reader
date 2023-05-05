@@ -73,7 +73,7 @@ copyright()
 
 version()
 {
-  local V="0.65"
+  local V="0.66"
   printf -- "%s\n" "$B version $V"
 }
 
@@ -234,8 +234,8 @@ test -z "$DN" && {
 }
 R="${DT}${DN}.txt"
 case "$DT" in
-  rfc) DB='http://www.rfc-editor.org/rfc/';;
-  bcp|fyi|ien|std) DB="http://www.rfc-editor.org/rfc/${DT}/";;
+  rfc) DB='https://www.rfc-editor.org/rfc/';;
+  bcp|fyi|ien|std) DB="https://www.rfc-editor.org/rfc/${DT}/";;
   draft|I-D) DB='https://www.ietf.org/archive/id/'; R="${DN}.txt";;
   *) printf -- '%s: ERROR: unknown document type "%s"\n' "$B" "$DT"
      usage
