@@ -35,6 +35,8 @@
 # - RFC 995 is not formatted well by rfc-reader
 #   - lines of the RFC are too long
 #   -> workaround: env C=79 rfc-reader 995
+# - RFC 1142 is not paginated, but contains lots of stray Form Feed characters,
+#   thus rfc-reader cannot format it well
 # - RFC 1347 is not formatted well by rfc-reader
 #   - lines of the RFC are too long
 #   - pages of the RFC are too long
