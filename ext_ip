@@ -47,9 +47,9 @@ test -n "$HAVE_LYNX" && IPv6=$("${LYNX[@]}" https://wie-ist-meine-ipv6-adresse.d
 
 wait
 
-test -n "$IPv4" && echo "Current IPv4 address (DynDNS): $IPv4"
-test -n "$IPv46" && echo "Current IPv4 or IPv6 address (icanhazip): $IPv46"
-test -n "$IPv6" && echo "Current IPv6 address (manitu): $IPv6"
+test -n "$IPv4" && echo "IPv4 address (DynDNS): $IPv4"
+test -n "$IPv46" && echo "IPv4 or IPv6 address (icanhazip): $IPv46"
+test -n "$IPv6" && echo "IPv6 address (manitu): $IPv6"
 
 test -z "$IPv4" && test -z "$IPv46" && test -z "$IPv6" && exit 1
 exit 0
