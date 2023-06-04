@@ -2,18 +2,19 @@
 
 # Create somewhat readable output from ICS (or similar) files.
 
-# Copyright (C) 2017-2021 Erik Auerswald <auerswal@unix-ag.uni-kl.de>
+# Copyright (C) 2017-2023 Erik Auerswald <auerswal@unix-ag.uni-kl.de>
 
 # Copying and distribution of this file, with or without modification,
 # are permitted in any medium without royalty provided the copyright
 # notice and this notice are preserved.  This file is offered as-is,
 # without any warranty.
 
-# Version 2021-04-13-01
+# Version 2023-06-04-01
 
-for c in "$@"; do
-  printf -- '========[ %s ]========\n' "$c"
-  sed -n '/BEGIN:VEVENT/,/END:VEVENT/p' "$c" \
+process_event_data() {
+  test $# -eq 0 && FILE='-' NAME='standard input' || FILE=$1 NAME=$1
+  printf -- '========[ %s ]========\n' "$NAME"
+  sed -n '/BEGIN:VEVENT/,/END:VEVENT/p' "$FILE" \
   | sed -e '/BEGIN:VALARM/,/END:VALARM/d' \
         -e '/^[[:space:]]*X-MS-OLK/d' \
         -e 's/\r$//' \
@@ -33,4 +34,12 @@ for c in "$@"; do
         -e '/DESCRIPTION/s/^[^:]*:(.*)$/----=[ start description ]=----\n\1\n-----=[ end description ]=-----/p' \
         -e '/LOCATION/s/^[^:]*:(.*)$/Location: \1/p' \
   | sed 's/\\,/,/g;s/\\n/\n/g'
-done
+}
+
+if test $# -eq 0; then
+  process_event_data
+else
+  for F in "$@"; do
+    process_event_data "$F"
+  done
+fi
