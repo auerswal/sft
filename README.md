@@ -82,7 +82,7 @@ https://jodies.de/ipcalc or the `ipcalc` script from this collection.
 * `interface_status` - query interface status of network devices via SNMP
 * `ipcalc` - simple replacement for the *jodies.de*
    [IP Calculator](https://jodies.de/ipcalc) of the same name
-* `ipenum.py` - enumerate IPv4 and IPv6 addresses from the given ranges,
+* `ipenum.py` - enumerate IPv4 and IPv6 addresses from the given ranges;
   ranges can be specified via start and end addresses, or in CIDR notation
   (implemented in Python 3 based on the Python standard library (*stdlib*)
   modules `ipaddress` and `re`)
@@ -93,8 +93,9 @@ https://jodies.de/ipcalc or the `ipcalc` script from this collection.
   instead of Awk (mentioned on the `macfmt`
   [web page](https://www.unix-ag.uni-kl.de/~auerswal/macfmt/))
 * `net2ips` - print host addresses of an IPv4 network (uses `ipcalc`)
-* `net2ips.py` - print addresses of IPv4 and IPv6 networks, implemented in
-  Python 3 based on the Python standard library (*stdlib*) module `ipaddress`
+* `net2ips.py` - print addresses of IPv4 and IPv6 networks given in CIDR
+   notation, implemented in Python 3 based on the Python standard library
+   (*stdlib*) module `ipaddress`
 * `netio-kshell-dos` - demonstrate TCP session cleanup bug
   ([web page](https://www.unix-ag.uni-kl.de/~auerswal/netio-kshell-bug/))
 * `nfoview` - view NFO files on GNU/Linux
