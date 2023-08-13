@@ -4,7 +4,7 @@ set -u
 
 # Simplistic Path MTU Discovery using ICMP Echo Request probes.
 #
-# Copyright (C) 2017-2022 Erik Auerswald <auerswal@unix-ag.uni-kl.de>
+# Copyright (C) 2017-2023 Erik Auerswald <auerswal@unix-ag.uni-kl.de>
 #
 # Copying and distribution of this file, with or without modification,
 # are permitted in any medium without royalty provided the copyright
@@ -22,7 +22,7 @@ set -u
 # shall prevent local fragmentation. Thus the results of this program
 # may be wrong if an IPv6 end point is specified.
 
-VERSION='2022-10-22-03'
+VERSION='2023-08-13-01'
 PROG="$(basename "$0")"
 ALGO='binary'
 AF=''
@@ -41,7 +41,7 @@ version() { echo "$PROG version $VERSION"; }
 
 copyright()
 {
-  echo 'Copyright (C) 2017-2022 Erik Auerswald <auerswal@unix-ag.uni-kl.de>'
+  echo 'Copyright (C) 2017-2023 Erik Auerswald <auerswal@unix-ag.uni-kl.de>'
 }
 
 license()
@@ -96,6 +96,9 @@ Options:
 
 Plateau search uses the following values:
   ${TABLE}
+
+Options for plateau search with the Source Routing Bridges largest frame values:
+  -p -P '65535 17800 11407 4472 2052 1500 516'
 EOF
 }
 
