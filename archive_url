@@ -20,7 +20,7 @@ set -u
 set -e
 
 PROG=archive_url
-VERSION='2023-11-02-01'
+VERSION='2023-11-02-02'
 FORCE=0
 DRYRUN=0
 QUIET=0
@@ -113,8 +113,9 @@ add_jitter() {
   if command -v 'shuf' >/dev/null; then
     WAITINT=${WAITTIME%%.*}
     WAITMAX=$((WAITINT / 5))
-    JITTER=$(shuf -i"0-${WAITMAX}" -n1)
-    echo "$((WAITINT + JITTER))"
+    JITTERINT=$(shuf -i"0-${WAITMAX}" -n1)
+    JITTERFRAC=$(shuf -i"0-${WAITINT}" -n1)
+    echo "$((WAITINT + JITTERINT)).${JITTERFRAC}"
   else
     echo "$WAITTIME"
   fi
