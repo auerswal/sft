@@ -20,7 +20,7 @@ set -u
 set -e
 
 PROG=archive_url
-VERSION='2023-11-02-03'
+VERSION='2023-11-02-04'
 FORCE=0
 DRYRUN=0
 QUIET=0
@@ -88,7 +88,7 @@ Options:
   -V       print version information and exit
   -L       print license and exit
   -f       save URLs without checking
-  -n       check URLs only, but do not archive
+  -n       check URLs only, but do not archive (dry run)
   -q       suppress error messages and wget output
   -v       print URL that is processed next
   -w TIME  wait at least TIME seconds after each URL (default $WAITTIME)
@@ -151,9 +151,13 @@ shift $((OPTIND - 1))
 check_and_archive_url()
 {
   URL="$1"
-  verb_no_nl "Checking ${URL} ..."
-  test "$FORCE" -eq 1 && STATUS='false' ||
+  if test "$FORCE" -eq 0; then
+    verb_no_nl "Checking ${URL} ..."
     STATUS="$(wget -q -O- -- "${CHECK}${URL}" | jq '.archived_snapshots != {}')"
+  else
+    verb_no_nl "Forcing ${URL} ..."
+    STATUS='false'
+  fi
   if test "$STATUS" = 'true'; then
     verb_nl ' archived'
   else
@@ -162,7 +166,7 @@ check_and_archive_url()
       wget "$WGETVERB" -O/dev/null -- "${ARCHIVE}${URL}" ||
         err 'error archiving URL'
     else
-      verb_nl ' not archived'
+      verb_nl ' not archived (dry run)'
     fi
   fi
 }
