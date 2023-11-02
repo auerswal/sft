@@ -20,13 +20,14 @@ set -u
 set -e
 
 PROG=archive_url
-VERSION='2023-11-02-02'
+VERSION='2023-11-02-03'
 FORCE=0
 DRYRUN=0
 QUIET=0
 VERBOSE=0
 WAIT=''
 WAITTIME=5
+JITTERWAIT=0
 WGETVERB='-nv'
 CHECK='https://archive.org/wayback/available?url='
 ARCHIVE='https://web.archive.org/save/'
@@ -44,7 +45,7 @@ print_version()
 print_usage()
 {
   printf -- '%s { -h | -V | -L }\n' "$PROG"
-  printf -- '%s [-f] [-n] [-q] [-v] [-w TIME] [URL...]\n' "$PROG"
+  printf -- '%s [-f] [-n] [-q] [-v] [-w TIME] [-r] [URL...]\n' "$PROG"
 }
 
 print_license()
@@ -91,6 +92,7 @@ Options:
   -q       suppress error messages and wget output
   -v       print URL that is processed next
   -w TIME  wait at least TIME seconds after each URL (default $WAITTIME)
+  -r       randomize wait time between URLs
 EOH
 }
 
@@ -122,13 +124,14 @@ add_jitter() {
 }
 
 do_wait() {
-  REALWAIT=$(add_jitter)
+  REALWAIT="$WAITTIME"
+  test "$JITTERWAIT" -eq 1 && REALWAIT=$(add_jitter)
   verb_no_nl 'waiting' "$REALWAIT" 'seconds ...'
   sleep -- "$REALWAIT"
   verb_nl ' done'
 }
 
-while getopts hVLfnqvw: OPT; do
+while getopts hVLfnqvw:r OPT; do
   case "$OPT" in
     'h') print_help; exit 0;;
     'V') print_version; print_copyright; exit 0;;
@@ -138,6 +141,7 @@ while getopts hVLfnqvw: OPT; do
     'q') QUIET=1 WGETVERB='-q';;
     'v') VERBOSE=1;;
     'w') WAITTIME="$OPTARG";;
+    'r') JITTERWAIT=1;;
     '?') echo "$PROG: error: unknown option '$1'"; print_usage; exit 1;;
     *)   echo "$PROG: error: getopts() failure"; exit 1;;
   esac
