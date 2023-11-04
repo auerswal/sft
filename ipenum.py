@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
 
 # ipenum.py - enumerate IP addresses
-# Copyright (C) 2022  Erik Auerswald <auerswal@unix-ag.uni-kl.de>
+# Copyright (C) 2022-2023  Erik Auerswald <auerswal@unix-ag.uni-kl.de>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -15,8 +15,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-# Note: doctests require Python 3 (python3 -m doctest macfmt.py)
 
 """Print IP addresses, one per line.
 
@@ -31,8 +29,8 @@ import re
 import sys
 
 PROG = 'ipenum.py'
-VERS = '0.4.1'
-COPY = 'Copyright (C) 2022  Erik Auerswald <auerswal@unix-ag.uni-kl.de>'
+VERS = '0.4.2'
+COPY = 'Copyright (C) 2022-2023  Erik Auerswald <auerswal@unix-ag.uni-kl.de>'
 LICE = '''\
 License GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>.
 This is free software: you are free to change and redistribute it.
