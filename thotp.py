@@ -50,8 +50,6 @@ EPIL = '''\
 Whithout a COUNTER value, the TOTP algorithm is used.
 '''
 
-DEBUG = False
-
 
 def cmd_line_args():
     """Parse command line arguments."""
@@ -61,8 +59,6 @@ def cmd_line_args():
     )
     cmd_line.add_argument('-V', '--version', action='version',
                           version='\n'.join([PROG + ' ' + VERS, COPY, LICE]))
-    cmd_line.add_argument('-D', '--debug', action='store_true',
-                          help='emit debug information')
     cmd_line.add_argument('-f', '--file', default='/dev/stdin',
                           help='read secret key from file instead of ' +
                                'standard input')
@@ -81,12 +77,6 @@ def cmd_line_args():
                           help='number of digits in one-time password ' +
                                '(default: 6)')
     return cmd_line.parse_args()
-
-
-def dbg(msg):
-    """Print debug information to standard error."""
-    if DEBUG:
-        print(f'{PROG}: DEBUG:', msg, file=sys.stderr)
 
 
 def warn(msg):
@@ -368,8 +358,6 @@ def main():
 
 if __name__ == '__main__':
     ARGS = cmd_line_args()
-    if ARGS.debug:
-        DEBUG = True
     sys.exit(main())
 
 # vim:tabstop=4:shiftwidth=4:expandtab:
