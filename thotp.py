@@ -90,6 +90,7 @@ def err(msg):
 
 
 def valid_settings(settings):
+    """Check for acceptable option values not guaranteed by argparse."""
     if settings.time_step_size <= 0:
         err('time-step duration must be greater than 0')
         return False
@@ -105,6 +106,7 @@ def valid_settings(settings):
 
 
 def read_secret_key(file_name):
+    """Read the shared secret key from a file."""
     key = b''
     with open(file_name, mode='rb') as key_file:
         while buf := key_file.read():
@@ -114,6 +116,7 @@ def read_secret_key(file_name):
 
 
 def decode_key(key, encoding):
+    """Decode an encoded shared secret key."""
     if encoding is None:
         return key
     elif encoding == 'hex':
@@ -346,6 +349,7 @@ def compute_hotp_code(secret_key, counter_value, hash_algorithm, digits):
 
 
 def main():
+    """Script entry point."""
     if not valid_settings(ARGS):
         return 1
     key = read_secret_key(ARGS.file)
