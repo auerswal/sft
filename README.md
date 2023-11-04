@@ -128,6 +128,9 @@ https://jodies.de/ipcalc or the `ipcalc` script from this collection.
   [Go implementation of section](https://www.unix-ag.uni-kl.de/~auerswal/section/index.html)
   as well)
 * `slatel` - strip leading and trailing empty lines
+* `thotp.py` - compute one-time passwords using the
+  HOTP ([RFC 4226](https://www.rfc-editor.org/rfc/rfc4226.html)) or
+  TOTP ([RFC 6238](https://www.rfc-editor.org/rfc/rfc6238.html)) algorithms
 * `top-level-section` - print all top-level sections containing a line matching
   a regular expression (inspired by the Arista EOS output modifier *section*;
   see my more featureful
