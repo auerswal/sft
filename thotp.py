@@ -38,16 +38,26 @@ import sys
 import time
 
 PROG = 'thotp.py'
-VERS = '0.1.1'
+VERS = '0.1.2'
 COPY = 'Copyright (C) 2023  Erik Auerswald <auerswal@unix-ag.uni-kl.de>'
 LICE = '''\
 License GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>.
 This is free software: you are free to change and redistribute it.
 There is NO WARRANTY, to the extent permitted by law.
 '''
-DESC = 'Generate a one-time password using the HOTP or TOTP algorithm.'
-EPIL = '''\
-Whithout a COUNTER value, the TOTP algorithm is used.
+DESC = '''\
+Compute a one-time password using either the HOTP or the TOTP algorithm.
+The HOTP algorithm is selected by providing a counter value.  Without a
+counter value, the TOTP algorithm is used.  TOTP computes a tome-based
+counter value, and then invokes HOTP with this counter.
+
+The shared secret keys used for two-factor or multi-factor authentication
+are often encoded for transfer, e.g., using hex (Base16) or Base32.
+'''
+EPIL = f'''\
+Example:
+    # compute TOTP code from GPG-encrypted raw shared secret key
+    $ gpg --decrypt --quiet ~/.totp-secret | {PROG}
 '''
 
 
@@ -60,8 +70,8 @@ def cmd_line_args():
     cmd_line.add_argument('-V', '--version', action='version',
                           version='\n'.join([PROG + ' ' + VERS, COPY, LICE]))
     cmd_line.add_argument('-f', '--file', default='/dev/stdin',
-                          help='read secret key from file instead of ' +
-                               'standard input')
+                          help='read shared secret key from file ' +
+                               '(default: /dev/stdin)')
     cmd_line.add_argument('-c', '--counter', type=int,
                           help='counter value for HOTP algorithm')
     cmd_line.add_argument('-e', '--key-encoding', choices=['hex', 'base32'],
