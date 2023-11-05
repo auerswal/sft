@@ -38,7 +38,7 @@ import sys
 import time
 
 PROG = 'thotp.py'
-VERS = '0.1.2'
+VERS = '0.2.0'
 COPY = 'Copyright (C) 2023  Erik Auerswald <auerswal@unix-ag.uni-kl.de>'
 LICE = '''\
 License GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>.
@@ -74,7 +74,8 @@ def cmd_line_args():
                                '(default: /dev/stdin)')
     cmd_line.add_argument('-c', '--counter', type=int,
                           help='counter value for HOTP algorithm')
-    cmd_line.add_argument('-e', '--key-encoding', choices=['hex', 'base32'],
+    cmd_line.add_argument('-e', '--key-encoding',
+                          choices=['hex', 'base32', 'base64'],
                           help='provided secret key is encoded')
     cmd_line.add_argument('-s', '--time-step-size', type=int, default=30,
                           help='TOTP time-step duration in seconds ' +
@@ -133,6 +134,8 @@ def decode_key(key, encoding):
         return base64.b16decode(key)
     elif encoding == 'base32':
         return base64.b32decode(key)
+    elif encoding == 'base64':
+        return base64.b64decode(key)
     else:
         err(f'unknown key encoding "{encoding}"')
         return None
