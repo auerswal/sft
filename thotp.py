@@ -38,7 +38,7 @@ import sys
 import time
 
 PROG = 'thotp.py'
-VERS = '0.2.0'
+VERS = '0.2.1'
 COPY = 'Copyright (C) 2023  Erik Auerswald <auerswal@unix-ag.uni-kl.de>'
 LICE = '''\
 License GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>.
@@ -46,13 +46,30 @@ This is free software: you are free to change and redistribute it.
 There is NO WARRANTY, to the extent permitted by law.
 '''
 DESC = '''\
-Compute a one-time password using either the HOTP or the TOTP algorithm.
+Compute a one-time password using either the HOTP (see RFC 4226) or the
+TOTP (see RFC 6238) algorithm.
+
 The HOTP algorithm is selected by providing a counter value.  Without a
-counter value, the TOTP algorithm is used.  TOTP computes a tome-based
+counter value, the TOTP algorithm is used.  TOTP computes a time-based
 counter value, and then invokes HOTP with this counter.
 
 The shared secret keys used for two-factor or multi-factor authentication
-are often encoded for transfer, e.g., using hex (Base16) or Base32.
+are often encoded for transfer, e.g., using Base32.
+
+OTP parameters are often conveyed using a URI encoded as a QR code.  The
+URI uses the "otpauth" scheme provisionally registered with IANA:
+
+    otpauth://TYPE/LABEL?PARAMETERS
+
+ - The type is either hotp or totp.
+ - The label identifys the associated account.
+ - The following parameters can be used:
+    - secret: Base32 encoded shared secret key (required)
+    - issuer: string indicating the associated service (recommended)
+    - algorithm: SHA1 (default), SHA256, or SHA512 (optional)
+    - digits: 6 (default), 7, or 8 (optional)
+    - period: time-step duration in seconds, default 30 (optional, TOTP only)
+    - counter: initial counter value for HOTP (required, HOTP only)
 '''
 EPIL = f'''\
 Example:
