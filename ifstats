@@ -2,7 +2,7 @@
 
 # ifstats - print interface statistics (counters) on Linux
 #
-# Copyright (C) 2017 by Erik Auerswald <auerswal@unix-ag.uni-kl.de>
+# Copyright (C) 2017,2024 by Erik Auerswald <auerswal@unix-ag.uni-kl.de>
 #
 # Copying and distribution of this file, with or without modification,
 # are permitted in any medium without royalty provided the copyright
@@ -11,8 +11,8 @@
 
 set -u
 
-PROG="$(basename $0)"
-VERSION='2017-04-08-03'
+PROG="$(basename "$0")"
+VERSION='2024-01-24-01'
 
 print_version()
 {
@@ -21,7 +21,7 @@ print_version()
 
 print_copyright()
 {
-  echo 'Copyright (C) 2017 by Erik Auerswald <auerswal@unix-ag.uni-kl.de>'
+  echo 'Copyright (C) 2017,2024 by Erik Auerswald <auerswal@unix-ag.uni-kl.de>'
 }
 
 print_license()
@@ -81,7 +81,7 @@ while getopts hVLn OPT; do
     *) echo "${PROG}: error: getopts() failure"; exit 1;;
   esac
 done
-shift $(($OPTIND - 1))
+shift $((OPTIND - 1))
 
 cd "${SYS_CLASS_NET}"
 
@@ -92,7 +92,7 @@ for i in ${ifnames}; do
     { echo "% error: no interface ${i}"; EXITCODE=1 continue; }
   echo "interface ${i}:"
   cd "${i}/statistics"
-  grep ${GREPOPTS} "${GREPPAT}" * | sed 's/^/  /;s/:\([0-9]\)/: \1/'
+  grep ${GREPOPTS} -- "${GREPPAT}" * | sed 's/^/  /;s/:\([0-9]\)/: \1/'
   cd "${SYS_CLASS_NET}"
 done
 
