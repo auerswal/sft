@@ -1,6 +1,6 @@
 #! /bin/bash
 
-# Copyright (C) 2011-2023 Erik Auerswald <auerswal@unix-ag.uni-kl.de>
+# Copyright (C) 2011-2024 Erik Auerswald <auerswal@unix-ag.uni-kl.de>
 
 # Copying and distribution of this file, with or without modification,
 # are permitted in any medium without royalty provided the copyright
@@ -70,12 +70,12 @@ done
 
 copyright()
 {
-  echo 'Copyright (C) 2011-2023 Erik Auerswald <auerswal@unix-ag.uni-kl.de>'
+  echo 'Copyright (C) 2011-2024 Erik Auerswald <auerswal@unix-ag.uni-kl.de>'
 }
 
 version()
 {
-  local V="0.66"
+  local V="0.67"
   printf -- "%s\n" "$B version $V"
 }
 
@@ -205,7 +205,7 @@ case "$DT" in
 esac
 # determine latest I-D version number if I-D name w/o number was provided
 IDLST='all_id.txt'
-IDLSTBS='https://www.ietf.org/archive/id'
+IDLSTBS='https://www.ietf.org/id'
 test -z "$DN" && { test "$DT" = 'draft' || test "$DT" = 'I-D'; } &&
   printf -- '%s: determining latest version of %s ... ' "$B" "$DOC" &&
   if test \( -n "$RFCCACHE" \) -a \( -d "$RFCCACHE" \) -a \( -w "$RFCCACHE" \)
