@@ -4,7 +4,7 @@ set -u
 
 # Simplistic Path MTU Discovery using ICMP Echo Request probes.
 #
-# Copyright (C) 2017-2023 Erik Auerswald <auerswal@unix-ag.uni-kl.de>
+# Copyright (C) 2017-2024 Erik Auerswald <auerswal@unix-ag.uni-kl.de>
 #
 # Copying and distribution of this file, with or without modification,
 # are permitted in any medium without royalty provided the copyright
@@ -22,7 +22,7 @@ set -u
 # shall prevent local fragmentation. Thus the results of this program
 # may be wrong if an IPv6 end point is specified.
 
-VERSION='2023-08-13-01'
+VERSION='2024-02-09-01'
 PROG="$(basename "$0")"
 ALGO='binary'
 AF=''
@@ -41,7 +41,7 @@ version() { echo "$PROG version $VERSION"; }
 
 copyright()
 {
-  echo 'Copyright (C) 2017-2023 Erik Auerswald <auerswal@unix-ag.uni-kl.de>'
+  echo 'Copyright (C) 2017-2024 Erik Auerswald <auerswal@unix-ag.uni-kl.de>'
 }
 
 license()
@@ -72,9 +72,12 @@ The $ALGO search strategy is used by default.
 The upper search limit is automatically determined by using the current
 interface MTU of the outgoing interface, if possible, unless given
 via option.
-The result may be wrong (i.e. too low) if network or target host limit
-ICMP Echo Request packet size, or if the probes are sent faster than a
-rate limit in network or target host allows.
+The result may be too low, if network or target host limit ICMP Echo
+Request packet size, or if the probes are sent faster than a rate limit
+in network or target host allows.
+The result may be too high, if probe packets are fragmented on the
+sending host.  The default ping program in some older Debian versions
+had this problem for IPv6.
 
 Options:
   -h            print this help and exit
@@ -97,8 +100,15 @@ Options:
 Plateau search uses the following values:
   ${TABLE}
 
-Options for plateau search with the Source Routing Bridges largest frame values:
-  -p -P '65535 17800 11407 4472 2052 1500 516'
+Different sources provide different plateau search table contents.
+The built-in plateau table probably uses too many different values.
+
+ - Source Routing Bridges largest frame values:
+    -p -P '65535 17800 11407 4472 2052 1500 516'
+ - RFC 1191, Path MTU Discovery:
+    -p -P '65535 32000 17914 8166 4352 2002 1492 1006 508 296 68'
+ - LWN article "So you think you understand IP fragmentation?":
+    -p -P '9000 8000 1500 1400 1280'
 EOF
 }
 
