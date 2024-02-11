@@ -22,7 +22,7 @@ set -u
 # shall prevent local fragmentation. Thus the results of this program
 # may be wrong if an IPv6 end point is specified.
 
-VERSION='2024-02-11-01'
+VERSION='2024-02-11-02'
 PROG="$(basename "$0")"
 ALGO='binary'
 AF=''
@@ -248,11 +248,8 @@ EOF
   else
     VALUES=$(seq "$MAX" -"$INCREMENT" "$MIN")
   fi
-  for S in $VALUES; do
-    printf -- '[.] sending %s bytes probe\r' "$S" 1>&3
-    send_probe "$S" "$TARGET" &
-    sleep "$WAIT"
-  done | sort -n | sed -n '$s/^\(.*\)$/[+] IP PMTU is \1 bytes/p'
+  # shellcheck disable=SC2086
+  probe_values $VALUES | sed -n '$s/^\(.*\)$/[+] IP PMTU is \1 bytes/p'
   echo '[+] all probes returned or timed out' 1>&3
 }
 
@@ -266,15 +263,21 @@ plateau()
 [-] using $PROBETIMEOUT seconds timeout for unsuccessful probes
 EOF
 
-  for S in $TABLE; do
+  # shellcheck disable=SC2086
+  probe_values $TABLE |
+    sed -n '$s/^\(.*\)$/[+] plateau estimate for IP PMTU is \1 bytes/p'
+  echo '[+] all probes returned or timed out' 1>&3
+}
+
+probe_values()
+{
+  for S in "$@"; do
     test "$S" -gt "$MAX" && continue
     test "$S" -lt "$MIN" && continue
     printf -- '[.] sending %s bytes probe   \r' "$S" 1>&3
     send_probe "$S" "$TARGET" &
     sleep "$WAIT"
-  done | sort -n | \
-    sed -n '$s/^\(.*\)$/[+] plateau estimate for IP PMTU is \1 bytes/p'
-  echo '[+] all probes returned or timed out' 1>&3
+  done | sort -n
 }
 
 PMTU=$("$ALGO")
