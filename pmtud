@@ -22,7 +22,7 @@ set -u
 # shall prevent local fragmentation. Thus the results of this program
 # may be wrong if an IPv6 end point is specified.
 
-VERSION='2024-02-11-02'
+VERSION='2024-02-11-03'
 PROG="$(basename "$0")"
 ALGO='binary'
 AF=''
@@ -147,11 +147,17 @@ done
 shift $((OPTIND - 1))
 
 test $# -lt 1 && { error_msg "no target host given"; usage; exit 1; }
-test $# -gt 1 && { error_msg "ERROR: too many arguments"; usage; exit 1; }
+test $# -gt 1 && { error_msg "too many arguments"; usage; exit 1; }
 test $# -eq 1 && { TARGET="$1"; shift; }
 
 test "$INCREMENT" -gt 0 || {
-  error_msg 'ERROR: INCREMENT must be positive'
+  error_msg 'INCREMENT must be positive'
+  usage
+  exit 1
+}
+
+printf -- '%s\n' "$TABLE" | grep -Eq '^[ 0-9]+$' || {
+  error_msg 'plateau table must only use digits and spaces'
   usage
   exit 1
 }
