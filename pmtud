@@ -22,7 +22,7 @@ set -u
 # shall prevent local fragmentation. Thus the results of this program
 # may be wrong if an IPv6 end point is specified.
 
-VERSION='2024-02-09-01'
+VERSION='2024-02-11-01'
 PROG="$(basename "$0")"
 ALGO='binary'
 AF=''
@@ -36,6 +36,7 @@ TARGET=''
 PROBETIMEOUT='2'
 PINGOPTS="-c1 -Mdo -n -W${PROBETIMEOUT}"
 QUIET=''
+DIRECTION='upwards'
 
 version() { echo "$PROG version $VERSION"; }
 
@@ -83,7 +84,8 @@ Options:
   -h            print this help and exit
   -V            print version and exit
   -L            print license and exit
-  -l            use linear search strategy for path MTU discovery
+  -l            use linear search strategy for path MTU discovery (upwards)
+  -d            use linear search strategy for path MTU discovery (downwards)
   -b            use binary search strategy for path MTU discovery (default)
   -p            use plateau table based search as suggested in RFC 1191
   -P VALUES     specify alternate plateau table (values separated by whitespace)
@@ -118,12 +120,13 @@ error_msg()
   echo "[!] ${PROG}: ERROR: $*" 1>&2
 }
 
-while getopts ':hVLlbpP:m:M:i:w:W:o:q46' OPT; do
+while getopts ':hVLldbpP:m:M:i:w:W:o:q46' OPT; do
   case "$OPT" in
     'h') help; exit 0;;
     'V') version; exit 0;;
     'L') version; copyright; license; exit 0;;
     'l') ALGO='linear';;
+    'd') ALGO='linear' DIRECTION='downwards';;
     'b') ALGO='binary';;
     'p') ALGO='plateau';;
     'P') TABLE="$OPTARG";;
@@ -146,6 +149,12 @@ shift $((OPTIND - 1))
 test $# -lt 1 && { error_msg "no target host given"; usage; exit 1; }
 test $# -gt 1 && { error_msg "ERROR: too many arguments"; usage; exit 1; }
 test $# -eq 1 && { TARGET="$1"; shift; }
+
+test "$INCREMENT" -gt 0 || {
+  error_msg 'ERROR: INCREMENT must be positive'
+  usage
+  exit 1
+}
 
 # shellcheck disable=SC2015
 test -z "$QUIET" && { exec 3>&1; } || { exec 3>/dev/null; }
@@ -228,12 +237,18 @@ linear()
 {
   cat 1>&3 <<EOF
 [-] performing linear search $IP PMTUD to $TARGET with $ICMP Echo Requests
-[-] search_low $MIN bytes, search_high $MAX bytes, $INCREMENT byte(s) increments
+[-] search_low $MIN bytes, search_high $MAX bytes, $INCREMENT byte(s) step size
+[-] search direction is $DIRECTION
 [-] waiting $WAIT seconds between probes
 [-] using $PROBETIMEOUT seconds timeout for unsuccessful probes
 EOF
 
-  for S in $(seq "$MIN" "$INCREMENT" "$MAX"); do
+  if test "$DIRECTION" = 'upwards'; then
+    VALUES=$(seq "$MIN" "$INCREMENT" "$MAX")
+  else
+    VALUES=$(seq "$MAX" -"$INCREMENT" "$MIN")
+  fi
+  for S in $VALUES; do
     printf -- '[.] sending %s bytes probe\r' "$S" 1>&3
     send_probe "$S" "$TARGET" &
     sleep "$WAIT"
