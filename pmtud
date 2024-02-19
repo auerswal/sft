@@ -22,7 +22,7 @@ set -u
 # shall prevent local fragmentation. Thus the results of this program
 # may be wrong if an IPv6 end point is specified.
 
-VERSION='2024-02-19-01'
+VERSION='2024-02-19-02'
 PROG="$(basename "$0")"
 
 DEF_ALGO='binary'
@@ -122,6 +122,52 @@ error_msg()
   echo "[!] ${PROG}: ERROR: $*" 1>&2
 }
 
+# ensure the first argument is a positive integer, otherwise exit
+# use second argument in error message
+ensure_pos_int()
+{
+  test $# -eq 2 || {
+    error_msg 'ensure_pos_int(): wrong number of arguments:' "$#"; exit 1;
+  }
+  printf -- '%s' "$1" | { tr '\012' '%'; echo; } | grep -q '^[1-9][0-9]*$' || {
+    error_msg "$2 must be a positive integer"
+    usage
+    exit 1
+  }
+  return 0
+}
+
+# ensure the first argument is a non-negative number, otherwise exit
+# use second argument in error message
+ensure_nn_num()
+{
+  test $# -eq 2 || {
+    error_msg 'ensure_nn_num(): wrong number of arguments:' "$#"; exit 1;
+  }
+  printf -- '%s' "$1" | { tr '\012' '%'; echo; } \
+  | grep -Eq '^([0-9]*\.?[0-9]+|[0-9]+\.[0-9]*)$' || {
+    error_msg "$2 must be a non-negative number"
+    usage
+    exit 1
+  }
+  return 0
+}
+
+# ensure the first argument is a list of non-negative integers, otherwise exit
+# use second argument in error message
+ensure_nn_int_list()
+{
+  test $# -eq 2 || {
+    error_msg 'ensure_nn_int_list(): wrong number of arguments:' "$#"; exit 1;
+  }
+  printf -- '%s' "$1" | { tr '\012' '%'; echo; } | grep -Eq '^[ 0-9]+$' || {
+    error_msg "$2 must only use digits and spaces"
+    usage
+    exit 1
+  }
+  return 0
+}
+
 ALGO="$DEF_ALGO"
 OVERHEAD="$DEF_OVERHEAD"
 MIN="$DEF_MIN"
@@ -140,13 +186,14 @@ while getopts ':hVLldbpP:m:M:i:w:W:o:q46' OPT; do
     'd') ALGO='linear' DIRECTION='downwards';;
     'b') ALGO='binary';;
     'p') ALGO='plateau';;
-    'P') TABLE="$OPTARG";;
-    'm') MIN="$OPTARG";;
-    'M') MAX="$OPTARG";;
-    'i') INCREMENT="$OPTARG";;
-    'w') WAIT="$OPTARG";;
-    'W') PROBETIMEOUT="$OPTARG"; PINGOPTS="-c1 -Mdo -n -W${PROBETIMEOUT}";;
-    'o') OVERHEAD="$OPTARG";;
+    'P') ensure_nn_int_list "$OPTARG" 'plateau table'; TABLE="$OPTARG";;
+    'm') ensure_pos_int "$OPTARG" 'MIN'; MIN="$OPTARG";;
+    'M') ensure_pos_int "$OPTARG" 'MAX'; MAX="$OPTARG";;
+    'i') ensure_pos_int "$OPTARG" 'INCREMENT'; INCREMENT="$OPTARG";;
+    'w') ensure_nn_num "$OPTARG" 'WAIT'; WAIT="$OPTARG";;
+    'W') ensure_pos_int "$OPTARG" 'TIMEOUT';
+         PROBETIMEOUT="$OPTARG"; PINGOPTS="-c1 -Mdo -n -W${PROBETIMEOUT}";;
+    'o') ensure_pos_int "$OPTARG" 'OVERHEAD'; OVERHEAD="$OPTARG";;
     'q') QUIET='quiet';;
     '4') AF='-4' OVERHEAD=28;;
     '6') AF='-6' OVERHEAD=48;;
@@ -160,18 +207,6 @@ shift $((OPTIND - 1))
 test $# -lt 1 && { error_msg "no target host given"; usage; exit 1; }
 test $# -gt 1 && { error_msg "too many arguments"; usage; exit 1; }
 test $# -eq 1 && { TARGET="$1"; shift; }
-
-test "$INCREMENT" -gt 0 || {
-  error_msg 'INCREMENT must be positive'
-  usage
-  exit 1
-}
-
-printf -- '%s\n' "$TABLE" | grep -Eq '^[ 0-9]+$' || {
-  error_msg 'plateau table must only use digits and spaces'
-  usage
-  exit 1
-}
 
 # shellcheck disable=SC2015
 test -z "$QUIET" && { exec 3>&1; } || { exec 3>/dev/null; }
