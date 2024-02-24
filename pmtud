@@ -22,7 +22,7 @@ set -u
 # shall prevent local fragmentation. Thus the results of this program
 # may be wrong if an IPv6 end point is specified.
 
-VERSION='2024-02-24-01'
+VERSION='2024-02-24-02'
 PROG="$(basename "$0")"
 
 DEF_ALGO='binary'
@@ -256,6 +256,11 @@ test "${MAX}" -ge 65535 && MAX=65535
 
 test "${MIN}" -gt 0 || MIN="${DEF_MIN}"
 test "${MIN}" -le 65535 || MIN=65535
+
+test "${MIN}" -le "${MAX}" || {
+  error_msg 'MIN must be less than or equal to MAX'
+  exit 1
+}
 
 # sending_report() takes one argument, the size of the probe
 sending_report()
