@@ -254,6 +254,9 @@ test "${MAX}" = 'auto' && MAX=$(auto_max 2>/dev/null)
 MAX=${MAX:-1500}
 test "${MAX}" -ge 65535 && MAX=65535
 
+test "${MIN}" -gt 0 || MIN="${DEF_MIN}"
+test "${MIN}" -le 65535 || MIN=65535
+
 # sending_report() takes one argument, the size of the probe
 sending_report()
 {
