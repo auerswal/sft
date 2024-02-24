@@ -22,7 +22,7 @@ set -u
 # shall prevent local fragmentation. Thus the results of this program
 # may be wrong if an IPv6 end point is specified.
 
-VERSION='2024-02-24-02'
+VERSION='2024-02-24-03'
 PROG="$(basename "$0")"
 
 DEF_ALGO='binary'
@@ -39,6 +39,7 @@ AF=''
 PINGOPTS="-c1 -Mdo -n -W${DEF_PROBETIMEOUT}"
 QUIET=''
 VERBOSE=''
+BRIEF=''
 DIRECTION='upwards'
 PROBE_LINE_END='\r'
 
@@ -100,6 +101,7 @@ Options:
   -W TIMEOUT    set probe timeout (default ${DEF_PROBETIMEOUT}s)
   -o OVERHEAD   set overhead in bytes added by ping (default ${DEF_OVERHEAD})
   -q            quiet operation: omit progress messages
+  -Q            quiet operation with brief output: print only the PMTU in bytes
   -v            verbose operation: one line per probe
   -4            use IPv4 with 28B overhead (default)
   -6            use IPv6 with 48B overhead
@@ -180,7 +182,7 @@ TABLE="$DEF_TABLE"
 WAIT="$DEF_WAIT"
 PROBETIMEOUT="$DEF_PROBETIMEOUT"
 
-while getopts ':hVLldbpP:m:M:i:w:W:o:q46v' OPT; do
+while getopts ':hVLldbpP:m:M:i:w:W:o:q46vQ' OPT; do
   case "$OPT" in
     'h') help; exit 0;;
     'V') version; exit 0;;
@@ -197,8 +199,9 @@ while getopts ':hVLldbpP:m:M:i:w:W:o:q46v' OPT; do
     'W') ensure_pos_int "$OPTARG" 'TIMEOUT';
          PROBETIMEOUT="$OPTARG"; PINGOPTS="-c1 -Mdo -n -W${PROBETIMEOUT}";;
     'o') ensure_pos_int "$OPTARG" 'OVERHEAD'; OVERHEAD="$OPTARG";;
-    'q') QUIET='quiet' VERBOSE='';;
-    'v') VERBOSE='verbose' QUIET='';;
+    'q') QUIET='quiet' VERBOSE='' BRIEF='';;
+    'Q') QUIET='quiet' VERBOSE='' BRIEF='brief';;
+    'v') QUIET='' VERBOSE='verbose' BRIEF='';;
     '4') AF='-4' OVERHEAD=28;;
     '6') AF='-6' OVERHEAD=48;;
     '?') error_msg "unknown option '$OPTARG'"; usage; exit 1;;
@@ -214,6 +217,10 @@ test $# -eq 1 && { TARGET="$1"; shift; }
 
 test -n "$QUIET" && test -n "$VERBOSE" && {
   error_msg 'operation cannot be both quiet and verbose at the same time'
+  exit 1
+}
+test -n "$VERBOSE" && test -n "$BRIEF" && {
+  error_msg 'brief output is only supported with quiet operation'
   exit 1
 }
 # shellcheck disable=SC2015
@@ -287,6 +294,17 @@ send_probe()
   ping $PINGOPTS -s "$((S - OVERHEAD))" "$TARGET" >/dev/null 2>&1 && echo "$S"
 }
 
+# optional parameters add text in front of "IP MTU"
+# decorate result number read on STDIN with explanatory words, unless BRIEF
+decorate_result()
+{
+  if test -z "$BRIEF"; then
+    sed -n '$s/^\(.*\)$/[+] '"$*"'IP PMTU is \1 bytes/p'
+  else
+    tail -n1
+  fi
+}
+
 binary()
 {
   cat 1>&3 <<EOF
@@ -307,7 +325,7 @@ EOF
       HIGH=$((PROBE-1))
     fi
     sleep "$WAIT"
-  done | sed -n '$s/^\(.*\)$/[+] IP PMTU is \1 bytes         /p'
+  done | decorate_result
   echo '[+] all probes returned or timed out' 1>&3
 }
 
@@ -327,7 +345,7 @@ EOF
     VALUES=$(seq "$MAX" -"$INCREMENT" "$MIN")
   fi
   # shellcheck disable=SC2086
-  probe_values $VALUES | sed -n '$s/^\(.*\)$/[+] IP PMTU is \1 bytes/p'
+  probe_values $VALUES | decorate_result
   echo '[+] all probes returned or timed out' 1>&3
 }
 
@@ -342,8 +360,7 @@ plateau()
 EOF
 
   # shellcheck disable=SC2086
-  probe_values $TABLE |
-    sed -n '$s/^\(.*\)$/[+] plateau estimate for IP PMTU is \1 bytes/p'
+  probe_values $TABLE | decorate_result 'plateau estimate for '
   echo '[+] all probes returned or timed out' 1>&3
 }
 
