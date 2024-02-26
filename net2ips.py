@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
 
 # net2ips.py - print addresses of an IP network
-# Copyright (C) 2022  Erik Auerswald <auerswal@unix-ag.uni-kl.de>
+# Copyright (C) 2022-2024  Erik Auerswald <auerswal@unix-ag.uni-kl.de>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -34,8 +34,8 @@ import ipaddress
 import sys
 
 PROG = 'net2ips.py'
-VERS = '0.1.0'
-COPY = 'Copyright (C) 2022  Erik Auerswald <auerswal@unix-ag.uni-kl.de>'
+VERS = '0.2.0'
+COPY = 'Copyright (C) 2022-2024  Erik Auerswald <auerswal@unix-ag.uni-kl.de>'
 LICE = '''\
 License GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>.
 This is free software: you are free to change and redistribute it.
@@ -72,15 +72,22 @@ if __name__ == '__main__':
 
     networks = args.NETWORK if args.NETWORK else sys.stdin
     for net in networks:
+        net = net.strip()
+        idx_perc = net.find('%')
+        idx_cidr = net.rfind('/')
+        scope_id = ''
+        if idx_perc > -1 and idx_cidr > -1 and net[idx_cidr + 1:].isdigit():
+            scope_id = net[idx_perc:idx_cidr]
+            net = net[:idx_perc] + net[idx_cidr:]
         try:
-            addresses = ipaddress.ip_network(net.strip(), strict=False)
+            addresses = ipaddress.ip_network(net, strict=False)
         except ValueError as exc:
             exit_code = 1
             print('%s: ERROR: %s' % (PROG, exc), file=sys.stderr)
         if args.hosts_only:
             addresses = addresses.hosts()
         for addr in addresses:
-            print(addr)
+            print(str(addr) + scope_id)
 
     sys.exit(exit_code)
 
