@@ -1,0 +1,74 @@
+#! /bin/sh
+
+# ifnames - print Linux interface names
+#
+# Copyright (C) 2024 by Erik Auerswald <auerswal@unix-ag.uni-kl.de>
+#
+# Copying and distribution of this file, with or without modification,
+# are permitted in any medium without royalty provided the copyright
+# notice and this notice are preserved.  This file is offered as-is,
+# without any warranty.
+
+set -eu
+
+PROG="$(basename "$0")"
+VERSION='2024-03-02-01'
+
+print_version()
+{
+  printf -- '%s version %s\n' "${PROG}" "${VERSION}"
+}
+
+print_copyright()
+{
+  echo 'Copyright (C) 2024 by Erik Auerswald <auerswal@unix-ag.uni-kl.de>'
+}
+
+print_license()
+{
+  cat <<EOL
+Copying and distribution of this file, with or without modification,
+are permitted in any medium without royalty provided the copyright
+notice and this notice are preserved.  This file is offered as-is,
+without any warranty.
+
+EOL
+}
+
+print_usage()
+{
+  cat <<EOU
+Usage: ${PROG} [ -h | -V | -L ]
+EOU
+}
+
+print_help()
+{
+  print_version
+  print_copyright
+  print_license
+  echo 'print Linux interface names'
+  print_usage
+  cat <<EOH
+Options:
+  -h      print this help and exit
+  -V      print version information and exit
+  -L      print license and exit
+EOH
+}
+
+SYS_CLASS_NET='/sys/class/net'
+
+while getopts hVL OPT; do
+  case "${OPT}" in
+    'h') print_help; exit 0;;
+    'V') print_version; print_copyright; exit 0;;
+    'L') print_version; print_copyright; echo; print_license; exit 0;;
+    '?') echo "${PROG}: error: unknown option '$1'";
+         print_usage; exit 1;;
+    *) echo "${PROG}: error: getopts() failure"; exit 1;;
+  esac
+done
+shift $((OPTIND - 1))
+
+command -p ls -1 "${SYS_CLASS_NET}"

@@ -78,7 +78,8 @@ https://jodies.de/ipcalc or the `ipcalc` script from this collection.
   (available on my
   [Notes on Enterasys Networks Equipment](https://www.unix-ag.uni-kl.de/~auerswal/enterasys/#hide_passwords)
   web page)
-* `ifstats` - print interface statistics (counters) on Linux
+* `ifnames` - print interface names on Linux (uses *sysfs*)
+* `ifstats` - print interface statistics (counters) on Linux (uses *sysfs*)
 * `interface_status` - query interface status of network devices via SNMP
 * `ipcalc` - simple replacement for the *jodies.de*
    [IP Calculator](https://jodies.de/ipcalc) of the same name
