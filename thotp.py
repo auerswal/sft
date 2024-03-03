@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
 
 # thotp.py - generate HOTP or TOTP one-time password (a.k.a. verification code)
-# Copyright (C) 2023  Erik Auerswald <auerswal@unix-ag.uni-kl.de>
+# Copyright (C) 2023-2024  Erik Auerswald <auerswal@unix-ag.uni-kl.de>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -38,8 +38,8 @@ import sys
 import time
 
 PROG = 'thotp.py'
-VERS = '0.2.1'
-COPY = 'Copyright (C) 2023  Erik Auerswald <auerswal@unix-ag.uni-kl.de>'
+VERS = '0.3.0'
+COPY = 'Copyright (C) 2023-2024  Erik Auerswald <auerswal@unix-ag.uni-kl.de>'
 LICE = '''\
 License GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>.
 This is free software: you are free to change and redistribute it.
@@ -76,6 +76,7 @@ Example:
     # compute TOTP code from GPG-encrypted raw shared secret key
     $ gpg --decrypt --quiet ~/.totp-secret | {PROG}
 '''
+KEY_ENCODINGS = ['hex', 'base32', 'base64']
 
 
 def cmd_line_args():
@@ -91,9 +92,11 @@ def cmd_line_args():
                                '(default: /dev/stdin)')
     cmd_line.add_argument('-c', '--counter', type=int,
                           help='counter value for HOTP algorithm')
-    cmd_line.add_argument('-e', '--key-encoding',
-                          choices=['hex', 'base32', 'base64'],
+    cmd_line.add_argument('-e', '--key-encoding', choices=KEY_ENCODINGS,
                           help='provided secret key is encoded')
+    cmd_line.add_argument('-b', '--base32', dest='key_encoding',
+                          action='store_const', const='base32',
+                          help='provided secret key is Base32 encoded')
     cmd_line.add_argument('-s', '--time-step-size', type=int, default=30,
                           help='TOTP time-step duration in seconds ' +
                                '(default: 30)')
@@ -127,6 +130,10 @@ def valid_settings(settings):
         return False
     if settings.digits > 11:
         err('number of digits must be less than 12')
+        return False
+    if (settings.key_encoding is not None and
+            settings.key_encoding not in KEY_ENCODINGS):
+        err(f'unsupported key encoding "{settings.key_encoding}"')
         return False
     if settings.digits < 6:
         warn('using less than 6 digits does not conform to RFC 4226')
