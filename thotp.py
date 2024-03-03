@@ -38,7 +38,7 @@ import sys
 import time
 
 PROG = 'thotp.py'
-VERS = '0.3.0'
+VERS = '0.4.0'
 COPY = 'Copyright (C) 2023-2024  Erik Auerswald <auerswal@unix-ag.uni-kl.de>'
 LICE = '''\
 License GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>.
@@ -76,7 +76,7 @@ Example:
     # compute TOTP code from GPG-encrypted raw shared secret key
     $ gpg --decrypt --quiet ~/.totp-secret | {PROG}
 '''
-KEY_ENCODINGS = ['hex', 'base32', 'base64']
+KEY_ENCODINGS = ['hex', 'base16', 'base32', 'base64']
 
 
 def cmd_line_args():
@@ -154,7 +154,7 @@ def decode_key(key, encoding):
     """Decode an encoded shared secret key."""
     if encoding is None:
         return key
-    elif encoding == 'hex':
+    elif encoding == 'hex' or encoding == 'base16':
         return base64.b16decode(key)
     elif encoding == 'base32':
         return base64.b32decode(key)
