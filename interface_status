@@ -2,7 +2,7 @@
 
 # Query interface status of network devices.
 #
-# Copyright (C) 2012-2022 Erik Auerswald <auerswal@unix-ag.uni-kl.de>
+# Copyright (C) 2012-2024 Erik Auerswald <auerswal@unix-ag.uni-kl.de>
 #
 # Copying and distribution of this file, with or without modification,
 # are permitted in any medium without royalty provided the copyright
@@ -20,12 +20,12 @@
 #
 # Currently tested with Enterasys Networks switches only.
 #
-# Version 2022-01-26-01
+# Version 2024-03-04-01
 
 STATUS=$(mktemp ifOperStatus.$$.XXXXXX)
 NAME=$(mktemp ifName.$$.XXXXXX)
 
-trap "rm -f $STATUS $NAME" 0
+trap 'rm -f "${STATUS}" "${NAME}"' 0
 
 # Specify the snmpwalk executable to use.
 # This can be overridden from the environment.
@@ -39,20 +39,20 @@ SNMPWALK=${SNMPWALK:=snmpwalk}
 for SWITCH_IP in "$@"; do
   echo "Interface status on ${SWITCH_IP}:"
 
-  { ${SNMPWALK} ${SWITCH_IP} \
+  { "${SNMPWALK}" "${SWITCH_IP}" \
     interfaces.ifTable.ifEntry.ifOperStatus | \
   sed 's/^.*\.\([0-9]*\) .* \([a-z]*\).*$/\1 \2/' | \
-  sort > "$STATUS"; } &
+  sort > "${STATUS}"; } &
 
 
-  { ${SNMPWALK} ${SWITCH_IP} \
+  { "${SNMPWALK}" "${SWITCH_IP}" \
     ifMIB.ifMIBObjects.ifXTable.ifXEntry.ifName | \
   sed 's/^.*\.\([0-9]*\) .* \([^ ]*\).*$/\1 \2/' | \
-  sort > "$NAME"; } &
+  sort > "${NAME}"; } &
 
   wait
 
-  join "$NAME" "$STATUS" | sort -n | sed 's/^[0-9]* / /'
+  join "${NAME}" "${STATUS}" | sort -n | sed 's/^[0-9]* / /'
 done
 
 exit 0
