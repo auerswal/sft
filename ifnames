@@ -12,7 +12,7 @@
 set -eu
 
 PROG="$(basename "$0")"
-VERSION='2024-03-02-01'
+VERSION='2024-03-11-01'
 
 print_version()
 {
@@ -38,7 +38,7 @@ EOL
 print_usage()
 {
   cat <<EOU
-Usage: ${PROG} [ -h | -V | -L ]
+Usage: ${PROG} [OPT...]
 EOU
 }
 
@@ -54,16 +54,24 @@ Options:
   -h      print this help and exit
   -V      print version information and exit
   -L      print license and exit
+  -i      also print interface index
+  -m      also print interface MAC address
 EOH
 }
 
 SYS_CLASS_NET='/sys/class/net'
+IFIDX_FILE='ifindex'
+IFMAC_FILE='address'
+PRINT_IDX=0
+PRINT_MAC=0
 
-while getopts hVL OPT; do
+while getopts 'hVLim' OPT; do
   case "${OPT}" in
     'h') print_help; exit 0;;
     'V') print_version; print_copyright; exit 0;;
     'L') print_version; print_copyright; echo; print_license; exit 0;;
+    'i') PRINT_IDX=1;;
+    'm') PRINT_MAC=1;;
     '?') echo "${PROG}: error: unknown option '$1'";
          print_usage; exit 1;;
     *) echo "${PROG}: error: getopts() failure"; exit 1;;
@@ -71,4 +79,13 @@ while getopts hVL OPT; do
 done
 shift $((OPTIND - 1))
 
-command -p ls -1 "${SYS_CLASS_NET}"
+command -p ls -1 "${SYS_CLASS_NET}" | while read -r IFNAME; do
+  printf -- '%s' "${IFNAME}"
+  test "${PRINT_IDX}" -eq 1 && {
+    printf -- ' %d' "$(cat "${SYS_CLASS_NET}/${IFNAME}/${IFIDX_FILE}")"
+  }
+  test "${PRINT_MAC}" -eq 1 && {
+    printf -- ' %s' "$(cat "${SYS_CLASS_NET}/${IFNAME}/${IFMAC_FILE}")"
+  }
+  echo
+done
