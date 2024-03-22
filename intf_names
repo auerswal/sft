@@ -1,6 +1,6 @@
 #! /bin/sh
 
-# ifnames - print Linux interface names
+# intf_names - print Linux interface names
 #
 # Copyright (C) 2024 by Erik Auerswald <auerswal@unix-ag.uni-kl.de>
 #
@@ -12,7 +12,7 @@
 set -eu
 
 PROG="$(basename "$0")"
-VERSION='2024-03-11-01'
+VERSION='2024-03-22-01'
 
 print_version()
 {
