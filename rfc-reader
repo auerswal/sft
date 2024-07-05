@@ -80,7 +80,7 @@ copyright()
 
 version()
 {
-  local V="0.67"
+  local V="0.68"
   printf -- "%s\n" "$B version $V"
 }
 
@@ -183,7 +183,7 @@ else
   DOC="$1"
 fi
 # remove optional extension .txt
-DOC="$(printf -- '%s' "$DOC" | sed s/\.[Tt][Xx][Tt]$//)"
+DOC="$(printf -- '%s' "$DOC" | sed 's/\.[Tt][Xx][Tt]$//')"
 # shellcheck disable=SC2003
 expr " $DOC" : '  *[0-9][0-9]* *$' > /dev/null && DOC="rfc$DOC"
 # determine document type
