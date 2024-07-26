@@ -80,7 +80,7 @@ copyright()
 
 version()
 {
-  local V="0.68"
+  local V="0.69"
   printf -- "%s\n" "$B version $V"
 }
 
@@ -223,10 +223,11 @@ test -z "$DN" && { test "$DT" = 'draft' || test "$DT" = 'I-D'; } &&
     fi
     test -r "${RFCCACHE}/${IDLST}" ||
       { printf -- '%s: ERROR: no I-D list available\n' "$B"; exit 1; }
-    DN="$(grep -- "^${DOC}-[0-9][0-9]" "${RFCCACHE}/${IDLST}"|awk '{print $1}')"
-  else
-    DN="$(wget -q -o/dev/null -O- -- "${IDLSTBS}/${IDLST}" | grep -- "^${DOC}" \
+    DN="$(grep -i -- "^${DOC}-[0-9][0-9]" "${RFCCACHE}/${IDLST}" \
           | awk '{print $1}')"
+  else
+    DN="$(wget -q -o/dev/null -O- -- "${IDLSTBS}/${IDLST}" \
+          | grep -i -- "^${DOC}" | awk '{print $1}')"
   fi
 # determine download base URL for document
 test -z "$DT" && {
