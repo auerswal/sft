@@ -9,8 +9,11 @@
 # notice and this notice are preserved.  This file is offered as-is,
 # without any warranty.
 
+exit_code=0
 for file in "$@"; do
   if ! unzip -tqq "${file}" > /dev/null 2>&1; then
     echo Fehler in ZIP-File \""${file}"\"
+    exit_code=1
   fi
 done
+exit "${exit_code}"
