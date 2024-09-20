@@ -1,7 +1,7 @@
 #! /usr/bin/env bash
 
 # ensure_bom_crlf - prepare POSIX text file with UTF-8 data for use on Windows
-# Copyright (C) 2022 Erik Auerswald <auerswal@unix-ag.uni-kl.de>
+# Copyright (C) 2022-2024 Erik Auerswald <auerswal@unix-ag.uni-kl.de>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@
 set -u
 
 PROG="$(basename "$0")"
-VERSION='2022-05-21-01'
+VERSION='2024-09-20-01'
 
 print_version()
 {
@@ -33,7 +33,7 @@ print_version()
 
 print_copyright()
 {
-  echo 'Copyright (C) 2022 by Erik Auerswald <auerswal@unix-ag.uni-kl.de>'
+  echo 'Copyright (C) 2022-2024 by Erik Auerswald <auerswal@unix-ag.uni-kl.de>'
 }
 
 print_license()
@@ -65,7 +65,7 @@ EOL
 print_usage()
 {
   cat <<EOU
-Usage: $PROG [[-i] FILE...]
+Usage: $PROG [-r] [[-i] FILE...]
        $PROG {-h | -V | -L}
 EOU
 }
@@ -85,6 +85,7 @@ Options:
   -V      print version information and exit
   -L      print license and exit
   -i      edit all given FILEs in-place
+  -r      reverse operation: remove BOM and use <LF> ("\\n") as line ending
 
 Examples:
   $PROG < utf8_encoded_gnu_text > utf8_encoded_windows_text.txt
@@ -94,18 +95,30 @@ EOH
 }
 
 INPLACE=0
-while getopts 'hVLi' OPT; do
+REVERSE=0
+while getopts 'hVLir' OPT; do
   case "$OPT" in
     'h') print_help; exit 0;;
     'V') print_version; exit 0;;
     'L') print_version; print_license; exit 0;;
     'i') INPLACE=1;;
+    'r') REVERSE=1;;
     '?') echo "$PROG: ERROR: unknown option '$1'";
          print_usage; exit 1;;
     *) echo "$PROG: ERROR: getopts() failure"; exit 1;;
   esac
 done
 shift $((OPTIND - 1))
+
+if test "$REVERSE" -eq 0; then
+  SEDSCRIPT='1s/^$/'$'\uFEFF''/
+1s/^([^'$'\uFEFF''])/'$'\uFEFF''\1/
+s/^$/\r/
+s/([^\r])$/\1\r/'
+else
+  SEDSCRIPT='1s/^'$'\uFEFF''//
+s/\r$//'
+fi
 
 test "$INPLACE" -eq 1 && test $# -lt 1 && {
   echo "$PROG: ERROR: -i requires a FILE"
@@ -115,9 +128,4 @@ test "$INPLACE" -eq 1 && test $# -lt 1 && {
 SEDOPTS='-E'
 test "$INPLACE" -eq 1 && SEDOPTS="${SEDOPTS}i"
 
-exec sed "$SEDOPTS" \
-         -e '1s/^$/'$'\uFEFF''/' \
-         -e '1s/^([^'$'\uFEFF''])/'$'\uFEFF''\1/' \
-         -e 's/^$/\r/' \
-         -e 's/([^\r])$/\1\r/' \
-         -- "$@"
+exec sed "$SEDOPTS" "$SEDSCRIPT" -- "$@"
