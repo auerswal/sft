@@ -24,7 +24,7 @@
 set -u
 
 PROG="$(basename "$0")"
-VERSION='2024-09-20-01'
+VERSION='2024-09-20-02'
 
 print_version()
 {
@@ -96,14 +96,14 @@ EOH
 
 INPLACE=0
 REVERSE=0
-while getopts 'hVLir' OPT; do
+while getopts ':hVLir' OPT; do
   case "$OPT" in
     'h') print_help; exit 0;;
     'V') print_version; exit 0;;
     'L') print_version; print_license; exit 0;;
     'i') INPLACE=1;;
     'r') REVERSE=1;;
-    '?') echo "$PROG: ERROR: unknown option '$1'";
+    '?') echo "$PROG: ERROR: unknown option '$OPTARG'";
          print_usage; exit 1;;
     *) echo "$PROG: ERROR: getopts() failure"; exit 1;;
   esac
