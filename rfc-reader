@@ -80,7 +80,7 @@ copyright()
 
 version()
 {
-  local V="0.71"
+  local V="0.72"
   printf -- "%s\n" "$B version $V"
 }
 
@@ -163,7 +163,7 @@ shift $((OPTIND - 1))
 
 # exactly one or two arguments must be given
 test \( $# -eq 1 \) -o \( $# -eq 2 \) ||
-  { version; copyright; license; echo; usage; exit 1; }
+  { version; copyright; license; echo; print_help; exit 1; }
 
 # check some prerequisites:
 # wget is needed to download files
