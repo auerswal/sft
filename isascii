@@ -1,7 +1,7 @@
 #! /bin/sh
 
 # isascii - check if all input bytes comprise only 7-bit ASCII
-# Copyright (C) 2022 Erik Auerswald <auerswal@unix-ag.uni-kl.de>
+# Copyright (C) 2022-2024 Erik Auerswald <auerswal@unix-ag.uni-kl.de>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@
 set -u
 
 PROG="$(basename "$0")"
-VERSION='2022-07-19-01'
+VERSION='2024-09-22-01'
 
 print_version()
 {
@@ -33,7 +33,7 @@ print_version()
 
 print_copyright()
 {
-  echo 'Copyright (C) 2022 Erik Auerswald <auerswal@unix-ag.uni-kl.de>'
+  echo 'Copyright (C) 2022-2024 Erik Auerswald <auerswal@unix-ag.uni-kl.de>'
 }
 
 print_license()
@@ -87,13 +87,15 @@ EOH
 }
 
 VERBOSE=0
-while getopts 'hVLv' OPT; do
+while getopts ':hVLv' OPT; do
   case "$OPT" in
     'h') print_help; exit 0;;
     'V') print_version; exit 0;;
     'L') print_version; print_license; exit 0;;
     'v') VERBOSE=1;;
-    '?') echo "$PROG: ERROR: unknown option '$1'";
+    '?') echo "$PROG: ERROR: unknown option '-$OPTARG'";
+         print_usage; exit 1;;
+    ':') echo "$PROG: ERROR: argument required for option '-$OPTARG'";
          print_usage; exit 1;;
     *) echo "$PROG: ERROR: getopts() failure"; exit 1;;
   esac

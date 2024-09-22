@@ -2,7 +2,7 @@
 
 # Send an ICMP echo request to each of the IPs given.
 #
-# Copyright (C) 2011-2022 Erik Auerswald <auerswal@unix-ag.uni-kl.de>
+# Copyright (C) 2011-2024 Erik Auerswald <auerswal@unix-ag.uni-kl.de>
 #
 # Copying and distribution of this file, with or without modification,
 # are permitted in any medium without royalty provided the copyright
@@ -11,14 +11,14 @@
 #
 # Requires the ping program of Solaris or an output-compatible one.
 
-VERSION=2022-11-25-01
+VERSION='2024-09-22-01'
 PROG="$(basename "$0")"
 PING="${PING_WRAPPER:-ping}"
 
 version()
 {
   echo "$PROG version $VERSION"
-  echo "Copyright (c) 2011-2022 by Erik Auerswald <auerswal@unix-ag.uni-kl.de>"
+  echo "Copyright (c) 2011-2024 by Erik Auerswald <auerswal@unix-ag.uni-kl.de>"
 }
 
 usage() { echo "Usage: $PROG [-h] [-L] [-V] [-t TIMEOUT] [-v] [-u] [IP...]"; }
@@ -62,15 +62,18 @@ license()
 TIMEOUT=1
 VERB=0
 UNREACHABLE=0
-while getopts t:hvuLV OPT; do
+while getopts ':t:hvuLV' OPT; do
   case "$OPT" in
-    t) TIMEOUT=${OPTARG:-2};;
-    h) help; exit 0;;
-    v) VERB=1;;
-    u) UNREACHABLE=1;;
-    L) version; license; exit 0;;
-    V) version; exit 0;;
-    ?) usage; exit 1;;
+    't') TIMEOUT=${OPTARG:-2};;
+    'h') help; exit 0;;
+    'v') VERB=1;;
+    'u') UNREACHABLE=1;;
+    'L') version; license; exit 0;;
+    'V') version; exit 0;;
+    '?') echo "$PROG: error: unknown option '-$OPTARG'"; usage; exit 1;;
+    ':') echo "$PROG: error: argument required for option '-$OPTARG'";
+         usage; exit 1;;
+    *)   echo "$PROG: error: getopts() failure"; exit 1;;
   esac
 done
 shift $((OPTIND - 1))

@@ -20,7 +20,7 @@ set -u
 set -e
 
 PROG=archive_url
-VERSION='2024-06-21-01'
+VERSION='2024-09-22-01'
 FORCE=0
 DRYRUN=0
 QUIET=0
@@ -133,7 +133,7 @@ do_wait() {
   verb_nl ' done'
 }
 
-while getopts hVLfnqvw:r OPT; do
+while getopts ':hVLfnqvw:r' OPT; do
   case "$OPT" in
     'h') print_help; exit 0;;
     'V') print_version; print_copyright; exit 0;;
@@ -144,7 +144,9 @@ while getopts hVLfnqvw:r OPT; do
     'v') VERBOSE=1;;
     'w') WAITTIME="$OPTARG";;
     'r') JITTERWAIT=1;;
-    '?') echo "$PROG: error: unknown option '$1'"; print_usage; exit 1;;
+    '?') echo "$PROG: error: unknown option '-$OPTARG'"; print_usage; exit 1;;
+    ':') echo "$PROG: error: argument required for option '-$OPTARG'";
+         print_usage; exit 1;;
     *)   echo "$PROG: error: getopts() failure"; exit 1;;
   esac
 done

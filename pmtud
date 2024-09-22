@@ -22,7 +22,7 @@ set -u
 # shall prevent local fragmentation. Thus the results of this program
 # may be wrong if an IPv6 end point is specified.
 
-VERSION='2024-02-24-03'
+VERSION='2024-09-22-01'
 PROG="$(basename "$0")"
 
 DEF_ALGO='binary'
@@ -204,8 +204,8 @@ while getopts ':hVLldbpP:m:M:i:w:W:o:q46vQ' OPT; do
     'v') QUIET='' VERBOSE='verbose' BRIEF='';;
     '4') AF='-4' OVERHEAD=28;;
     '6') AF='-6' OVERHEAD=48;;
-    '?') error_msg "unknown option '$OPTARG'"; usage; exit 1;;
-    ':') error_msg "argument required for option '$OPTARG'"; usage; exit 1;;
+    '?') error_msg "unknown option '-$OPTARG'"; usage; exit 1;;
+    ':') error_msg "argument required for option '-$OPTARG'"; usage; exit 1;;
     *) error_msg "option '$OPT' not implemented"; usage; exit 1;;
   esac
 done

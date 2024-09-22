@@ -1,7 +1,7 @@
 #! /usr/bin/env bash
 
 # ipcalc - print information about an IPv4 network
-# Copyright (C) 2013-2019 by Erik Auerswald <auerswal@unix-ag.uni-kl.de>
+# Copyright (C) 2013-2024 by Erik Auerswald <auerswal@unix-ag.uni-kl.de>
 #
 # Copying and distribution of this file, with or without modification,
 # are permitted in any medium without royalty provided the copyright
@@ -11,7 +11,7 @@
 set -u
 
 PROG="$(basename $0)"
-version='2019-09-25-01'
+version='2024-09-22-01'
 
 print_version()
 {
@@ -20,7 +20,7 @@ print_version()
 
 print_copyright()
 {
-  echo 'Copyright (C) 2013-2019 by Erik Auerswald <auerswal@unix-ag.uni-kl.de>'
+  echo 'Copyright (C) 2013-2024 by Erik Auerswald <auerswal@unix-ag.uni-kl.de>'
 }
 
 print_license()
@@ -256,7 +256,7 @@ print_table()
   done
 }
 
-while getopts 'hVLtbcn' OPT; do
+while getopts ':hVLtbcn' OPT; do
   case "$OPT" in
     'h') print_help; exit 0;;
     'V') print_version; print_copyright; exit 0;;
@@ -265,7 +265,9 @@ while getopts 'hVLtbcn' OPT; do
     'b') ;;
     'c') ;;
     'n') ;;
-    '?') echo "$PROG: ERROR: unknown option '$1'";
+    '?') echo "$PROG: ERROR: unknown option '-$OPTARG'";
+         print_usage; exit 1;;
+    ':') echo "$PROG: ERROR: argument required for option '-$OPTARG'";
          print_usage; exit 1;;
     *) echo "$PROG: ERROR: getopts() failure"; exit 1;;
   esac
