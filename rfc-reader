@@ -80,7 +80,7 @@ copyright()
 
 version()
 {
-  local V="0.70"
+  local V="0.71"
   printf -- "%s\n" "$B version $V"
 }
 
@@ -99,6 +99,11 @@ usage()
   printf -- '%s\n' "Usage: $B [OPTS] [{rfc|bcp|fyi|ien|std}][{-|.| }]NUMBER[.txt]"
   printf -- '%s\n' "       $B [OPTS] {I-D.|draft-}DRAFT_NAME[-NUMBER][.txt]"
   printf -- '%s\n' "       $B [OPTS]"
+}
+
+print_help()
+{
+  usage
   echo
   echo 'Download specified RFC or I-D (unless found locally), and show it'
   echo 'in a pager inside a new terminal window of appropriate size.'
@@ -142,7 +147,7 @@ usage()
 # parse options
 while getopts ':hVLt' OPT; do
  case "$OPT" in
-   'h') version; copyright; license; echo; usage; exit 0;;
+   'h') version; copyright; license; echo; print_help; exit 0;;
    'V') version; copyright; exit 0;;
    'L') version; copyright; license; exit 0;;
    't') unset DISPLAY;;
