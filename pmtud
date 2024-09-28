@@ -22,7 +22,7 @@ set -u
 # shall prevent local fragmentation. Thus the results of this program
 # may be wrong if an IPv6 end point is specified.
 
-VERSION='2024-09-28-02'
+VERSION='2024-09-28-03'
 PROG="$(basename "$0")"
 
 DEF_ALGO='binary'
@@ -106,11 +106,12 @@ Options:
   -4            use IPv4 with 28B overhead (default)
   -6            use IPv6 with 48B overhead
 
-Plateau search uses the following values:
+Plateau search uses the following values by default:
   ${DEF_TABLE}
 
 Different sources provide different plateau search table contents.
 The built-in plateau table probably uses too many different values.
+The "-P" option allows to specify a different set of values.
 
  - Source Routing Bridges largest frame values:
     -p -P '65535 17800 11407 4472 2052 1500 516'
