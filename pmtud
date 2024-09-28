@@ -22,7 +22,7 @@ set -u
 # shall prevent local fragmentation. Thus the results of this program
 # may be wrong if an IPv6 end point is specified.
 
-VERSION='2024-09-22-01'
+VERSION='2024-09-28-01'
 PROG="$(basename "$0")"
 
 DEF_ALGO='binary'
@@ -118,6 +118,8 @@ The built-in plateau table probably uses too many different values.
     -p -P '65535 32000 17914 8166 4352 2002 1492 1006 508 296 68'
  - LWN article "So you think you understand IP fragmentation?":
     -p -P '9000 8000 1500 1400 1280'
+   To send the packets "at the same time" as in the LWN article use "-w0":
+    -p -P '9000 8000 1500 1400 1280' -w 0
 EOF
 }
 
