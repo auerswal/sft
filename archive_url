@@ -20,7 +20,7 @@ set -u
 set -e
 
 PROG=archive_url
-VERSION='2024-09-22-01'
+VERSION='2024-12-05-01'
 FORCE=0
 DRYRUN=0
 QUIET=0
@@ -151,6 +151,12 @@ while getopts ':hVLfnqvw:r' OPT; do
   esac
 done
 shift $((OPTIND - 1))
+
+if ! printf -- '%s\n' "$WAITTIME" | grep -Eq '^([0-9]+(\.[0-9]*)|\.[0-9]+)$'
+then
+  echo "$PROG: error: TIME must be a decimal number"
+  exit 1
+fi
 
 check_and_archive_url()
 {
