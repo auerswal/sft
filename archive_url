@@ -20,7 +20,7 @@ set -u
 set -e
 
 PROG=archive_url
-VERSION='2024-12-05-01'
+VERSION='2024-12-05-02'
 FORCE=0
 DRYRUN=0
 QUIET=0
@@ -152,7 +152,7 @@ while getopts ':hVLfnqvw:r' OPT; do
 done
 shift $((OPTIND - 1))
 
-if ! printf -- '%s\n' "$WAITTIME" | grep -Eq '^([0-9]+(\.[0-9]*)|\.[0-9]+)$'
+if ! printf -- '%s\n' "$WAITTIME" | grep -Eq '^([0-9]+(\.[0-9]*)?|\.[0-9]+)$'
 then
   echo "$PROG: error: TIME must be a decimal number"
   exit 1
