@@ -22,7 +22,7 @@ set -u
 set -e
 
 PROG=ouilookup
-VERSION='2024-12-16-01'
+VERSION='2024-12-16-02'
 EXIT_CODE=0
 DEF_MANUF='/usr/share/wireshark/manuf'
 
@@ -132,8 +132,8 @@ lookup() {
     return
   }
   printf -- '--- %s ---\n' "$MAC_ADDR_PR"
-  if grep -q -- "$OUI_PAT" "$MANUF"; then
-    grep -- "$OUI_PAT" "$MANUF" | cut -f1,3
+  if grep -i -q -- "$OUI_PAT" "$MANUF"; then
+    grep -i -- "$OUI_PAT" "$MANUF" | cut -f 1,3
   else
     echo '(OUI not found)'
     EXIT_CODE=1
