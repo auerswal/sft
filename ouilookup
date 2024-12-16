@@ -1,0 +1,153 @@
+#! /bin/sh
+
+# ouilookup - lookup OUI of MAC address prefixes in Wireshark's "manuf" file
+# Copyright (C) 2024 Erik Auerswald
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+# TODO: support prefixes longer than 3 bytes ("IEEE Registration Authority")
+
+set -u
+set -e
+
+PROG=ouilookup
+VERSION='2024-12-16-01'
+EXIT_CODE=0
+DEF_MANUF='/usr/share/wireshark/manuf'
+
+print_copyright()
+{
+  echo 'Copyright (C) 2024 Erik Auerswald'
+}
+
+print_version()
+{
+  printf -- '%s version %s\n' "${PROG}" "${VERSION}"
+}
+
+print_usage()
+{
+  printf -- 'Usage: %s { -h | -V | -L }\n' "$PROG"
+  printf -- 'Usage: %s [MAC_ADDR_PR...]\n' "$PROG"
+}
+
+print_license()
+{
+  cat <<EOL
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+EOL
+}
+
+print_help()
+{
+  print_version
+  print_copyright
+  echo
+  print_usage
+  cat <<EOH
+
+Options:
+  -h       print this help and exit
+  -V       print version information and exit
+  -L       print license and exit
+  -m MANUF use a non-default MANUF file
+
+Look up the vendor indicated by the OUI of a MAC address (prefix) in
+Wireshark's "manuf" file ($DEF_MANUF).
+
+MAC address prefixes can be provided either as command line arguments,
+or on standard input.  Each argument or input line must describe a
+single MAC address prefix.
+
+MAC address prefixes must be given in hexadecimal digits (hexdigits).
+Groups of hexdigits may be separated with non-hexdigits.  Any MAC
+address prefix must comprise at least 3 bytes.
+
+Exit codes:
+  0        no errors
+  1        not all OUIs found in "manuf"
+  2        error during program execution
+EOH
+}
+
+MANUF="$DEF_MANUF"
+
+while getopts ':hVLm:' OPT; do
+  case "$OPT" in
+    'h') print_help; exit 0;;
+    'V') print_version; print_copyright; exit 0;;
+    'L') print_version; print_copyright; echo; print_license; exit 0;;
+    'm') MANUF="$OPTARG";;
+    '?') echo "$PROG: error: unknown option '-$OPTARG'" 1>&2;
+         print_usage; exit 2;;
+    ':') echo "$PROG: error: argument required for option '-$OPTARG'" 1>&2;
+         print_usage; exit 2;;
+    *)   echo "$PROG: error: getopts() failure" 1>&2; exit 2;;
+  esac
+done
+shift $((OPTIND - 1))
+
+test -r "$MANUF" || {
+  echo "$PROG: error: cannot read manufacturer file" 1>&2
+  exit 2
+}
+
+# look up a single MAC address prefix
+lookup() {
+  test "$#" -eq 1 || {
+    echo "$PROG: lookup(): error: wrong number of arguments ($# instead of 1)" \
+         1>&2
+    exit 2
+  }
+  MAC_ADDR_PR="$1"
+  MAC_ADDR_PR_BY="$(printf -- '%s\n' "$MAC_ADDR_PR" | tr -dc '0-9a-fA-F\n')"
+  OUI_PAT="$(echo "$MAC_ADDR_PR_BY" | sed -En 's/^(..)(..)(..).*$/^\1.\2.\3/p')"
+  test -n "$OUI_PAT" || {
+    printf -- \
+      '%s: lookup(): error: cannot determine OUI for MAC address prefix "%s"\n'\
+      "$PROG" "$MAC_ADDR_PR" 1>&2
+    EXIT_CODE=2
+    return
+  }
+  printf -- '--- %s ---\n' "$MAC_ADDR_PR"
+  if grep -q -- "$OUI_PAT" "$MANUF"; then
+    grep -- "$OUI_PAT" "$MANUF" | cut -f1,3
+  else
+    echo '(OUI not found)'
+    EXIT_CODE=1
+  fi
+}
+
+if test "$#" -eq 0; then
+  while read -r MAC; do
+    lookup "$MAC"
+  done
+else
+  for MAC in "$@"; do
+    lookup "$MAC"
+  done
+fi
+
+exit "$EXIT_CODE"

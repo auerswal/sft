@@ -100,6 +100,8 @@ https://jodies.de/ipcalc or the `ipcalc` script from this collection.
 * `netio-kshell-dos` - demonstrate TCP session cleanup bug
   ([web page](https://www.unix-ag.uni-kl.de/~auerswal/netio-kshell-bug/))
 * `nfoview` - view NFO files on GNU/Linux
+* `ouilookup` - look up the vendor indicated by the OUI of MAC address
+   prefixes in [Wireshark](https://www.wireshark.org)'s "manuf" file
 * `ping_scan` - ping many hosts at once
   ([web page](https://www.unix-ag.uni-kl.de/~auerswal/ping_scan/))
 * `ping_wrapper` - wrapper around iputils `ping` for use with `ping_scan`
