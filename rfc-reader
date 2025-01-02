@@ -1,6 +1,6 @@
 #! /bin/bash
 
-# Copyright (C) 2011-2024 Erik Auerswald <auerswal@unix-ag.uni-kl.de>
+# Copyright (C) 2011-2025 Erik Auerswald <auerswal@unix-ag.uni-kl.de>
 
 # Copying and distribution of this file, with or without modification,
 # are permitted in any medium without royalty provided the copyright
@@ -75,12 +75,12 @@ done
 
 copyright()
 {
-  echo 'Copyright (C) 2011-2024 Erik Auerswald <auerswal@unix-ag.uni-kl.de>'
+  echo 'Copyright (C) 2011-2025 Erik Auerswald <auerswal@unix-ag.uni-kl.de>'
 }
 
 version()
 {
-  local V="0.72"
+  local V="0.73"
   printf -- "%s\n" "$B version $V"
 }
 
@@ -467,8 +467,15 @@ test -z "$DISPLAY" && test "$PAGINATED" -eq '1' && {
 # shellcheck disable=SC2026
 if test "$PAGINATED" -eq 1; then
   awk -vn_lines="$L" -vpg_adds="$PA" \
-    '!/\f/{line++; print};
-     /\f/{for (i=line; i<n_lines; i++) print ""; line=0}
+    '!/\f/ && !/^[[:space:]]*$/ {
+       for (i=0; i<saved; i++) print "";
+       line += saved;
+       saved = 0;
+       line++;
+       print
+     };
+     !/\f/ && /^[[:space:]]*$/ {saved++};
+     /\f/ {for (i=line; i<n_lines; i++) print ""; line=0}
      END {if (line || pg_adds){for (i=line; i<n_lines-pg_adds; i++) print ""}}'\
     "$F" | sed '1s/^'$'\uFEFF''//;/^$/!s/^/  /' > "$FMT"
 else
