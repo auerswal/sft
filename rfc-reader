@@ -61,7 +61,7 @@ set -u
 B=$(basename "$0")
 
 # e.g. openSUSE and Ubuntu provide RFCs as a package
-RFCDIRS='/usr/share/doc/rfc /usr/share/doc/RFC/links'
+RFCDIRS=('/usr/share/doc/rfc' '/usr/share/doc/RFC/links')
 # use a local cache if available
 # a relative XDG_CACHE_HOME must be ignored
 RFCCACHE=''
@@ -69,7 +69,7 @@ xdg_cache="${XDG_CACHE_HOME:-$HOME/.cache}/$B"
 test "${xdg_cache:0:1}" = '/' || xdg_cache="$HOME/.cache/$B"
 for DIR in "$HOME/.$B/cache" "$xdg_cache"; do
   test \( -d "$DIR" \) -a \( -r "$DIR" \) &&
-    RFCDIRS="$DIR $RFCDIRS" &&
+    RFCDIRS=("$DIR" "${RFCDIRS[@]}") &&
     test -w "$DIR" && RFCCACHE="$DIR"
 done
 
@@ -80,7 +80,7 @@ copyright()
 
 version()
 {
-  local V="0.73"
+  local V="0.74"
   printf -- "%s\n" "$B version $V"
 }
 
@@ -136,7 +136,7 @@ print_help()
   printf -- '%s\n' "  $B I-D.rep-wg-topic      # downloads & displays REP I-D"
   echo
   echo 'Looking for RFCs in the following local directories:'
-  for DIR in $RFCDIRS; do
+  for DIR in "${RFCDIRS[@]}"; do
     printf -- '  %s\n' "$DIR"
   done
   test -n "$RFCCACHE" &&
@@ -171,7 +171,7 @@ HAVE_WGET=0
 command -v wget >/dev/null 2>&1 && HAVE_WGET=1
 # local directories with RFC (and similar) files can obviate donwloads
 HAVE_LOCAL_DIRS=0
-for DIR in $RFCDIRS; do
+for DIR in "${RFCDIRS[@]}"; do
   test -d "$DIR" && test -r "$DIR" && test -x "$DIR" && HAVE_LOCAL_DIRS=1 &&
     break
 done
@@ -276,8 +276,7 @@ trap 'rm -rf "$F" "$FMT"' 0
 
 # obtain RFC(-like) text
 printf -- '%s: looking for %s ... ' "$B" "$R"
-# shellcheck disable=SC2086
-LR=$(find $RFCDIRS -name "${R}*" 2>/dev/null | head -n1)
+LR=$(find "${RFCDIRS[@]}" -name "${R}*" 2>/dev/null | head -n1)
 LRZ=''
 # search local directories (a local copy may be compressed)
 test -n "$LR" && printf -- '%s' "found $LR ... " &&
@@ -386,29 +385,29 @@ test -n "$DISPLAY" && {
       xterm|uxterm)
         # XTerm
         # (tested on Debian/Lenny, Debian/Sid, Ubuntu 12.04 LTS, openSUSE 12.3)
-        XO='+sb -xrm'
+        XO=('+sb' '-xrm')
         XF="xterm*vt100.initialFont: ${XTFS}"
-        G="-g ${C}x$((L+PSL))"
-        T='-T '
-        E="-e $P $PO"
+        G=('-g' "${C}x$((L+PSL))")
+        T='-T'
+        E=('-e' "$P" "$PO")
         found='xterm'
         ;;
       gnome-terminal)
         # GNOME Terminal (tested on Debian/Lenny and Ubuntu 12.04 LTS)
-        XO="--hide-menubar --disable-factory --zoom ${GTZ}"
+        XO=('--hide-menubar' '--disable-factory' '--zoom' "${GTZ}")
         XF=''
-        G="--geometry ${C}x$((L+PSL))"
-        T='-t '
-        E="-x $P $PO"
+        G=('--geometry' "${C}x$((L+PSL))")
+        T='-t'
+        E=('-x' "$P" "$PO")
         found='gnome-terminal'
         ;;
       konsole)
         # Konsole (tested on openSUSE 12.3 with KDE 4.11.3)
-        # XO="--hide-menubar --hide-tabbar -p ScrollBarPosition=2 --nofork"
+        # XO=('--hide-menubar' '--hide-tabbar' '-p' 'ScrollBarPosition=2' '--nofork')
         # XF=''
-        # G="-p TerminalColumns=${C} -p TerminalRows=${R}"
-        # T="-p tabtitle="
-        # E="-e $P $PO"
+        # G=('-p' "TerminalColumns=${C}" '-p' "TerminalRows=${R}")
+        # T='-p tabtitle='          # XXX this is not tested and may not work
+        # E=('-e' "$P" "$PO")
         printf -- \
           '%s: WARN: found "%s", but cannot set geometry, trying "xterm"\n' \
           "$B" "$XT"
@@ -485,8 +484,7 @@ fi
 # open suitable terminal window if X-Windows is available
 test -n "$DISPLAY" && {
   # open terminal window with a pager displaying the RFC(-like) text
-  # shellcheck disable=SC2086
-  "$XT" $XO "$XF" $G $T"$B - $(basename "$R")" $E "$FMT"
+  "$XT" "${XO[@]}" "$XF" "${G[@]}" "$T" "$B - $(basename "$R")" "${E[@]}" "$FMT"
 
   # gnome-terminal cannot run in the foreground
   wait
