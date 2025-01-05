@@ -20,7 +20,7 @@ set -u
 set -e
 
 PROG=archive_url
-VERSION='2025-01-05-02'
+VERSION='2025-01-05-03'
 FORCE=0
 DRYRUN=0
 QUIET=0
@@ -144,17 +144,16 @@ while getopts ':hVLfnqvw:r' OPT; do
     'v') VERBOSE=1;;
     'w') WAITTIME="$OPTARG";;
     'r') JITTERWAIT=1;;
-    '?') echo "$PROG: ERROR: unknown option '-$OPTARG'"; print_usage; exit 1;;
-    ':') echo "$PROG: ERROR: argument required for option '-$OPTARG'";
-         print_usage; exit 1;;
-    *)   echo "$PROG: ERROR: getopts() failure"; exit 1;;
+    '?') err "unknown option '-$OPTARG'"; print_usage; exit 1;;
+    ':') err "argument required for option '-$OPTARG'"; print_usage; exit 1;;
+    *)   err 'getopts() failure'; exit 1;;
   esac
 done
 shift $((OPTIND - 1))
 
 if ! printf -- '%s\n' "$WAITTIME" | grep -Eq '^([0-9]+(\.[0-9]*)?|\.[0-9]+)$'
 then
-  echo "$PROG: ERROR: TIME must be a decimal number"
+  err "TIME must be a decimal number"
   exit 1
 fi
 
