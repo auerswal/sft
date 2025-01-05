@@ -80,7 +80,7 @@ copyright()
 
 version()
 {
-  local V="0.74"
+  local V="0.75"
   printf -- "%s\n" "$B version $V"
 }
 
@@ -398,7 +398,7 @@ test -n "$DISPLAY" && {
         XF=''
         G=('--geometry' "${C}x$((L+PSL))")
         T='-t'
-        E=('-x' "$P" "$PO")
+        E=('--' "$P" "$PO")
         found='gnome-terminal'
         ;;
       konsole)
