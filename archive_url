@@ -1,7 +1,7 @@
 #! /bin/sh
 
 # archive_url - save not yet archived URLs in the Wayback Machine
-# Copyright (C) 2021-2024 Erik Auerswald
+# Copyright (C) 2021-2025 Erik Auerswald
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@ set -u
 set -e
 
 PROG=archive_url
-VERSION='2024-12-16-01'
+VERSION='2025-01-05-01'
 FORCE=0
 DRYRUN=0
 QUIET=0
@@ -35,7 +35,7 @@ EXIT_CODE=0
 
 print_copyright()
 {
-  echo 'Copyright (C) 2021-2024 Erik Auerswald'
+  echo 'Copyright (C) 2021-2025 Erik Auerswald'
 }
 
 print_version()
@@ -128,7 +128,7 @@ add_jitter() {
 do_wait() {
   REALWAIT="$WAITTIME"
   test "$JITTERWAIT" -eq 1 && REALWAIT=$(add_jitter)
-  verb_no_nl 'waiting' "$REALWAIT" 'seconds ...'
+  verb_no_nl 'Waiting' "$REALWAIT" 'seconds ...'
   sleep -- "$REALWAIT"
   verb_nl ' done'
 }
