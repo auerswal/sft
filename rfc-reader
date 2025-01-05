@@ -464,7 +464,6 @@ test -z "$DISPLAY" && test "$PAGINATED" -eq '1' && {
 
 # reformat RFC(-like) text for chosen terminal which has L lines for viewing
 # text content (including SL status line(s) used by the pager)
-# shellcheck disable=SC2026
 if test "$PAGINATED" -eq 1; then
   awk -vn_lines="$L" -vpg_adds="$PA" \
     '!/\f/ && !/^[[:space:]]*$/ {
