@@ -19,7 +19,7 @@
 set -eu
 
 PROG=ouilookup
-VERSION='2025-01-06-01'
+VERSION='2025-01-06-02'
 EXIT_CODE=0
 DEF_MANUF='/usr/share/wireshark/manuf'
 
@@ -108,6 +108,11 @@ shift $((OPTIND - 1))
 
 test -r "$MANUF" || {
   echo "$PROG: error: cannot read manufacturer file" 1>&2
+  exit 2
+}
+
+test "$((2**48 - 1))" -eq "$(printf -- '%d\n' '0xffffffffffff')" || {
+  echo "$PROG: error: insufficient integer arithmetic support in shell" 1>&2
   exit 2
 }
 
