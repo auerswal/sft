@@ -19,7 +19,7 @@
 set -eu
 
 PROG=ouilookup
-VERSION='2025-01-06-02'
+VERSION='2025-01-06-03'
 EXIT_CODE=0
 DEF_MANUF='/usr/share/wireshark/manuf'
 
@@ -205,8 +205,8 @@ lookup() {
     grep -i -- "$OUI_PAT" "$MANUF" | cut -f 1,3 \
     | while read -r M_OUI M_NAME; do
         case "$M_OUI" in
-          */??) prefix_match "$MAC_ADDR_PR_BY" "$M_OUI" &&
-                printf -- '%s\t%s\n' "$M_OUI" "$M_NAME";;
+          */??) { prefix_match "$MAC_ADDR_PR_BY" "$M_OUI" &&
+                  printf -- '%s\t%s\n' "$M_OUI" "$M_NAME" ; } || true;;
           *)    printf -- '%s\t%s\n' "$M_OUI" "$M_NAME";;
         esac
       done
