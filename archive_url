@@ -20,7 +20,7 @@ set -u
 set -e
 
 PROG=archive_url
-VERSION='2025-01-05-04'
+VERSION='2025-01-06-01'
 FORCE=0
 DRYRUN=0
 QUIET=0
@@ -110,7 +110,8 @@ verb_nl() {
 err() {
   EXIT_CODE=1
   test "$QUIET" -eq 0 || return 0
-  printf -- '%s: ERROR: %s\n' "$PROG" "$*" 1>&2
+  printf -- '%s: %s ERROR: %s\n' \
+            "$PROG" "$(date '+%Y-%m-%d %H:%M:%S')" "$*" 1>&2
 }
 
 add_jitter() {
