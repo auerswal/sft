@@ -1,7 +1,7 @@
-#! /bin/sh
+#! /usr/bin/env bash
 
 # ouilookup - lookup OUI of MAC address prefixes in Wireshark's "manuf" file
-# Copyright (C) 2024 Erik Auerswald
+# Copyright (C) 2024-2025 Erik Auerswald
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -16,19 +16,16 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-# TODO: support prefixes longer than 3 bytes ("IEEE Registration Authority")
-
-set -u
-set -e
+set -eu
 
 PROG=ouilookup
-VERSION='2024-12-16-02'
+VERSION='2025-01-06-01'
 EXIT_CODE=0
 DEF_MANUF='/usr/share/wireshark/manuf'
 
 print_copyright()
 {
-  echo 'Copyright (C) 2024 Erik Auerswald'
+  echo 'Copyright (C) 2024-2025 Erik Auerswald'
 }
 
 print_version()
@@ -114,15 +111,82 @@ test -r "$MANUF" || {
   exit 2
 }
 
+# keep only hexadecimal digits from a string
+keep_hex() {
+  test "$#" -eq 1 || {
+    printf -- '%s: %s(): error: wrong number of arguments ($# instead of %d)\n'\
+              "$PROG" 'keep_hex' '1' 1>&2
+    exit 2
+  }
+  local M_OUI
+  M_OUI="$1"
+  printf -- '%s\n' "$M_OUI" | tr -dc '0-9a-fA-F\n'
+}
+
+# right pad MAC address prefix with zeros to 6 bytes
+zero_fill_mac_prefix() {
+  test "$#" -eq 1 || {
+    printf -- '%s: %s(): error: wrong number of arguments ($# instead of %d)\n'\
+              "$PROG" 'zero_fill_mac_prefix' '1' 1>&2
+    exit 2
+  }
+  local MAC_PR
+  MAC_PR="$1"
+  MAC_PR_LEN="${#MAC_PR}"
+  MAC_PR_HEX="0x${MAC_PR}"
+  printf -- '0x%x\n' "$(( MAC_PR_HEX << (48 - MAC_PR_LEN * 4) ))"
+}
+
+# check if a MAC address prefix matches a OUI that is longer than 3 bytes
+# the MAC address prefix must comprise only hexadecimal digits
+# the OUI may contain separators, and must end with a prefix length in bits
+#   separated with a slash ('/')
+# returns 0 for match, 1 for no match, 2 for errors
+prefix_match() {
+  test "$#" -eq 2 || {
+    printf -- '%s: %s(): error: wrong number of arguments ($# instead of %d)\n'\
+              "$PROG" 'prefix_match' '2' 1>&2
+    exit 2
+  }
+  local MAC_PR_BY M_OUI PR_LEN M_OUI_BY BIT_MASK ALL_ONES ZERO_BITS
+  MAC_PR_BY="$1"
+  M_OUI="${2%/*}"
+  PR_LEN="${2#*/}"
+  M_OUI_BY="$(keep_hex "$M_OUI")"
+  { test "${#MAC_PR_BY}" -ge 6 && test "${#MAC_PR_BY}" -le 12 ; } || {
+    printf -- '%s: %s(): error: MAC address prefix length must be in [24,48]\n'\
+              "$PROG" 'prefix_match' 1>&2
+    return 2
+  }
+  { test "$PR_LEN" -ge 24 && test "$PR_LEN" -le 48 ; } || {
+    printf -- '%s: %s(): error: OUI prefix length must be in [24,48]\n' \
+              "$PROG" 'prefix_match' 1>&2
+    return 2
+  }
+  test "$(( ${#MAC_PR_BY} * 4 ))" -ge "$PR_LEN" || {
+    printf -- '%s: %s(): warning: MAC address prefix too short for OUI %s\n' \
+              "$PROG" 'prefix_match' "${M_OUI}/${PR_LEN}" 1>&2
+    return 2
+  }
+  ALL_ONES=$((2**48 - 1))
+  ZERO_BITS=$((48 - PR_LEN))
+  # having the BIT_MASK in hexadecimal notation helps debugging
+  BIT_MASK="$(printf -- '0x%x\n' "$(( (ALL_ONES << ZERO_BITS) & ALL_ONES))")"
+  MAC_PR_BY="$(zero_fill_mac_prefix "$MAC_PR_BY")"
+  M_OUI_BY="$(zero_fill_mac_prefix "$M_OUI_BY")"
+  test "$((MAC_PR_BY & BIT_MASK))" -eq "$((M_OUI_BY & BIT_MASK))"
+}
+
 # look up a single MAC address prefix
 lookup() {
   test "$#" -eq 1 || {
-    echo "$PROG: lookup(): error: wrong number of arguments ($# instead of 1)" \
-         1>&2
+    printf -- '%s: %s(): error: wrong number of arguments ($# instead of %d)\n'\
+              "$PROG" 'lookup' '1' 1>&2
     exit 2
   }
+  local MAC_ADDR_PR MAC_ADDR_PR_BY OUI_PAT
   MAC_ADDR_PR="$1"
-  MAC_ADDR_PR_BY="$(printf -- '%s\n' "$MAC_ADDR_PR" | tr -dc '0-9a-fA-F\n')"
+  MAC_ADDR_PR_BY="$(keep_hex "$MAC_ADDR_PR")"
   OUI_PAT="$(echo "$MAC_ADDR_PR_BY" | sed -En 's/^(..)(..)(..).*$/^\1.\2.\3/p')"
   test -n "$OUI_PAT" || {
     printf -- \
@@ -133,7 +197,14 @@ lookup() {
   }
   printf -- '--- %s ---\n' "$MAC_ADDR_PR"
   if grep -i -q -- "$OUI_PAT" "$MANUF"; then
-    grep -i -- "$OUI_PAT" "$MANUF" | cut -f 1,3
+    grep -i -- "$OUI_PAT" "$MANUF" | cut -f 1,3 \
+    | while read -r M_OUI M_NAME; do
+        case "$M_OUI" in
+          */??) prefix_match "$MAC_ADDR_PR_BY" "$M_OUI" &&
+                printf -- '%s\t%s\n' "$M_OUI" "$M_NAME";;
+          *)    printf -- '%s\t%s\n' "$M_OUI" "$M_NAME";;
+        esac
+      done
   else
     echo '(OUI not found)'
     EXIT_CODE=1
