@@ -2,7 +2,7 @@
 
 # Print externally visible IPv4 and IPv6 addresses.
 #
-# Copyright (c) 2013-2023 Erik Auerswald <auerswal@unix-ag.uni-kl.de>
+# Copyright (c) 2013-2025 Erik Auerswald <auerswal@unix-ag.uni-kl.de>
 #
 # Copying and distribution of this file, with or without modification,
 # are permitted in any medium without royalty provided the copyright
@@ -26,7 +26,7 @@ if command -v wget >/dev/null; then
   WGET=('wget' '-q' '-O-')
   HAVE_WGET='wget'
 elif command -v curl >/dev/null; then
-  WGET=('curl')
+  WGET=('curl' '-s')
   HAVE_WGET='curl'
 fi
 
