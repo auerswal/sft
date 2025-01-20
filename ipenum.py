@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
 
 # ipenum.py - enumerate IP addresses
-# Copyright (C) 2022-2023  Erik Auerswald <auerswal@unix-ag.uni-kl.de>
+# Copyright (C) 2022-2025  Erik Auerswald <auerswal@unix-ag.uni-kl.de>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -29,8 +29,8 @@ import re
 import sys
 
 PROG = 'ipenum.py'
-VERS = '0.4.2'
-COPY = 'Copyright (C) 2022-2023  Erik Auerswald <auerswal@unix-ag.uni-kl.de>'
+VERS = '0.4.3'
+COPY = 'Copyright (C) 2022-2025  Erik Auerswald <auerswal@unix-ag.uni-kl.de>'
 LICE = '''\
 License GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>.
 This is free software: you are free to change and redistribute it.
@@ -198,12 +198,12 @@ def parse_start_end(rng):
         try:
             start = ipaddress.ip_address(start)
         except ValueError as exc:
-            err(f"cannot parse address '{start}': {exc}")
+            err(f"cannot parse start address '{start}': {exc}")
             is_ok = False
         try:
             end = ipaddress.ip_address(end)
         except ValueError as exc:
-            err(f"cannot parse address '{end}': {exc}")
+            err(f"cannot parse end address '{end}': {exc}")
             is_ok = False
         if is_ok and start.version != end.version:
             err('start and end addresses must be of the same IP version')
