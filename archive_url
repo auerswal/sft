@@ -20,7 +20,7 @@ set -u
 set -e
 
 PROG=archive_url
-VERSION='2025-01-11-01'
+VERSION='2025-01-22-01'
 FORCE=0
 DRYRUN=0
 QUIET=0
@@ -161,6 +161,10 @@ fi
 check_and_archive_url()
 {
   URL="$1"
+  test -z "$URL" && {
+    verb_nl "$(date '+%Y-%m-%d %H:%M:%S') Skipping empty URL"
+    return 0
+  }
   if test "$FORCE" -eq 0; then
     verb_no_nl "$(date '+%Y-%m-%d %H:%M:%S') Checking ${URL} ..."
     STATUS="$(wget -q -O- -- "${CHECK}${URL}" | jq '.archived_snapshots != {}')"
