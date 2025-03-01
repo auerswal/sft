@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
 
 # thotp.py - generate HOTP or TOTP one-time password (a.k.a. verification code)
-# Copyright (C) 2023-2024  Erik Auerswald <auerswal@unix-ag.uni-kl.de>
+# Copyright (C) 2023-2025  Erik Auerswald <auerswal@unix-ag.uni-kl.de>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -38,8 +38,8 @@ import sys
 import time
 
 PROG = 'thotp.py'
-VERS = '0.4.0'
-COPY = 'Copyright (C) 2023-2024  Erik Auerswald <auerswal@unix-ag.uni-kl.de>'
+VERS = '0.5.0'
+COPY = 'Copyright (C) 2023-2025  Erik Auerswald <auerswal@unix-ag.uni-kl.de>'
 LICE = '''\
 License GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>.
 This is free software: you are free to change and redistribute it.
@@ -72,9 +72,13 @@ URI uses the "otpauth" scheme provisionally registered with IANA:
     - counter: initial counter value for HOTP (required, HOTP only)
 '''
 EPIL = f'''\
-Example:
+Examples:
+
     # compute TOTP code from GPG-encrypted raw shared secret key
     $ gpg --decrypt --quiet ~/.totp-secret | {PROG}
+
+    # compute TOTP code as above and copy it to the X Window System clipboard
+    $ gpg --decrypt --quiet ~/.totp-secret | {PROG} -n | xclip
 '''
 KEY_ENCODINGS = ['hex', 'base16', 'base32', 'base64']
 
@@ -107,6 +111,8 @@ def cmd_line_args():
     cmd_line.add_argument('-d', '--digits', type=int, default=6,
                           help='number of digits in one-time password ' +
                                '(default: 6)')
+    cmd_line.add_argument('-n', '--no-newline', action='store_true',
+                          help='omit end-of-line sequence from output')
     return cmd_line.parse_args()
 
 
@@ -393,7 +399,7 @@ def main():
     key = decode_key(key, ARGS.key_encoding)
     counter = set_counter(ARGS.counter, ARGS.time_step_size)
     hotp_value = compute_hotp_code(key, counter, ARGS.hash, ARGS.digits)
-    print(hotp_value)
+    print(hotp_value, end='' if ARGS.no_newline else '\n')
     return 0
 
 
