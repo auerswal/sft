@@ -38,7 +38,7 @@ import sys
 import time
 
 PROG = 'thotp.py'
-VERS = '0.5.0'
+VERS = '0.5.1'
 COPY = 'Copyright (C) 2023-2025  Erik Auerswald <auerswal@unix-ag.uni-kl.de>'
 LICE = '''\
 License GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>.
@@ -158,16 +158,20 @@ def read_secret_key(file_name):
 
 def decode_key(key, encoding):
     """Decode an encoded shared secret key."""
-    if encoding is None:
-        return key
-    elif encoding == 'hex' or encoding == 'base16':
-        return base64.b16decode(key)
-    elif encoding == 'base32':
-        return base64.b32decode(key)
-    elif encoding == 'base64':
-        return base64.b64decode(key)
-    else:
-        err(f'unknown key encoding "{encoding}"')
+    try:
+        if encoding is None:
+            return key
+        elif encoding == 'hex' or encoding == 'base16':
+            return base64.b16decode(key)
+        elif encoding == 'base32':
+            return base64.b32decode(key)
+        elif encoding == 'base64':
+            return base64.b64decode(key)
+        else:
+            err(f'unknown key encoding "{encoding}"')
+            return None
+    except base64.binascii.Error as exc:
+        err(f'cannot decode secret key: {exc}')
         return None
 
 
@@ -397,6 +401,9 @@ def main():
         return 1
     key = read_secret_key(ARGS.file)
     key = decode_key(key, ARGS.key_encoding)
+    if not key:
+        err('cannot read secret key')
+        return 1
     counter = set_counter(ARGS.counter, ARGS.time_step_size)
     hotp_value = compute_hotp_code(key, counter, ARGS.hash, ARGS.digits)
     print(hotp_value, end='' if ARGS.no_newline else '\n')
