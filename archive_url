@@ -20,13 +20,13 @@ set -u
 set -e
 
 PROG=archive_url
-VERSION='2025-01-22-01'
+VERSION='2025-03-08-01'
 FORCE=0
 DRYRUN=0
 QUIET=0
 VERBOSE=0
 WAIT=''
-WAITTIME=5
+WAITTIME=90
 JITTERWAIT=0
 WGETVERB='-nv'
 CHECK='https://archive.org/wayback/available?url='
