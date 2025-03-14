@@ -29,7 +29,7 @@ import re
 import sys
 
 PROG = 'ipenum.py'
-VERS = '0.4.3'
+VERS = '0.5.0'
 COPY = 'Copyright (C) 2022-2025  Erik Auerswald <auerswal@unix-ag.uni-kl.de>'
 LICE = '''\
 License GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>.
@@ -147,38 +147,80 @@ def print_cidr(net, hosts_only):
     2001:db8::3
     >>> r == 0
     True
+    >>> r = print_cidr('2001:db8::/127', False)
+    2001:db8::
+    2001:db8::1
+    >>> r == 0
+    True
+    >>> r = print_cidr('2001:db8::/127', True)
+    2001:db8::
+    2001:db8::1
+    >>> r == 0
+    True
+    >>> r = print_cidr('fe80::a%en0/127', False)
+    fe80::a%en0
+    fe80::b%en0
+    >>> r == 0
+    True
     """
+    zone_id = ''
+    pos_perc = net.find('%')
+    if pos_perc > -1:
+        pos_slash = net.rfind('/', pos_perc)
+        if pos_slash == -1:
+            err(f"cannot parse CIDR with zone index '{net}'")
+            return 1
+        zone_id = net[pos_perc:pos_slash]
+        net = net[:pos_perc] + net[pos_slash:]
+        dbg(f'{net=}, {zone_id=}')
     try:
         addresses = ipaddress.ip_network(net, strict=False)
     except ValueError as exc:
         err(f"cannot parse CIDR '{net}': {exc}")
         return 1
+    if zone_id and not isinstance(addresses, ipaddress.IPv6Network):
+        err(f'{net}: zone ID supported with IPv6 only')
+        return 1
     if hosts_only:
         addresses = addresses.hosts()
     for addr in addresses:
-        print(addr)
+        print(addr, zone_id, sep='')
     return 0
 
 
 def parse_start_end(rng):
     """Extract start and end addresses from range expression.
 
-    >>> s, e, ok = parse_start_end('192.0.2.47...192.0.2.48')
+    >>> s, e, zone_id, ok = parse_start_end('192.0.2.47...192.0.2.48')
     >>> s == ipaddress.IPv4Address('192.0.2.47')
     True
     >>> e == ipaddress.IPv4Address('192.0.2.48')
     True
+    >>> zone_id == ''
+    True
     >>> ok == True
     True
-    >>> s, e, ok = parse_start_end('2001:db8::a - 2001:db8::b')
+    >>> s, e, zone_id, ok = parse_start_end('2001:db8::a - 2001:db8::b')
     >>> s == ipaddress.IPv6Address('2001:db8::a')
     True
     >>> e == ipaddress.IPv6Address('2001:db8::b')
+    True
+    >>> zone_id == ''
+    True
+    >>> ok == True
+    True
+    >>> s, e, zone_id, ok = parse_start_end('ff02::10%eth0..ff02::20%eth0')
+    >>> s == ipaddress.IPv6Address('ff02::10')
+    True
+    >>> e == ipaddress.IPv6Address('ff02::20')
+    True
+    >>> zone_id == '%eth0'
     True
     >>> ok == True
     True
     """
     start = end = is_ok = None
+    zone_id = ''
     # use a regular expression to accept a wide variety of separators
     tmp = re.split(r'\s*(?:\s+(?:to\s)?|,?\.{2,},?|-+>?|[,;→⇒—…])\s*', rng)
     dbg(f'tmp = {tmp}')
@@ -191,10 +233,27 @@ def parse_start_end(rng):
         err(f"cannot parse range '{rng}': found more than two addresses")
         is_ok = False
     else:
+        is_ok = True
         if num_addrs == 1:
             tmp.append(tmp[0])
         start, end = tmp
-        is_ok = True
+        start_pos_perc, end_pos_perc = start.find('%'), end.find('%')
+        if ((start_pos_perc == -1 and end_pos_perc != -1) or
+            (start_pos_perc != -1 and end_pos_perc == -1)):
+            err(f"inconsistent zone ID specification for range '{rng}'")
+            is_ok = False
+        start_zone_id = end_zone_id = ''
+        if start_pos_perc != -1:
+            start_zone_id = start[start_pos_perc:]
+            start = start[:start_pos_perc]
+        if end_pos_perc != -1:
+            end_zone_id = end[end_pos_perc:]
+            end = end[:end_pos_perc]
+        if start_zone_id != end_zone_id:
+            err(f'{rng}: zone ID of start and end address must be the same')
+            is_ok = False
+        else:
+                zone_id = start_zone_id
         try:
             start = ipaddress.ip_address(start)
         except ValueError as exc:
@@ -206,9 +265,12 @@ def parse_start_end(rng):
             err(f"cannot parse end address '{end}': {exc}")
             is_ok = False
         if is_ok and start.version != end.version:
-            err('start and end addresses must be of the same IP version')
+            err(f'{rng}: start and end addresses must be of same IP version')
             is_ok = False
-    return (start, end, is_ok)
+        if is_ok and zone_id and start.version != 6:
+            err(f'{rng}: zone ID supported with IPv6 only')
+            is_ok = False
+    return (start, end, zone_id, is_ok)
 
 
 def parse_interval(interval):
@@ -221,109 +283,139 @@ def parse_interval(interval):
     ]start, end] excludes the start address and includes the end address.
     (start, end) excludes both start and end addresses.
     ]start, end[ excludes both start and end addresses.
-    >>> s, e, ok = parse_interval('[2001:db8::a,2001:db8::c]')
+    >>> s, e, zone_id, ok = parse_interval('[2001:db8::a,2001:db8::c]')
     >>> s == ipaddress.IPv6Address('2001:db8::a')
     True
     >>> e == ipaddress.IPv6Address('2001:db8::c')
     True
+    >>> zone_id == ''
+    True
     >>> ok == True
     True
-    >>> s, e, ok = parse_interval('(2001:db8::a,2001:db8::c]')
+    >>> s, e, zone_id, ok = parse_interval('(2001:db8::a,2001:db8::c]')
     >>> s == ipaddress.IPv6Address('2001:db8::b')
     True
     >>> e == ipaddress.IPv6Address('2001:db8::c')
     True
+    >>> zone_id == ''
+    True
     >>> ok == True
     True
-    >>> s, e, ok = parse_interval(']2001:db8::a,2001:db8::c]')
+    >>> s, e, zone_id, ok = parse_interval(']2001:db8::a,2001:db8::c]')
     >>> s == ipaddress.IPv6Address('2001:db8::b')
     True
     >>> e == ipaddress.IPv6Address('2001:db8::c')
     True
+    >>> zone_id == ''
+    True
     >>> ok == True
     True
-    >>> s, e, ok = parse_interval('[2001:db8::a,2001:db8::c)')
+    >>> s, e, zone_id, ok = parse_interval('[2001:db8::a,2001:db8::c)')
     >>> s == ipaddress.IPv6Address('2001:db8::a')
     True
     >>> e == ipaddress.IPv6Address('2001:db8::b')
     True
+    >>> zone_id == ''
+    True
     >>> ok == True
     True
-    >>> s, e, ok = parse_interval('[2001:db8::a,2001:db8::c[')
+    >>> s, e, zone_id, ok = parse_interval('[2001:db8::a,2001:db8::c[')
     >>> s == ipaddress.IPv6Address('2001:db8::a')
     True
     >>> e == ipaddress.IPv6Address('2001:db8::b')
     True
+    >>> zone_id == ''
+    True
     >>> ok == True
     True
-    >>> s, e, ok = parse_interval('(2001:db8::a,2001:db8::c)')
+    >>> s, e, zone_id, ok = parse_interval('(2001:db8::a,2001:db8::c)')
     >>> s == ipaddress.IPv6Address('2001:db8::b')
     True
     >>> e == ipaddress.IPv6Address('2001:db8::b')
     True
+    >>> zone_id == ''
+    True
     >>> ok == True
     True
-    >>> s, e, ok = parse_interval(']2001:db8::a,2001:db8::c[')
+    >>> s, e, zone_id, ok = parse_interval(']2001:db8::a,2001:db8::c[')
     >>> s == ipaddress.IPv6Address('2001:db8::b')
     True
     >>> e == ipaddress.IPv6Address('2001:db8::b')
+    True
+    >>> zone_id == ''
+    True
+    >>> ok == True
+    True
+    >>> s, e, zone_id, ok = parse_interval(']fe80::a%1,fe80::d%1[')
+    >>> s == ipaddress.IPv6Address('fe80::b')
+    True
+    >>> e == ipaddress.IPv6Address('fe80::c')
+    True
+    >>> zone_id == '%1'
     True
     >>> ok == True
     True
     """
-    start, end, is_ok = parse_start_end(interval[1:-1].strip())
+    start, end, zone_id, is_ok = parse_start_end(interval[1:-1].strip())
     if not is_ok:
         return (start, end, is_ok)
     if interval[0] in '(]':
         start += 1
     if interval[-1] in ')[':
         end -= 1
-    return (start, end, is_ok)
+    return (start, end, zone_id, is_ok)
 
 
-def print_start_end(start, end):
+def print_start_end(start, end, zone_id):
     """Print IP addresses from start to end (inclusive).
 
     >>> s = ipaddress.IPv4Address('192.0.2.1')
     >>> e = ipaddress.IPv4Address('192.0.2.0')
-    >>> r = print_start_end(s, e)
+    >>> r = print_start_end(s, e, '')
     >>> r == 0
     True
     >>> s = ipaddress.IPv4Address('192.0.2.1')
     >>> e = ipaddress.IPv4Address('192.0.2.1')
-    >>> r = print_start_end(s, e)
+    >>> r = print_start_end(s, e, '')
     192.0.2.1
     >>> r == 0
     True
     >>> s = ipaddress.IPv4Address('192.0.2.1')
     >>> e = ipaddress.IPv4Address('192.0.2.2')
-    >>> r = print_start_end(s, e)
+    >>> r = print_start_end(s, e, '')
     192.0.2.1
     192.0.2.2
     >>> r == 0
     True
     >>> s = ipaddress.IPv6Address('2001:db8::1')
     >>> e = ipaddress.IPv6Address('2001:db8::')
-    >>> r = print_start_end(s, e)
+    >>> r = print_start_end(s, e, '')
     >>> r == 0
     True
     >>> s = ipaddress.IPv6Address('2001:db8::1')
     >>> e = ipaddress.IPv6Address('2001:db8::1')
-    >>> r = print_start_end(s, e)
+    >>> r = print_start_end(s, e, '')
     2001:db8::1
     >>> r == 0
     True
     >>> s = ipaddress.IPv6Address('2001:db8::1')
     >>> e = ipaddress.IPv6Address('2001:db8::2')
-    >>> r = print_start_end(s, e)
+    >>> r = print_start_end(s, e, '')
     2001:db8::1
     2001:db8::2
+    >>> r == 0
+    True
+    >>> s = ipaddress.IPv6Address('fe80::a')
+    >>> e = ipaddress.IPv6Address('fe80::b')
+    >>> r = print_start_end(s, e, '%eth0')
+    fe80::a%eth0
+    fe80::b%eth0
     >>> r == 0
     True
     """
     address = start
     while address <= end:
-        print(address)
+        print(address, zone_id, sep='')
         address += 1
     return 0
 
@@ -366,14 +458,14 @@ def print_ip_range(range_or_cidr, hosts_only):
     elif (len(range_or_cidr) > 1
           and range_or_cidr[0] in '[]('
           and range_or_cidr[-1] in '[])'):
-        start, end, is_ok = parse_interval(range_or_cidr)
+        start, end, zone_id, is_ok = parse_interval(range_or_cidr)
         if not is_ok:
             return 1
     else:
-        start, end, is_ok = parse_start_end(range_or_cidr)
+        start, end, zone_id, is_ok = parse_start_end(range_or_cidr)
         if not is_ok:
             return 1
-    return print_start_end(start, end)
+    return print_start_end(start, end, zone_id)
 
 
 if __name__ == '__main__':
