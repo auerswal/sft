@@ -435,6 +435,12 @@ def print_ip_range(range_or_cidr, hosts_only):
     2001:db8::7
     >>> r == 0
     True
+    >>> r = print_ip_range('2001:db8::7/126', True)
+    2001:db8::5
+    2001:db8::6
+    2001:db8::7
+    >>> r == 0
+    True
     >>> r = print_ip_range('2001:db8::1234..2001:db8::1236', False)
     2001:db8::1234
     2001:db8::1235
@@ -450,6 +456,20 @@ def print_ip_range(range_or_cidr, hosts_only):
     >>> r = print_ip_range('[ 2001:db8::1234 ... 2001:db8::1236 )', True)
     2001:db8::1234
     2001:db8::1235
+    >>> r == 0
+    True
+    >>> r = print_ip_range('2001:db8::abcd', True)
+    2001:db8::abcd
+    >>> r == 0
+    True
+    >>> r = print_ip_range('fe80::a%eth0-fe80::b%eth0', False)
+    fe80::a%eth0
+    fe80::b%eth0
+    >>> r == 0
+    True
+    >>> r = print_ip_range(' fe80::e%eth0 fe80::f%eth0 ', False)
+    fe80::e%eth0
+    fe80::f%eth0
     >>> r == 0
     True
     """
