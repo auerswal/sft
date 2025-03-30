@@ -38,7 +38,7 @@ import sys
 import time
 
 PROG = 'thotp.py'
-VERS = '0.5.1'
+VERS = '0.5.2'
 COPY = 'Copyright (C) 2023-2025  Erik Auerswald <auerswal@unix-ag.uni-kl.de>'
 LICE = '''\
 License GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>.
@@ -149,9 +149,12 @@ def valid_settings(settings):
 def read_secret_key(file_name):
     """Read the shared secret key from a file."""
     key = b''
-    with open(file_name, mode='rb') as key_file:
-        while buf := key_file.read():
-            key += buf
+    try:
+        with open(file_name, mode='rb') as key_file:
+            while buf := key_file.read():
+                key += buf
+    except OSError as exc:
+        err(f'cannot read key from file: {exc}')
     key = key.strip()
     return key
 
