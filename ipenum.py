@@ -239,7 +239,7 @@ def parse_start_end(rng):
         start, end = tmp
         start_pos_perc, end_pos_perc = start.find('%'), end.find('%')
         if ((start_pos_perc == -1 and end_pos_perc != -1) or
-            (start_pos_perc != -1 and end_pos_perc == -1)):
+                (start_pos_perc != -1 and end_pos_perc == -1)):
             err(f"inconsistent zone ID specification for range '{rng}'")
             is_ok = False
         start_zone_id = end_zone_id = ''
@@ -253,7 +253,7 @@ def parse_start_end(rng):
             err(f'{rng}: zone ID of start and end address must be the same')
             is_ok = False
         else:
-                zone_id = start_zone_id
+            zone_id = start_zone_id
         try:
             start = ipaddress.ip_address(start)
         except ValueError as exc:
