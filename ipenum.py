@@ -501,6 +501,17 @@ def print_ip_range(range_or_cidr, hosts_only):
     fe80::49%eth0:1
     >>> r == 0
     True
+    >>> r = print_ip_range('fe80::1%1:1..fe80::2%1:1', False)
+    fe80::1%1:1
+    fe80::2%1:1
+    >>> r == 0
+    True
+    >>> r = print_ip_range('fe80::1%enx02123456789a-fe80::2%enx02123456789a',
+    ... False)
+    fe80::1%enx02123456789a
+    fe80::2%enx02123456789a
+    >>> r == 0
+    True
     """
     if '/' in range_or_cidr:
         return print_cidr(range_or_cidr, hosts_only)
