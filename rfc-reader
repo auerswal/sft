@@ -10,7 +10,12 @@
 # BUGS:
 # - draft-rep-wg-topic-00.txt is not formatted well by rfc-reader
 #   - the text version lacks the '\f' characters needed for filling the pages
-# - RFC 603 is not formatted well by rfc-reader
+# - RFC 1 is not formatted well by rfc-reader
+#   - one line on page 4 is too long (77 characters)
+#   - one line on page 6 is too long (75 characters)
+#   - several lines touch the widow border (74 characters long)
+#   -> workaround: env C=79 rfc-reader 1
+# - RFC 602 is not formatted well by rfc-reader
 #   - first and second line are too long (79 characters)
 #   - 7th line is too long (76 characters)
 #   - 10th line is too long (75 characters)
