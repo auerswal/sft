@@ -20,13 +20,15 @@ set -u
 set -e
 
 PROG=archive_url
-VERSION='2025-03-08-01'
+VERSION='2025-05-24-01'
 FORCE=0
 DRYRUN=0
 QUIET=0
 VERBOSE=0
 WAIT=''
-WAITTIME=90
+WAITTIMELONG=90
+WAITTIMESHORT=10
+WAITTIME="$WAITTIMELONG"
 JITTERWAIT=0
 WGETVERB='-nv'
 CHECK='https://archive.org/wayback/available?url='
@@ -46,7 +48,7 @@ print_version()
 print_usage()
 {
   printf -- '%s { -h | -V | -L }\n' "$PROG"
-  printf -- '%s [-f] [-n] [-q] [-v] [-w TIME] [-r] [URL...]\n' "$PROG"
+  printf -- '%s [-f] [-n] [-q] [-v] [-w TIME] [-W TIME] [-r] [URL...]\n' "$PROG"
 }
 
 print_license()
@@ -92,7 +94,8 @@ Options:
   -n       check URLs only, but do not archive (dry run)
   -q       suppress error messages and wget output
   -v       print URL that is processed next
-  -w TIME  wait at least TIME seconds after each URL (default $WAITTIME)
+  -w TIME  wait at least TIME secs after archiving URL(default $WAITTIMELONG)
+  -W TIME  wait at least TIME secs after archived URL (default $WAITTIMESHORT)
   -r       randomize wait time between URLs
 EOH
 }
@@ -134,7 +137,7 @@ do_wait() {
   verb_nl ' done'
 }
 
-while getopts ':hVLfnqvw:r' OPT; do
+while getopts ':hVLfnqvw:rW:' OPT; do
   case "$OPT" in
     'h') print_help; exit 0;;
     'V') print_version; print_copyright; exit 0;;
@@ -143,7 +146,8 @@ while getopts ':hVLfnqvw:r' OPT; do
     'n') DRYRUN=1;;
     'q') QUIET=1 WGETVERB='-q';;
     'v') VERBOSE=1;;
-    'w') WAITTIME="$OPTARG";;
+    'w') WAITTIMELONG="$OPTARG";;
+    'W') WAITTIMESHORT="$OPTARG";;
     'r') JITTERWAIT=1;;
     '?') err "unknown option '-$OPTARG'"; print_usage; exit 1;;
     ':') err "argument required for option '-$OPTARG'"; print_usage; exit 1;;
@@ -152,7 +156,20 @@ while getopts ':hVLfnqvw:r' OPT; do
 done
 shift $((OPTIND - 1))
 
-if ! printf -- '%s\n' "$WAITTIME" | grep -Eq '^([0-9]+(\.[0-9]*)?|\.[0-9]+)$'
+is_not_decimal()
+{
+  test "$#" -eq 1 || {
+    err 'is_not_decimal() needs exactly one argument'
+    exit 1
+  }
+  if printf -- '%s\n' "$1" | grep -Eq '^([0-9]+(\.[0-9]*)?|\.[0-9]+)$'; then
+    return 1
+  else
+    return 0
+  fi
+}
+
+if is_not_decimal "$WAITTIMELONG" || is_not_decimal "$WAITTIMESHORT"
 then
   err "TIME must be a decimal number"
   exit 1
@@ -174,13 +191,16 @@ check_and_archive_url()
   fi
   if test "$STATUS" = 'true'; then
     verb_nl ' archived'
+    return 0
   else
     if test "$DRYRUN" -eq 0; then
       verb_nl ' triggering archiving ...'
       wget "$WGETVERB" '-t1' '-O/dev/null' -- "${ARCHIVE}${URL}" ||
         err "error archiving URL (Wget exit code $?)"
+      return 1
     else
       verb_nl ' not archived (dry run)'
+      return 0
     fi
   fi
 }
@@ -188,13 +208,21 @@ check_and_archive_url()
 if test "$#" -eq 0; then
   while read -r URL; do
     test -n "$WAIT" && do_wait
-    check_and_archive_url "$URL"
+    if check_and_archive_url "$URL"; then
+      WAITTIME="$WAITTIMESHORT"
+    else
+      WAITTIME="$WAITTIMELONG"
+    fi
     WAIT='true'
   done
 else
   for URL in "$@"; do
     test -n "$WAIT" && do_wait
-    check_and_archive_url "$URL"
+    if check_and_archive_url "$URL"; then
+      WAITTIME="$WAITTIMESHORT"
+    else
+      WAITTIME="$WAITTIMELONG"
+    fi
     WAIT='true'
   done
 fi
