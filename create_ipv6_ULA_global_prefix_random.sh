@@ -1,15 +1,15 @@
-#! /bin/bash
+#! /usr/bin/env bash
 
 # Generate an IPv6 ULA Global Prefix.
 
-# Copyright (C) 2017 Erik Auerswald <auerswal@unix-ag.uni-kl.de>
+# Copyright (C) 2017,2025 Erik Auerswald <auerswal@unix-ag.uni-kl.de>
 
 # Copying and distribution of this file, with or without modification,
 # are permitted in any medium without royalty provided the copyright
 # notice and this notice are preserved.  This file is offered as-is,
 # without any warranty.
 
-# Version 2017-03-17-01
+# Version 2027-07-27-01
 
 set -e
 set -u

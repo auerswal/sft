@@ -1,4 +1,4 @@
-#! /bin/bash
+#! /usr/bin/env bash
 
 # Print externally visible IPv4 and IPv6 addresses.
 #

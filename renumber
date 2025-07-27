@@ -1,8 +1,8 @@
-#! /bin/bash
+#! /usr/bin/env bash
 
 # renumber - renumber a set of files with non-contiguous numbering
 #
-#  Copyright (C) 2018 by Erik Auerswald <auerswal@unix-ag.uni-kl.de>
+#  Copyright (C) 2018,2025 by Erik Auerswald <auerswal@unix-ag.uni-kl.de>
 #
 # Copying and distribution of this file, with or without modification,
 # are permitted in any medium without royalty provided the copyright
