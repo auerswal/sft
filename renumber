@@ -50,5 +50,5 @@ for F in "$@"; do
   NEW_NAME="${PREFIX}${NEW_NUM}${POSTFIX}"
   test "$F" = "$NEW_NAME" && echo "keeping '$F'"
   test "$F" != "$NEW_NAME" && mv -iv "$F" "$NEW_NAME"
-  let IDX++
+  (( IDX++ )) || true
 done
