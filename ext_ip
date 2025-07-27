@@ -11,23 +11,18 @@
 
 set -u
 
-HAVE_LYNX=''
 HAVE_WGET=''
-declare -a LYNX WGET
-# use lynx to create text from HTML
-if command -v lynx >/dev/null; then
-  LYNX=('lynx' '-dump' '-nolist')
-  HAVE_LYNX='lynx'
-  WGET=('lynx' '-dump' '-nolist')
-  HAVE_WGET='lynx'
-fi
-# DynDNS and icanhazip work with wget and curl, too
+declare -a WGET
+# DynDNS and icanhazip work with wget and curl, as well as with lynx
 if command -v wget >/dev/null; then
   WGET=('wget' '-qO-')
   HAVE_WGET='wget'
 elif command -v curl >/dev/null; then
   WGET=('curl' '-s')
   HAVE_WGET='curl'
+elif command -v lynx >/dev/null; then
+  WGET=('lynx' '-dump' '-nolist')
+  HAVE_WGET='lynx'
 fi
 
 # get the current IPv4 address using DynDNS (returns HTML)
