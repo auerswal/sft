@@ -88,7 +88,7 @@ copyright()
 
 version()
 {
-  local V="0.76"
+  local V="0.77"
   printf -- "%s\n" "$B version $V"
 }
 
@@ -232,7 +232,8 @@ test -z "$DN" && { test "$DT" = 'draft' || test "$DT" = 'I-D'; } &&
   printf -- '%s: determining latest version of %s ... ' "$B" "$DOC" &&
   if test \( -n "$RFCCACHE" \) -a \( -d "$RFCCACHE" \) -a \( -w "$RFCCACHE" \)
   then
-    printf -- 'refreshing I-D list %s/%s ... ' "$RFCCACHE" "$IDLST"
+    printf -- 'refreshing I-D list "%s/%s" from "%s/%s" ... ' \
+              "$RFCCACHE" "$IDLST" "$IDLSTBS" "$IDLST"
     if wget -q -o/dev/null -N -P "$RFCCACHE" -- "${IDLSTBS}/${IDLST}"; then
       echo 'done'
     else
