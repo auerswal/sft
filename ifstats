@@ -2,7 +2,7 @@
 
 # ifstats - print interface statistics (counters) on Linux
 #
-# Copyright (C) 2017,2024 by Erik Auerswald <auerswal@unix-ag.uni-kl.de>
+# Copyright (C) 2017-2025 by Erik Auerswald <auerswal@unix-ag.uni-kl.de>
 #
 # Copying and distribution of this file, with or without modification,
 # are permitted in any medium without royalty provided the copyright
@@ -12,7 +12,7 @@
 set -u
 
 PROG="$(basename "$0")"
-VERSION='2024-09-22-01'
+VERSION='2025-10-17-01'
 
 print_version()
 {
@@ -21,7 +21,7 @@ print_version()
 
 print_copyright()
 {
-  echo 'Copyright (C) 2017,2024 by Erik Auerswald <auerswal@unix-ag.uni-kl.de>'
+  echo 'Copyright (C) 2017-2025 by Erik Auerswald <auerswal@unix-ag.uni-kl.de>'
 }
 
 print_license()
@@ -85,7 +85,10 @@ while getopts ':hVLn' OPT; do
 done
 shift $((OPTIND - 1))
 
-cd "${SYS_CLASS_NET}"
+cd "${SYS_CLASS_NET}" || {
+  echo "${PROG}: error: cannot change directory to '${SYS_CLASS_NET}'"
+  exit 1
+}
 
 test $# -eq 0 && ifnames=$(ls -1) || ifnames="$*"
 
@@ -93,9 +96,15 @@ for i in ${ifnames}; do
   test -d "${i}/statistics" ||
     { echo "% error: no interface ${i}"; EXITCODE=1 continue; }
   echo "interface ${i}:"
-  cd "${i}/statistics"
+  cd "${i}/statistics" || {
+    echo "${PROG}: error: cannot change directory to '${SYS_CLASS_NET}'"
+    exit 1
+  }
   grep ${GREPOPTS} -- "${GREPPAT}" * | sed 's/^/  /;s/:\([0-9]\)/: \1/'
-  cd "${SYS_CLASS_NET}"
+  cd "${SYS_CLASS_NET}" || {
+    echo "${PROG}: error: cannot change directory to '${SYS_CLASS_NET}'"
+    exit 1
+  }
 done
 
 exit "${EXITCODE}"
