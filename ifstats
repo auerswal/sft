@@ -12,7 +12,7 @@
 set -u
 
 PROG="$(basename "$0")"
-VERSION='2025-10-17-01'
+VERSION='2025-10-17-02'
 
 print_version()
 {
@@ -75,7 +75,7 @@ while getopts ':hVLn' OPT; do
     'h') print_help; exit 0;;
     'V') print_version; print_copyright; exit 0;;
     'L') print_version; print_copyright; echo; print_license; exit 0;;
-    'n') GREPOPTS="${GREPOPTS} -v"; GREPPAT=${ZEROPATTERN};;
+    'n') GREPOPTS="${GREPOPTS}v"; GREPPAT=${ZEROPATTERN};;
     '?') echo "${PROG}: error: unknown option '-$OPTARG'";
          print_usage; exit 1;;
     ':') echo "${PROG}: error: argument required for option '-$OPTARG'";
@@ -100,7 +100,7 @@ for i in ${ifnames}; do
     echo "${PROG}: error: cannot change directory to '${SYS_CLASS_NET}'"
     exit 1
   }
-  grep ${GREPOPTS} -- "${GREPPAT}" * | sed 's/^/  /;s/:\([0-9]\)/: \1/'
+  grep "${GREPOPTS}" -- "${GREPPAT}" * | sed 's/^/  /;s/:\([0-9]\)/: \1/'
   cd "${SYS_CLASS_NET}" || {
     echo "${PROG}: error: cannot change directory to '${SYS_CLASS_NET}'"
     exit 1
