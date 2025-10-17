@@ -12,7 +12,7 @@
 set -u
 
 PROG="$(basename "$0")"
-VERSION='2025-10-17-02'
+VERSION='2025-10-17-03'
 
 print_version()
 {
@@ -93,14 +93,14 @@ cd "${SYS_CLASS_NET}" || {
 test $# -eq 0 && ifnames=$(ls -1) || ifnames="$*"
 
 for i in ${ifnames}; do
-  test -d "${i}/statistics" ||
+  test -d "./${i}/statistics" ||
     { echo "% error: no interface ${i}"; EXITCODE=1 continue; }
   echo "interface ${i}:"
-  cd "${i}/statistics" || {
+  cd "./${i}/statistics" || {
     echo "${PROG}: error: cannot change directory to '${SYS_CLASS_NET}'"
     exit 1
   }
-  grep "${GREPOPTS}" -- "${GREPPAT}" * | sed 's/^/  /;s/:\([0-9]\)/: \1/'
+  grep "${GREPOPTS}" -- "${GREPPAT}" './'* | sed 's,^\./,  ,;s/:\([0-9]\)/: \1/'
   cd "${SYS_CLASS_NET}" || {
     echo "${PROG}: error: cannot change directory to '${SYS_CLASS_NET}'"
     exit 1
