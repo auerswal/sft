@@ -88,7 +88,7 @@ copyright()
 
 version()
 {
-  local V="0.78"
+  local V="0.79"
   printf -- "%s\n" "$B version $V"
 }
 
@@ -222,7 +222,7 @@ case "$DT" in
     DOC="$(printf -- '%s' "$DOC" | sed 's/^[Ii]-[Dd]\./draft-/')"
     DN="$(printf -- '%s' "$DOC" | tr '[:upper:]' '[:lower:]' \
           | sed 's/^[[:space:]]\+//;s/\.txt[[:space:]]*$//;s/^i-d\./draft-/')"
-    expr " $DN" : ' .*-[0-9][0-9][0-9]*$' > /dev/null || DN='';;
+    expr " $DN" : ' .*-[0-9][0-9]$' > /dev/null || DN='';;
   *) DN="$(expr " $DOC" : ' [-A-Za-z .]*0*\([1-9][0-9]*\)')";;
 esac
 # determine latest I-D version number if I-D name w/o number was provided
