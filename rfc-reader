@@ -88,7 +88,7 @@ copyright()
 
 version()
 {
-  local V="0.79"
+  local V="0.80"
   printf -- "%s\n" "$B version $V"
 }
 
@@ -397,7 +397,7 @@ test -n "$DISPLAY" && {
         XO=('+sb' '-xrm')
         XF="xterm*vt100.initialFont: ${XTFS}"
         G=('-g' "${C}x$((L+PSL))")
-        T='-T'
+        T='-title'
         E=('-e' "$P" "$PO")
         found='xterm'
         ;;
