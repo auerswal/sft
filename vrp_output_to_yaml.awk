@@ -1,7 +1,7 @@
 #! /usr/bin/awk -f
 
 # vrp_output_to_yaml.awk - Convert Huawei VRP session output to YAML.
-# Copyright (C) 2018-2022 Erik Auerswald <auerswal@unix-ag.uni-kl.de>
+# Copyright (C) 2018-2026 Erik Auerswald <auerswal@unix-ag.uni-kl.de>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -66,9 +66,9 @@ $0 ~ prompt {
     gsub("\r", "")
     # remove VRP line wrap related terminal control sequences (long commands)
     gsub(" \x1b\\[1D", "")
-    # if the command ends with a trailing colon, or contains single or double
-    #  quotes, it needs to be quoted
-    if ($0 ~ /(:$|['"])/) {
+    # if the command ends with a trailing colon, contains a colon followed by
+    #  a space, or contains single or double quotes, it needs to be quoted
+    if ($0 ~ /(:( |$)|['"])/) {
         if ($0 !~ /"/ && $0 !~ /'/) {
             $0 = "\"" $0 "\""
         } else if ($0 ~ /"/ && $0 ~ /'/) {
