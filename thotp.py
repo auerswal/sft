@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
 
 # thotp.py - generate HOTP or TOTP one-time password (a.k.a. verification code)
-# Copyright (C) 2023-2025  Erik Auerswald <auerswal@unix-ag.uni-kl.de>
+# Copyright (C) 2023-2026  Erik Auerswald <auerswal@unix-ag.uni-kl.de>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -38,8 +38,8 @@ import sys
 import time
 
 PROG = 'thotp.py'
-VERS = '0.5.2'
-COPY = 'Copyright (C) 2023-2025  Erik Auerswald <auerswal@unix-ag.uni-kl.de>'
+VERS = '0.6.0'
+COPY = 'Copyright (C) 2023-2026  Erik Auerswald <auerswal@unix-ag.uni-kl.de>'
 LICE = '''\
 License GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>.
 This is free software: you are free to change and redistribute it.
@@ -54,17 +54,18 @@ counter value, the TOTP algorithm is used.  TOTP computes a time-based
 counter value, and then invokes HOTP with this counter.
 
 The shared secret keys used for two-factor or multi-factor authentication
-are often encoded for transfer, e.g., using Base32.
+are often encoded for transfer, e.g., using Base32 (see RFC 4648).
 
 OTP parameters are often conveyed using a URI encoded as a QR code.  The
-URI uses the "otpauth" scheme provisionally registered with IANA:
+URI uses the "otpauth" scheme provisionally registered with IANA (see
+<https://www.iana.org/assignments/uri-schemes/prov/otpauth>):
 
     otpauth://TYPE/LABEL?PARAMETERS
 
  - The type is either hotp or totp.
  - The label identifys the associated account.
  - The following parameters can be used:
-    - secret: Base32 encoded shared secret key (required)
+    - secret: Base32 (w/o padding) encoded shared secret key (required)
     - issuer: string indicating the associated service (recommended)
     - algorithm: SHA1 (default), SHA256, or SHA512 (optional)
     - digits: 6 (default), 7, or 8 (optional)
@@ -159,6 +160,47 @@ def read_secret_key(file_name):
     return key
 
 
+def pad_to_mult(text, mult, pad_char='='):
+    """Pad 'text' with 'pad_char' to make its length a multiple of 'mult'.
+
+    >>> pad_to_mult('', 4)
+    ''
+    >>> pad_to_mult('A', 4)
+    'A==='
+    >>> pad_to_mult('AB', 4)
+    'AB=='
+    >>> pad_to_mult('ABC', 4)
+    'ABC='
+    >>> pad_to_mult('ABCD', 4)
+    'ABCD'
+    >>> pad_to_mult('ABCDE', 4)
+    'ABCDE==='
+    >>> pad_to_mult('', 8, '%')
+    ''
+    >>> pad_to_mult('A', 4, '%')
+    'A%%%'
+    >>> pad_to_mult('AB', 4, '%')
+    'AB%%'
+    >>> pad_to_mult('ABC', 4, '%')
+    'ABC%'
+    >>> pad_to_mult('ABCD', 4, '%')
+    'ABCD'
+    >>> pad_to_mult('ABCDE', 4, '%')
+    'ABCDE%%%'
+    >>> pad_to_mult('', 0)
+    ''
+    >>> pad_to_mult('ABC', 0)
+    'ABC'
+    """
+    if mult == 0:
+        return text
+    text_len = len(text)
+    extra = text_len % abs(mult)
+    if extra == 0:
+        return text
+    return text.ljust(text_len + mult - extra, pad_char)
+
+
 def decode_key(key, encoding):
     """Decode an encoded shared secret key."""
     try:
@@ -167,9 +209,11 @@ def decode_key(key, encoding):
         elif encoding == 'hex' or encoding == 'base16':
             return base64.b16decode(key)
         elif encoding == 'base32':
-            return base64.b32decode(key)
+            key = key.decode('ascii')
+            return base64.b32decode(pad_to_mult(key, 8))
         elif encoding == 'base64':
-            return base64.b64decode(key)
+            key = key.decode('ascii')
+            return base64.b64decode(pad_to_mult(key, 4))
         else:
             err(f'unknown key encoding "{encoding}"')
             return None
