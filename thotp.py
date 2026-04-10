@@ -160,8 +160,8 @@ def read_secret_key(file_name):
     return key
 
 
-def pad_to_mult(text, mult, pad_char='='):
-    """Pad 'text' with 'pad_char' to make its length a multiple of 'mult'.
+def pad_to_mult(text, mult):
+    """Pad 'text' with '=' characters to make its length a multiple of 'mult'.
 
     >>> pad_to_mult('', 4)
     ''
@@ -175,30 +175,18 @@ def pad_to_mult(text, mult, pad_char='='):
     'ABCD'
     >>> pad_to_mult('ABCDE', 4)
     'ABCDE==='
-    >>> pad_to_mult('', 8, '%')
-    ''
-    >>> pad_to_mult('A', 4, '%')
-    'A%%%'
-    >>> pad_to_mult('AB', 4, '%')
-    'AB%%'
-    >>> pad_to_mult('ABC', 4, '%')
-    'ABC%'
-    >>> pad_to_mult('ABCD', 4, '%')
-    'ABCD'
-    >>> pad_to_mult('ABCDE', 4, '%')
-    'ABCDE%%%'
     >>> pad_to_mult('', 0)
     ''
     >>> pad_to_mult('ABC', 0)
     'ABC'
     """
-    if mult == 0:
+    if mult <= 0:
         return text
     text_len = len(text)
-    extra = text_len % abs(mult)
+    extra = text_len % mult
     if extra == 0:
         return text
-    return text.ljust(text_len + mult - extra, pad_char)
+    return text.ljust(text_len + mult - extra, '=')
 
 
 def decode_key(key, encoding):
