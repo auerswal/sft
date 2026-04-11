@@ -433,23 +433,22 @@ def compute_hotp_code(secret_key, counter_value, hash_algorithm, digits):
     return hotp_code
 
 
-def main():
+def main(args):
     """Script entry point."""
-    if not valid_settings(ARGS):
+    if not valid_settings(args):
         return 1
-    key = read_secret_key(ARGS.file)
-    key = decode_key(key, ARGS.key_encoding)
+    key = read_secret_key(args.file)
+    key = decode_key(key, args.key_encoding)
     if not key:
         err('cannot read secret key')
         return 1
-    counter = set_counter(ARGS.counter, ARGS.time_step_size)
-    hotp_value = compute_hotp_code(key, counter, ARGS.hash, ARGS.digits)
-    print(hotp_value, end='' if ARGS.no_newline else '\n')
+    counter = set_counter(args.counter, args.time_step_size)
+    hotp_value = compute_hotp_code(key, counter, args.hash, args.digits)
+    print(hotp_value, end='' if args.no_newline else '\n')
     return 0
 
 
 if __name__ == '__main__':
-    ARGS = cmd_line_args()
-    sys.exit(main())
+    sys.exit(main(cmd_line_args()))
 
 # vim:tabstop=4:shiftwidth=4:expandtab:
