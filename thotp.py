@@ -38,7 +38,7 @@ import sys
 import time
 
 PROG = 'thotp.py'
-VERS = '0.6.0'
+VERS = '0.7.0'
 COPY = 'Copyright (C) 2023-2026  Erik Auerswald <auerswal@unix-ag.uni-kl.de>'
 LICE = '''\
 License GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>.
@@ -49,19 +49,17 @@ DESC = '''\
 Compute a one-time password using either the HOTP (see RFC 4226) or the
 TOTP (see RFC 6238) algorithm.
 
-The shared secret key needs to be provided on standard input, or can be
-read from a file.
-
 The HOTP algorithm is selected by providing a counter value.  Without a
 counter value, the TOTP algorithm is used.  TOTP computes a time-based
 counter value, and then invokes HOTP with this counter.
 
-The shared secret keys used for two-factor or multi-factor authentication
-are often encoded for transfer, e.g., using Base32 (see RFC 4648).
+The shared secret key needs to be provided on standard input, or can be
+read from a file.  By default, the input comprises just the shared secret
+key, optionally encoded in Base16, Base32, or Base64 (see RFC 4648).
 
-OTP parameters are often conveyed using a URI encoded as a QR code.  The
-URI uses the "otpauth" scheme provisionally registered with IANA (see
-<https://www.iana.org/assignments/uri-schemes/prov/otpauth>):
+OTP parameters are often conveyed using a URI encoded as a QR code.
+The URI uses the "otpauth" scheme provisionally registered with IANA
+(see <https://www.iana.org/assignments/uri-schemes/prov/otpauth>):
 
     otpauth://TYPE/LABEL?PARAMETERS
 
@@ -74,6 +72,10 @@ URI uses the "otpauth" scheme provisionally registered with IANA (see
     - digits: 6 (default), 7, or 8 (optional)
     - period: time-step duration in seconds, default 30 (optional, TOTP only)
     - counter: initial counter value for HOTP (required, HOTP only)
+
+Optionally, an otpauth URI can be used as input instead of just the
+shared secret key.  Applicable configuration values are taken from the
+otpauth URI (command line options take precedence).
 '''
 EPIL = f'''\
 examples:
@@ -85,6 +87,7 @@ examples:
     gpg --decrypt --quiet ~/.totp-secret | {PROG} -n | xclip
 '''
 KEY_ENCODINGS = ['hex', 'base16', 'base32', 'base64']
+INPUT_FORMATS = ['key', 'otpauth']
 
 
 def cmd_line_args():
@@ -98,6 +101,9 @@ def cmd_line_args():
     cmd_line.add_argument('-f', '--file', default='/dev/stdin',
                           help='read shared secret key from file ' +
                                '(default: /dev/stdin)')
+    cmd_line.add_argument('-F', '--input-format', choices=INPUT_FORMATS,
+                          default='key',
+                          help='format of input data (default: key)')
     cmd_line.add_argument('-c', '--counter', type=int,
                           help='counter value for HOTP algorithm')
     cmd_line.add_argument('-e', '--key-encoding', choices=KEY_ENCODINGS,
@@ -150,17 +156,111 @@ def valid_settings(settings):
     return True
 
 
-def read_secret_key(file_name):
-    """Read the shared secret key from a file."""
+def read_input_file(file_name):
+    """Read the input file containing at least the shared secret key."""
     key = b''
     try:
         with open(file_name, mode='rb') as key_file:
             while buf := key_file.read():
                 key += buf
     except OSError as exc:
-        err(f'cannot read key from file: {exc}')
+        err(f'cannot read input file: {exc}')
     key = key.strip()
     return key
+
+
+def parse_otpauth_uri(uri):
+    """Extract applicable data from an otpauth URI.
+
+    Parameters that are not needed to compute the OTP code are ignored.
+    Unknown parameters are ignored as well.
+
+    >>> uri = (b'otpauth://totp/Example:alice@example?' +
+    ...        b'secret=JBSWY3DPEHPK3PXP&issuer=Example')
+    >>> applicable_uri_values = {
+    ...     'key': b'JBSWY3DPEHPK3PXP',
+    ...     'key_encoding': 'base32'
+    ... }
+    >>> parse_otpauth_uri(uri) == applicable_uri_values
+    True
+    >>> uri = (b'otpauth://totp/ACME%20Co:john.doe@example?' +
+    ...        b'secret=HXDMVJECJJWSRB3HWIZR4IFUGFTMXBOZ&issuer=ACME%20Co&' +
+    ...        b'algorithm=SHA1&digits=6&period=30')
+    >>> applicable_uri_values = {
+    ...     'key': b'HXDMVJECJJWSRB3HWIZR4IFUGFTMXBOZ',
+    ...     'key_encoding': 'base32',
+    ...     'hash': 'sha1',
+    ...     'digits': 6,
+    ...     'time_step_size': 30
+    ... }
+    >>> parse_otpauth_uri(uri) == applicable_uri_values
+    True
+    >>> uri = b'otpauth://totp/Example?secret=PB4XU&issuer=example.com'
+    >>> applicable_uri_values = {'key': b'PB4XU', 'key_encoding': 'base32'}
+    >>> parse_otpauth_uri(uri) == applicable_uri_values
+    True
+    >>> uri = b'otpauth://totp/Example%3Aalice?secret=PB4XU&issuer=example.com'
+    >>> applicable_uri_values = {'key': b'PB4XU', 'key_encoding': 'base32'}
+    >>> parse_otpauth_uri(uri) == applicable_uri_values
+    True
+    >>> uri = (b'otpauth://hotp/Example?secret=PB4XU&counter=42&' +
+    ...        b'issuer=example.com')
+    >>> applicable_uri_values = {
+    ...     'key': b'PB4XU',
+    ...     'key_encoding': 'base32',
+    ...     'counter': 42}
+    >>> parse_otpauth_uri(uri) == applicable_uri_values
+    True
+    >>> uri = (b'otpauth://totp/Example?secret=PB4XU&counter=42&' +
+    ...        b'issuer=example.com')
+    >>> applicable_uri_values = {'key': b'PB4XU', 'key_encoding': 'base32'}
+    >>> parse_otpauth_uri(uri) == applicable_uri_values
+    True
+    """
+    values = {}
+    uri = uri.decode('utf-8')
+    min_uri = 'otpauth://totp/a?secret=AA'
+    if (not (uri.startswith('otpauth://totp/') or
+             uri.startswith('otpauth://hotp/')) or
+            len(uri) < len(min_uri)):
+        err('input is not a valid otpauth TOTP or HOTP URI')
+        return values
+    otp_type = uri[10:14]
+    values['key_encoding'] = 'base32'
+    param_start = uri.find('?', 15) + 1
+    params = uri[param_start:].split('&')
+    for param in params:
+        key, val = param.split('=')
+        key = key.lower()
+        if key == 'secret':
+            values['key'] = bytes(val, 'ascii')
+        elif key == 'algorithm':
+            values['hash'] = val.lower()
+        elif key == 'digits':
+            values['digits'] = int(val)
+        elif key == 'counter' and otp_type == 'hotp':
+            values['counter'] = int(val)
+        elif key == 'period':
+            values['time_step_size'] = int(val)
+    return values
+
+
+def parse_input(data, input_format):
+    """Parse input data accoring to specified format.
+
+    >>> parse_input(b'A', 'key')
+    {'key': b'A'}
+    >>> parse_input(b'', 'key')
+    {'key': b''}
+    """
+    parsed = {'key': b''}
+    if input_format == 'key':
+        parsed['key'] = data
+    elif input_format == 'otpauth':
+        parsed = parse_otpauth_uri(data)
+    else:
+        err(f'unknown input format "{input_format}"')
+    return parsed
 
 
 def pad_to_mult(text, mult):
@@ -454,8 +554,10 @@ def main():
     args = cmd_line_args()
     if not valid_settings(args):
         return 1
-    key = read_secret_key(args.file)
-    key = decode_key(key, args.key_encoding)
+    data = read_input_file(args.file)
+    cnf = parse_input(data, args.input_format)
+    cnf.update(vars(args))
+    key = decode_key(cnf['key'], cnf['key_encoding'])
     if not key:
         err('cannot read secret key')
         return 1
