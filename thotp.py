@@ -193,7 +193,23 @@ def pad_to_mult(text, mult):
 
 
 def decode_key(key, encoding):
-    """Decode an encoded shared secret key."""
+    """Decode an encoded shared secret key.
+
+    >>> decode_key(b'A', None)
+    b'A'
+    >>> decode_key(b'41', 'hex')
+    b'A'
+    >>> decode_key(b'41', 'base16')
+    b'A'
+    >>> decode_key(b'IE======', 'base32')
+    b'A'
+    >>> decode_key(b'IE', 'base32')
+    b'A'
+    >>> decode_key(b'QQ==', 'base64')
+    b'A'
+    >>> decode_key(b'QQ', 'base64')
+    b'A'
+    """
     try:
         if encoding is None:
             return key
