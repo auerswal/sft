@@ -449,8 +449,9 @@ def compute_hotp_code(secret_key, counter_value, hash_algorithm, digits):
     return hotp_code
 
 
-def main(args):
+def main():
     """Script entry point."""
+    args = cmd_line_args()
     if not valid_settings(args):
         return 1
     key = read_secret_key(args.file)
@@ -465,6 +466,6 @@ def main(args):
 
 
 if __name__ == '__main__':
-    sys.exit(main(cmd_line_args()))
+    sys.exit(main())
 
 # vim:tabstop=4:shiftwidth=4:expandtab:
