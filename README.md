@@ -151,8 +151,8 @@ https://jodies.de/ipcalc or the `ipcalc` script from this collection.
 ## Junkcode
 
 If you do not find what you are looking for in this repository, you might
-find example code licensed under the GNU Public License version 3 or later
-in my [junkcode](https://github.com/auerswal/junkcode/) repository.
+find example code licensed under the GNU General Public License version 3
+or later in my [junkcode](https://github.com/auerswal/junkcode/) repository.
 
 ## Homepage
 
