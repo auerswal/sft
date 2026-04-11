@@ -49,6 +49,9 @@ DESC = '''\
 Compute a one-time password using either the HOTP (see RFC 4226) or the
 TOTP (see RFC 6238) algorithm.
 
+The shared secret key needs to be provided on standard input, or can be
+read from a file.
+
 The HOTP algorithm is selected by providing a counter value.  Without a
 counter value, the TOTP algorithm is used.  TOTP computes a time-based
 counter value, and then invokes HOTP with this counter.
@@ -73,13 +76,13 @@ URI uses the "otpauth" scheme provisionally registered with IANA (see
     - counter: initial counter value for HOTP (required, HOTP only)
 '''
 EPIL = f'''\
-Examples:
+examples:
 
     # compute TOTP code from GPG-encrypted raw shared secret key
-    $ gpg --decrypt --quiet ~/.totp-secret | {PROG}
+    gpg --decrypt --quiet ~/.totp-secret | {PROG}
 
     # compute TOTP code as above and copy it to the X Window System clipboard
-    $ gpg --decrypt --quiet ~/.totp-secret | {PROG} -n | xclip
+    gpg --decrypt --quiet ~/.totp-secret | {PROG} -n | xclip
 '''
 KEY_ENCODINGS = ['hex', 'base16', 'base32', 'base64']
 
