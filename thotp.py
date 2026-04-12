@@ -38,7 +38,7 @@ import sys
 import time
 
 PROG = 'thotp.py'
-VERS = '0.7.2'
+VERS = '0.7.3'
 COPY = 'Copyright (C) 2023-2026  Erik Auerswald <auerswal@unix-ag.uni-kl.de>'
 LICE = '''\
 License GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>.
@@ -103,6 +103,9 @@ def cmd_line_args():
                                '(default: /dev/stdin)')
     cmd_line.add_argument('-F', '--input-format', choices=INPUT_FORMATS,
                           help='format of input data (default: key)')
+    cmd_line.add_argument('-u', '--otpauth-uri', dest='input_format',
+                          action='store_const', const='otpauth',
+                          help='otpauth URI is used as input data')
     cmd_line.add_argument('-c', '--counter', type=int,
                           help='counter value for HOTP algorithm')
     cmd_line.add_argument('-e', '--key-encoding', choices=KEY_ENCODINGS,
