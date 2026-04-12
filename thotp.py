@@ -38,7 +38,7 @@ import sys
 import time
 
 PROG = 'thotp.py'
-VERS = '0.7.0'
+VERS = '0.7.1'
 COPY = 'Copyright (C) 2023-2026  Erik Auerswald <auerswal@unix-ag.uni-kl.de>'
 LICE = '''\
 License GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>.
@@ -98,11 +98,10 @@ def cmd_line_args():
     )
     cmd_line.add_argument('-V', '--version', action='version',
                           version='\n'.join([PROG + ' ' + VERS, COPY, LICE]))
-    cmd_line.add_argument('-f', '--file', default='/dev/stdin',
+    cmd_line.add_argument('-f', '--file',
                           help='read shared secret key from file ' +
                                '(default: /dev/stdin)')
     cmd_line.add_argument('-F', '--input-format', choices=INPUT_FORMATS,
-                          default='key',
                           help='format of input data (default: key)')
     cmd_line.add_argument('-c', '--counter', type=int,
                           help='counter value for HOTP algorithm')
@@ -111,14 +110,13 @@ def cmd_line_args():
     cmd_line.add_argument('-b', '--base32', dest='key_encoding',
                           action='store_const', const='base32',
                           help='provided secret key is Base32 encoded')
-    cmd_line.add_argument('-s', '--time-step-size', type=int, default=30,
+    cmd_line.add_argument('-s', '--time-step-size', type=int,
                           help='TOTP time-step duration in seconds ' +
                                '(default: 30)')
     cmd_line.add_argument('-H', '--hash',
                           choices=['sha1', 'sha256', 'sha512'],
-                          default='sha1',
                           help='select hash algorithm (default: sha1)')
-    cmd_line.add_argument('-d', '--digits', type=int, default=6,
+    cmd_line.add_argument('-d', '--digits', type=int,
                           help='number of digits in one-time password ' +
                                '(default: 6)')
     cmd_line.add_argument('-n', '--no-newline', action='store_true',
@@ -138,20 +136,20 @@ def err(msg):
 
 def valid_settings(settings):
     """Check for acceptable option values not guaranteed by argparse."""
-    if settings.time_step_size <= 0:
+    if settings.time_step_size is not None and settings.time_step_size <= 0:
         err('time-step duration must be greater than 0')
         return False
-    if settings.digits <= 0:
+    if settings.digits is not None and settings.digits <= 0:
         err('number of digits must be greater than 0')
         return False
-    if settings.digits > 11:
+    if settings.digits is not None and settings.digits > 11:
         err('number of digits must be less than 12')
         return False
     if (settings.key_encoding is not None and
             settings.key_encoding not in KEY_ENCODINGS):
         err(f'unsupported key encoding "{settings.key_encoding}"')
         return False
-    if settings.digits < 6:
+    if settings.digits is not None and settings.digits < 6:
         warn('using less than 6 digits does not conform to RFC 4226')
     return True
 
@@ -556,19 +554,38 @@ def compute_hotp_code(secret_key, counter_value, hash_algorithm, digits):
 
 def main():
     """Script entry point."""
+    # initialize configuration with default settings
+    cnf = {
+        'file': '/dev/stdin',
+        'input_format': 'key',
+        'time_step_size': 30,
+        'hash': 'sha1',
+        'digits': 6,
+        'counter': None,
+    }
+    # evaluate command line options
     args = cmd_line_args()
     if not valid_settings(args):
         return 1
-    data = read_input_file(args.file)
-    cnf = parse_input(data, args.input_format)
-    cnf.update(vars(args))
+    # update input file and format from command line option
+    if args.file is not None:
+        cnf['file'] = args.file
+    if args.input_format is not None:
+        cnf['input_format'] = args.input_format
+    # read input file into memory
+    data = read_input_file(cnf['file'])
+    # read key and possibly options from input file data
+    cnf.update(parse_input(data, cnf['input_format']))
+    # apply command line options, possibly overriding input file
+    opts = {key: val for key, val in vars(args).items() if val is not None}
+    cnf.update(opts)
     key = decode_key(cnf['key'], cnf['key_encoding'])
     if not key:
         err('cannot read secret key')
         return 1
-    counter = set_counter(args.counter, args.time_step_size)
-    hotp_value = compute_hotp_code(key, counter, args.hash, args.digits)
-    print(hotp_value, end='' if args.no_newline else '\n')
+    counter = set_counter(cnf['counter'], cnf['time_step_size'])
+    hotp_value = compute_hotp_code(key, counter, cnf['hash'], cnf['digits'])
+    print(hotp_value, end='' if cnf['no_newline'] else '\n')
     return 0
 
 
