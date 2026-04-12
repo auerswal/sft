@@ -216,6 +216,10 @@ def parse_otpauth_uri(uri):
     >>> applicable_uri_values = {'key': b'PB4XU', 'key_encoding': 'base32'}
     >>> parse_otpauth_uri(uri) == applicable_uri_values
     True
+    >>> uri = b'otpauth://totp/example?issuer=example'
+    >>> applicable_uri_values = {'key': b'', 'key_encoding': 'base32'}
+    >>> parse_otpauth_uri(uri) == applicable_uri_values
+    True
     """
     values = {}
     uri = uri.decode('utf-8')
@@ -226,6 +230,7 @@ def parse_otpauth_uri(uri):
         err('input is not a valid otpauth TOTP or HOTP URI')
         return values
     otp_type = uri[10:14]
+    values['key'] = b''
     values['key_encoding'] = 'base32'
     param_start = uri.find('?', 15) + 1
     params = uri[param_start:].split('&')
