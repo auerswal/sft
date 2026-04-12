@@ -1,9 +1,9 @@
 # Single File Tools (SFT)
 
-This repository collects a couple of simple utilities written in different
-languages for varying use cases. The single common factor is an implementation
-comprising just one file. These single file tools are usually written in an
-interpreted (or scripting) language.
+This repository collects a couple of simple utilities written in
+different languages for varying use cases. The common factors are an
+implementation comprising just one file, and the use of an interpreted
+(i.e., scripting) language.
 
 All single file tools are intended to be usable without installation. I
 usually check out this repository on every machine I work with. If one of
