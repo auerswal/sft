@@ -564,6 +564,9 @@ def main():
         'hash': 'sha1',
         'digits': 6,
         'counter': None,
+        'key': None,
+        'key_encoding': None,
+        'no_newline': False,
     }
     # evaluate command line options
     args = cmd_line_args()
