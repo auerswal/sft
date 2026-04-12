@@ -38,7 +38,7 @@ import sys
 import time
 
 PROG = 'thotp.py'
-VERS = '0.7.1'
+VERS = '0.7.2'
 COPY = 'Copyright (C) 2023-2026  Erik Auerswald <auerswal@unix-ag.uni-kl.de>'
 LICE = '''\
 License GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>.
@@ -245,6 +245,8 @@ def parse_otpauth_uri(uri):
             values['counter'] = int(val)
         elif key == 'period':
             values['time_step_size'] = int(val)
+    if otp_type == 'hotp' and 'counter' not in values:
+        warn('HOTP URI without counter value is treated as TOTP')
     return values
 
 
