@@ -38,7 +38,7 @@ import sys
 import time
 
 PROG = 'thotp.py'
-VERS = '0.7.3'
+VERS = '0.8.0'
 COPY = 'Copyright (C) 2023-2026  Erik Auerswald <auerswal@unix-ag.uni-kl.de>'
 LICE = '''\
 License GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>.
@@ -76,6 +76,11 @@ The URI uses the "otpauth" scheme provisionally registered with IANA
 Optionally, an otpauth URI can be used as input instead of just the
 shared secret key.  Applicable configuration values are taken from the
 otpauth URI (command line options take precedence).
+
+Optionally, a configuration file for google-authenticator-libpam can
+be used as input instead of just the shared secret key.  Applicable
+configuration values are taken from this configuration file (command
+line options take precedence).
 '''
 EPIL = f'''\
 examples:
@@ -87,7 +92,7 @@ examples:
     gpg --decrypt --quiet ~/.totp-secret | {PROG} -n | xclip
 '''
 KEY_ENCODINGS = ['hex', 'base16', 'base32', 'base64']
-INPUT_FORMATS = ['key', 'otpauth']
+INPUT_FORMATS = ['key', 'otpauth', 'google-authenticator-libpam']
 
 
 def cmd_line_args():
@@ -106,6 +111,11 @@ def cmd_line_args():
     cmd_line.add_argument('-u', '--otpauth-uri', dest='input_format',
                           action='store_const', const='otpauth',
                           help='otpauth URI is used as input data')
+    cmd_line.add_argument('-g', '--google-authenticator-libpam',
+                          dest='input_format', action='store_const',
+                          const='google-authenticator-libpam',
+                          help='google-authenticator-libpam configuration' +
+                               ' file is used as input data')
     cmd_line.add_argument('-c', '--counter', type=int,
                           help='counter value for HOTP algorithm')
     cmd_line.add_argument('-e', '--key-encoding', choices=KEY_ENCODINGS,
@@ -253,6 +263,51 @@ def parse_otpauth_uri(uri):
     return values
 
 
+def parse_google_authenticator_libpam_config(cnf_file):
+    """Extract applicable data from a google-authenticator-libpam config file.
+
+    Parameters that are not needed to compute the OTP code are ignored.
+    Unknown parameters are ignored as well.
+
+    >>> cnf_file = b'''XXXXXXXXXXXXXXXXXXXXXXXXXX
+    ... " RATE_LIMIT 3 90 1775806856
+    ... " WINDOW_SIZE 7
+    ... " STEP_SIZE 30
+    ... " DISALLOW_REUSE 59193561
+    ... " TOTP_AUTH
+    ... '''
+    >>> applicable_values = {
+    ...     'key': b'XXXXXXXXXXXXXXXXXXXXXXXXXX',
+    ...     'key_encoding': 'base32',
+    ...     'time_step_size': 30
+    ... }
+    >>> parse_google_authenticator_libpam_config(cnf_file) == applicable_values
+    True
+    """
+    values = {'key': b'', 'key_encoding': 'base32'}
+    cnf_file = cnf_file.decode('ascii')
+    lines = cnf_file.splitlines()
+    if not lines:
+        err('cannot parse google-authenticator-libpam config')
+        return values
+    # first line is the Base32 (w/o padding) encoded secret
+    values['key'] = bytes(lines[0], 'ascii')
+    # the following lines may contain applicable configuration values
+    otp_type = None
+    for line in lines[1:]:
+        line = line.rstrip()
+        if line.startswith('" STEP_SIZE '):
+            values['time_step_size'] = int(line.split()[-1])
+        elif line.startswith('" HOTP_COUNTER '):
+            values['counter'] = int(line.split()[-1])
+            otp_type = 'hotp'
+        elif line.startswith('" TOTP_AUTH '):
+            otp_type = 'totp'
+    if otp_type == 'totp' and 'counter' in values:
+        warn('config with both TOTP and HOTP is treated as HOTP')
+    return values
+
+
 def parse_input(data, input_format):
     """Parse input data accoring to specified format.
 
@@ -266,6 +321,8 @@ def parse_input(data, input_format):
         parsed['key'] = data
     elif input_format == 'otpauth':
         parsed = parse_otpauth_uri(data)
+    elif input_format == 'google-authenticator-libpam':
+        parsed = parse_google_authenticator_libpam_config(data)
     else:
         err(f'unknown input format "{input_format}"')
     return parsed
