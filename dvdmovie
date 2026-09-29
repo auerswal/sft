@@ -2,7 +2,7 @@
 
 # dvdmovie plays the movie from a video DVD using MPlayer
 #
-# Copyright (C) 2012-2022 Erik Auerswald <auerswal@unix-ag.uni-kl.de>
+# Copyright (C) 2012-2026 Erik Auerswald <auerswal@unix-ag.uni-kl.de>
 #
 # Copying and distribution of this file, with or without modification,
 # are permitted in any medium without royalty provided the copyright
@@ -16,7 +16,7 @@
 # the fields are (in this order): Disc ID, Movie Title, Track, Options
 # every field besides the Disc ID may be empty
 
-# version 2022-09-24-01
+# version 2026-09-29-01
 
 set -u
 
@@ -79,7 +79,7 @@ test -r "$RC" && test "$DVDMOVIE_DISCID" != '0' &&
 	DVDMOVIERC_TITLE="$(grep "^${DVDMOVIE_DISCID}" "$RC" | cut -d\; -f3)" &&
 	DVDMOVIERC_OPTS="$(grep "^${DVDMOVIE_DISCID}" "$RC" | cut -d\; -f4)"
 test "$DVDMOVIE_DISCID" != '0' && test -n "$DVDMOVIERC_NAME" &&
-	echo "Found $RC entry '$DVDMOVIERC_NAME'."
+	echo "Found $RC entry \"$DVDMOVIERC_NAME\"."
 test "$DVDMOVIE_DISCID" != '0' && test -n "$DVDMOVIERC_TITLE" &&
 	echo "Using title $DVDMOVIERC_TITLE from $RC instead of longest." &&
 	DVDMOVIE_TITLE="$DVDMOVIERC_TITLE"
@@ -91,4 +91,4 @@ test -n "$*" &&
 	MOPTS="$MOPTS $*"
 printf -- 'Playing DVD title %s with options %s [%s].\n' \
 	"$DVDMOVIE_TITLE" "$MOPTS" "$MOPTS ${DISC}${DVDMOVIE_TITLE}"
-exec "$MPLAYER" $MOPTS "${DISC}${DVDMOVIE_TITLE}" 2> /dev/null
+exec "$MPLAYER" $MOPTS "${DISC}${DVDMOVIE_TITLE}" >/dev/null 2>&1
