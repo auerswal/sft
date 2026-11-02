@@ -1,6 +1,6 @@
 #! /usr/bin/env bash
 
-# Copyright (C) 2011-2025 Erik Auerswald <auerswal@unix-ag.uni-kl.de>
+# Copyright (C) 2011-2026 Erik Auerswald <auerswal@unix-ag.uni-kl.de>
 
 # Copying and distribution of this file, with or without modification,
 # are permitted in any medium without royalty provided the copyright
@@ -83,12 +83,12 @@ done
 
 copyright()
 {
-  echo 'Copyright (C) 2011-2025 Erik Auerswald <auerswal@unix-ag.uni-kl.de>'
+  echo 'Copyright (C) 2011-2026 Erik Auerswald <auerswal@unix-ag.uni-kl.de>'
 }
 
 version()
 {
-  local V="0.80"
+  local V="0.81"
   printf -- "%s\n" "$B version $V"
 }
 
@@ -134,10 +134,10 @@ print_help()
   printf -- '%s\n' "  $B rfc.1                 # downloads and displays RFC 1"
   printf -- '%s\n' "  $B rfc1.txt              # downloads and displays RFC 1"
   printf -- '%s\n' "  $B rfc0001.txt           # downloads and displays RFC 1"
-  printf -- '%s\n' "  $B bcp78                 # downloads and displays BCP 78"
-  printf -- '%s\n' "  $B fyi3                  # downloads and displays FYI 3"
-  printf -- '%s\n' "  $B ien137                # downloads and displays IEN 137"
-  printf -- '%s\n' "  $B std1                  # downloads and displays STD 1"
+  printf -- '%s\n' "  $B bcp78                 # displays cached BCP 78"
+  printf -- '%s\n' "  $B fyi3                  # displays cached FYI 3"
+  printf -- '%s\n' "  $B ien137                # displays cached IEN 137"
+  printf -- '%s\n' "  $B std1                  # displays cached STD 1"
   printf -- '%s\n' "  $B draft-rep-wg-topic-00 # downloads & displays REP I-D"
   printf -- '%s\n' "  $B I-D.rep-wg-topic-00   # downloads & displays REP I-D"
   printf -- '%s\n' "  $B draft-rep-wg-topic    # downloads & displays REP I-D"
@@ -148,8 +148,9 @@ print_help()
     printf -- '  %s\n' "$DIR"
   done
   test -n "$RFCCACHE" &&
-    printf -- '\nUsing "%s" as download cache.\n' "$RFCCACHE" &&
-    echo '(BCP and STD files in the download cache are refreshed if possible.)'
+    printf -- '\nUsing "%s" as download cache.\n' "$RFCCACHE"
+    #&&
+    #echo '(BCP and STD files in the download cache are refreshed if possible.)'
 }
 
 # parse options
@@ -261,7 +262,7 @@ test -z "$DN" && {
 R="${DT}${DN}.txt"
 case "$DT" in
   rfc) DB='https://www.rfc-editor.org/rfc/';;
-  bcp|fyi|ien|std) DB="https://www.rfc-editor.org/rfc/${DT}/";;
+  bcp|fyi|ien|std) DB='';; # currently not available via www.rfc-editor.org
   draft|I-D) DB='https://www.ietf.org/archive/id/'; R="${DN}.txt";;
   *) printf -- '%s: ERROR: unknown document type "%s"\n' "$B" "$DT"
      usage
@@ -292,14 +293,14 @@ test -n "$LR" && printf -- '%s' "found \"$LR\" ... " &&
   LRZ=$(file -L "$LR" | sed -n 's/^.* \([^ ]*\) compressed .*$/\1/p')
 # BCP contents change with time, so refresh a cached copy if possible
 test "$DT" = 'bcp' && test -n "$LR" && test -z "$LRZ" && test -n "$RFCCACHE" &&
-  test "$(dirname "$LR")" = "$RFCCACHE" && {
+  test "$(dirname "$LR")" = "$RFCCACHE" && test -n "$DB" && {
   printf -- 'refreshing BCP ... '
   wget -q -o/dev/null -N -P"$RFCCACHE" -- "${DB}${R}" ||
     printf -- 'ERROR, using cached BCP version ... '
 }
 # STD contents change with time, so refresh a cached copy if possible
 test "$DT" = 'std' && test -n "$LR" && test -z "$LRZ" && test -n "$RFCCACHE" &&
-  test "$(dirname "$LR")" = "$RFCCACHE" && {
+  test "$(dirname "$LR")" = "$RFCCACHE" && test -n "$DB" && {
   printf -- 'refreshing STD ... '
   wget -q -o/dev/null -N -P"$RFCCACHE" -- "${DB}${R}" ||
     printf -- 'ERROR, using cached STD version ... '
@@ -314,9 +315,10 @@ test -n "$LR" &&
     *) printf -- 'WARN: ignoring "%s" with unknown compression "%s" ... ' \
                  "$LR" "$LRZ";;
   esac
-# if no usable local copy was found, then download document
+# if no usable local copy was found, then download document (if base URL known)
 test -s "$F" ||
-  { printf -- 'downloading "%s" from "%s" ... ' "$R" "${DB}${R}" &&
+  { test -n "$DB" &&
+    printf -- 'downloading "%s" from "%s" ... ' "$R" "${DB}${R}" &&
     wget -q -o/dev/null -O"$F" -- "${DB}${R}";
     # optionally cache downloaded document
     test \( -s "$F" \) -a \( -n "$RFCCACHE" \) -a \( -d "$RFCCACHE" \) -a \
